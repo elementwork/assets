@@ -1,0 +1,4896 @@
+<!DOCTYPE html>
+<html lang="{{TR_html_lang}}" data-template="estateon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TR_page_title}}</title>
+<style>
+/* ===== TEMPLATE: ESTATEON ===== */
+:root {
+    --bg: #F5F3EF;
+    --surface: #E8E4DD;
+    --card: #FFFFFF;
+    --text: #2D3A4F;
+    --text-secondary: #4A5568;
+    --muted: #7A8A9E;
+    --primary: #1A2744;
+    --primary-hover: #141F35;
+    --accent: #C5A55A;
+    --accent-hover: #D4BC7A;
+    --accent-light: #F5F0E3;
+    --success: #059669;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --info: #2563EB;
+    --border: #E5E1DA;
+    --border-light: #E8E4DD;
+    --shadow: 0 2px 12px rgba(26, 39, 68, 0.06);
+    --shadow-md: 0 4px 20px rgba(26, 39, 68, 0.10);
+    --shadow-lg: 0 8px 32px rgba(26, 39, 68, 0.15);
+    --radius-lg: 12px;
+    --radius: 8px;
+    --radius-sm: 6px;
+    --transition: all 0.2s ease;
+    --font-brand: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+[data-theme="dark"] {
+    --bg: #1A2744;
+    --surface: #2D3A4F;
+    --card: #2D3A4F;
+    --text: #F5F3EF;
+    --text-secondary: #E8E4DD;
+    --muted: #7A8A9E;
+    --primary: #F5F3EF;
+    --primary-hover: #FFFFFF;
+    --accent: #D4BC7A;
+    --accent-hover: #E5D39A;
+    --accent-light: #3D3420;
+    --border: #4A5568;
+    --border-light: #3D4A5F;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== TEMPLATE: LUMINA ===== */
+html[data-template="lumina"] {
+    --bg: #F5F5F7;
+    --surface: #FFFFFF;
+    --card: #FFFFFF;
+    --text: #1D1D1F;
+    --text-secondary: #424245;
+    --muted: #86868B;
+    --primary: #1D1D1F;
+    --primary-hover: #000000;
+    --accent: #0071E3;
+    --accent-hover: #0077ED;
+    --accent-light: #E8F4FD;
+    --success: #34C759;
+    --warning: #FF9500;
+    --danger: #FF3B30;
+    --info: #0071E3;
+    --border: #D2D2D7;
+    --border-light: #F5F5F7;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --radius-lg: 18px;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --font-brand: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+html[data-template="lumina"][data-theme="dark"] {
+    --bg: #000000;
+    --surface: #1D1D1F;
+    --card: #1D1D1F;
+    --text: #F5F5F7;
+    --text-secondary: #A1A1A6;
+    --muted: #86868B;
+    --primary: #F5F5F7;
+    --primary-hover: #FFFFFF;
+    --accent: #2997FF;
+    --accent-hover: #5ABAFF;
+    --accent-light: #142C42;
+    --border: #424245;
+    --border-light: #1D1D1F;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== TEMPLATE: CARDINAL ===== */
+html[data-template="cardinal"] {
+    --bg: #FFFFFF;
+    --surface: #F7F7F8;
+    --card: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #4A4A4A;
+    --muted: #6E6E73;
+    --primary: #1A1A1A;
+    --primary-hover: #000000;
+    --accent: #C41F3E;
+    --accent-hover: #A01831;
+    --accent-light: #FDE8EB;
+    --success: #2E7D32;
+    --warning: #F9A825;
+    --danger: #C41F3E;
+    --info: #1565C0;
+    --border: #E0E0E0;
+    --border-light: #F7F7F8;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 3px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.10);
+    --radius-lg: 8px;
+    --radius: 4px;
+    --radius-sm: 2px;
+    --font-brand: 'Helvetica Neue', Arial, 'Segoe UI', sans-serif;
+}
+
+html[data-template="cardinal"][data-theme="dark"] {
+    --bg: #1A1A1A;
+    --surface: #2D2D2D;
+    --card: #2D2D2D;
+    --text: #FFFFFF;
+    --text-secondary: #CCCCCC;
+    --muted: #999999;
+    --primary: #FFFFFF;
+    --primary-hover: #F5F5F5;
+    --accent: #E84A66;
+    --accent-hover: #F06E86;
+    --accent-light: #4A1A22;
+    --border: #4A4A4A;
+    --border-light: #2D2D2D;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 3px 8px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== TEMPLATE: ATLANTIC ===== */
+html[data-template="atlantic"] {
+    --bg: #FFFFFF;
+    --surface: #F2F7FB;
+    --card: #FFFFFF;
+    --text: #001928;
+    --text-secondary: #33414D;
+    --muted: #5A6A75;
+    --primary: #001928;
+    --primary-hover: #003049;
+    --accent: #0079C1;
+    --accent-hover: #005A8E;
+    --accent-light: #E1F0F9;
+    --success: #00843D;
+    --warning: #FF6B35;
+    --danger: #ED1D24;
+    --info: #0079C1;
+    --border: #D9E4EC;
+    --border-light: #F2F7FB;
+    --shadow: 0 1px 3px rgba(0, 25, 40, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 25, 40, 0.08);
+    --shadow-lg: 0 10px 28px rgba(0, 25, 40, 0.12);
+    --radius-lg: 8px;
+    --radius: 6px;
+    --radius-sm: 4px;
+    --font-brand: 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+html[data-template="atlantic"][data-theme="dark"] {
+    --bg: #001928;
+    --surface: #003049;
+    --card: #003049;
+    --text: #FFFFFF;
+    --text-secondary: #B8C9D4;
+    --muted: #8CA0AD;
+    --primary: #FFFFFF;
+    --primary-hover: #E1F0F7;
+    --accent: #4DB8FF;
+    --accent-hover: #80CCFF;
+    --accent-light: #003D5C;
+    --border: #004A6E;
+    --border-light: #003049;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== TEMPLATE: MONARCH ===== */
+html[data-template="monarch"] {
+    --bg: #FFFFFF;
+    --surface: #F5F8FC;
+    --card: #FFFFFF;
+    --text: #001E41;
+    --text-secondary: #334D6B;
+    --muted: #5A7290;
+    --primary: #001E41;
+    --primary-hover: #003366;
+    --accent: #0057B8;
+    --accent-hover: #004494;
+    --accent-light: #E6F0FA;
+    --success: #00805D;
+    --warning: #FFAB00;
+    --danger: #D50000;
+    --info: #0057B8;
+    --border: #D9E2EC;
+    --border-light: #F5F8FC;
+    --shadow: 0 1px 3px rgba(0, 30, 65, 0.06);
+    --shadow-md: 0 4px 14px rgba(0, 30, 65, 0.08);
+    --shadow-lg: 0 12px 30px rgba(0, 30, 65, 0.12);
+    --radius-lg: 10px;
+    --radius: 8px;
+    --radius-sm: 6px;
+    --font-brand: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+}
+
+html[data-template="monarch"][data-theme="dark"] {
+    --bg: #001E41;
+    --surface: #003366;
+    --card: #003366;
+    --text: #FFFFFF;
+    --text-secondary: #B8CCE6;
+    --muted: #8FB0D4;
+    --primary: #FFFFFF;
+    --primary-hover: #E6F0FA;
+    --accent: #4D9AFF;
+    --accent-hover: #80B8FF;
+    --accent-light: #003D7A;
+    --border: #004A94;
+    --border-light: #003366;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== HEADER ===== */
+.header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.logo-brand {
+    font-family: var(--font-brand);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.logo-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.logo-icon {
+    width: 34px;
+    height: 34px;
+    background: var(--accent);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.header-search {
+    position: relative;
+    width: 360px;
+    max-width: 100%;
+}
+
+.header-search input {
+    width: 100%;
+    padding: 9px 14px 9px 38px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    transition: var(--transition);
+}
+
+.header-search input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--card);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.header-search::before {
+    content: "🔍";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn:hover {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.btn-secondary {
+    border-color: var(--border);
+    background: var(--card);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-icon {
+    padding: 8px;
+    font-size: 16px;
+}
+
+/* ===== LAYOUT SWITCHER ===== */
+.layout-switcher {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 3px;
+    border: 1px solid var(--border);
+}
+
+.layout-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    transition: var(--transition);
+}
+
+.layout-btn:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.5);
+}
+
+.layout-btn.active {
+    background: var(--card);
+    color: var(--accent);
+    box-shadow: var(--shadow);
+}
+
+.layout-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+/* ===== TEMPLATE SWITCHER ===== */
+.template-switcher {
+    position: relative;
+}
+
+.template-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 7px 30px 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    background-size: 12px;
+}
+
+.template-select:hover {
+    border-color: var(--accent);
+}
+
+.template-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px 48px;
+}
+
+/* ===== SUMMARY SECTION ===== */
+.summary-section {
+    margin-bottom: 24px;
+}
+
+.primary-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    background: var(--accent-light);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.quick-info-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.quick-info-left {
+    display: flex;
+    gap: 24px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.info-label {
+    color: var(--muted);
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.info-value.accent {
+    color: var(--accent);
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.filter-select, .filter-input {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    min-width: 140px;
+    transition: var(--transition);
+}
+
+.filter-select:focus, .filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.status-toggles {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+}
+
+.status-toggle-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-toggle-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.status-toggle-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.active { background: var(--success); }
+.status-dot.dormant { background: var(--warning); }
+.status-dot.pending { background: var(--info); }
+.status-dot.closed { background: var(--muted); }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+    min-height: 400px;
+}
+
+/* ===== DASHBOARD GRID ===== */
+.dashboard-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+}
+
+.dashboard-grid.active {
+    display: grid;
+}
+
+.category-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.category-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+}
+
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.category-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius);
+    background: var(--accent-light);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.category-badge {
+    background: var(--accent);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.category-body {
+    padding: 12px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.category-body.collapsed {
+    display: none;
+}
+
+.asset-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    background: var(--card);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.asset-item:hover {
+    background: var(--surface);
+    border-color: var(--border);
+}
+
+.asset-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.asset-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.asset-meta {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.asset-value {
+    text-align: right;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.asset-fmv {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.asset-status {
+    font-size: 11px;
+    margin-top: 3px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.status-active { background: var(--success); }
+.status-dormant { background: var(--warning); }
+.status-pending { background: var(--info); }
+.status-closed { background: var(--muted); }
+
+/* ===== TABLE VIEW ===== */
+.table-view {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.table-view.active {
+    display: block;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background: var(--surface);
+    color: var(--text-secondary);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.data-table th:hover {
+    color: var(--accent);
+}
+
+.data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.data-table tr:hover td {
+    background: var(--surface);
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table .asset-name-cell {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ===== KANBAN VIEW ===== */
+.kanban-view {
+    display: none;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.kanban-view.active {
+    display: flex;
+}
+
+.kanban-column {
+    min-width: 280px;
+    max-width: 320px;
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.kanban-header {
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.kanban-header.active { background: var(--success); }
+.kanban-header.dormant { background: var(--warning); }
+.kanban-header.pending { background: var(--info); }
+.kanban-header.closed { background: var(--muted); }
+
+.kanban-count {
+    background: rgba(255,255,255,0.25);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+}
+
+.kanban-body {
+    padding: 12px;
+    min-height: 200px;
+    background: var(--surface);
+}
+
+.kanban-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.kanban-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+}
+
+.kanban-card-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.kanban-card-meta {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ===== TIMELINE VIEW ===== */
+.timeline-view {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+.timeline-view.active {
+    display: block;
+}
+
+.timeline-empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.timeline-date {
+    width: 110px;
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+    padding-top: 2px;
+}
+
+.timeline-content {
+    flex: 1;
+    padding-left: 20px;
+    border-left: 2px solid var(--border);
+    position: relative;
+}
+
+.timeline-content::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--card);
+}
+
+.timeline-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 2px;
+}
+
+.timeline-desc {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* ===== DETAIL VIEW ===== */
+.detail-view {
+    display: none;
+    gap: 24px;
+}
+
+.detail-view.active {
+    display: flex;
+}
+
+.detail-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow);
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.detail-sidebar-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.detail-asset-item {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 4px;
+    transition: var(--transition);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-asset-item:hover,
+.detail-asset-item.active {
+    background: var(--surface);
+}
+
+.detail-asset-item.active {
+    border-left: 3px solid var(--accent);
+}
+
+.detail-main {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow);
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.detail-header-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.detail-header-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.detail-section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+
+.detail-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 12px;
+}
+
+.detail-field {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 13px;
+}
+
+.detail-field:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--muted);
+}
+
+.detail-value {
+    font-weight: 500;
+    color: var(--text);
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+/* ===== COMPACT VIEW ===== */
+.compact-view {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+
+.compact-view.active {
+    display: block;
+}
+
+.compact-category {
+    margin-bottom: 12px;
+}
+
+.compact-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.compact-asset {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px 10px 40px;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.compact-asset:hover {
+    background: var(--surface);
+}
+
+.compact-asset-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.compact-asset-name {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.compact-asset-meta {
+    color: var(--muted);
+}
+
+.compact-asset-value {
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* ===== MODAL / SLIDE-OUT ===== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-panel {
+    width: 680px;
+    max-width: 100%;
+    height: 100vh;
+    background: var(--bg);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay.active .modal-panel {
+    transform: translateX(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.modal-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--card);
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+}
+
+.modal-footer-right {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-section {
+    margin-bottom: 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.modal-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+}
+
+.modal-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text);
+}
+
+.modal-section-toggle {
+    color: var(--muted);
+    font-size: 12px;
+    transition: var(--transition);
+}
+
+.modal-section.collapsed .modal-section-toggle {
+    transform: rotate(-90deg);
+}
+
+.modal-section-body {
+    padding: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.modal-section.collapsed .modal-section-body {
+    display: none;
+}
+
+/* ===== HELP PANEL ===== */
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.help-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.help-panel {
+    width: 560px;
+    max-width: 100%;
+    height: 100vh;
+    background: var(--bg);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.help-overlay.active .help-panel {
+    transform: translateX(0);
+}
+
+.help-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.help-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.help-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--muted);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.help-close:hover {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.help-body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.help-section {
+    margin-bottom: 24px;
+}
+
+.help-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.help-section p,
+.help-section li {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.help-section ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.help-section li {
+    margin-bottom: 6px;
+}
+
+.help-section strong {
+    color: var(--text);
+}
+
+.help-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 2px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.form-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+}
+
+.empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.empty-state-desc {
+    font-size: 14px;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 0;
+}
+
+.page-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.page-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.page-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+/* ===== UNSAVED CHANGES INDICATOR ===== */
+.unsaved-dot {
+    display: none;
+    color: var(--warning);
+    font-size: 18px;
+    line-height: 1;
+}
+
+.unsaved-dot.visible {
+    display: inline-block;
+}
+
+/* ===== FORM VALIDATION ===== */
+.form-input.input-error,
+.form-select.input-error,
+.form-textarea.input-error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.form-error {
+    font-size: 11px;
+    color: var(--danger);
+    font-weight: 500;
+}
+
+/* ===== PASSWORD FIELD ===== */
+.pw-wrap {
+    position: relative;
+    display: flex;
+}
+
+.pw-wrap .form-input {
+    flex: 1;
+    padding-right: 36px;
+}
+
+.pw-eye {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.6;
+    padding: 4px;
+}
+
+.pw-eye:hover {
+    opacity: 1;
+}
+
+/* ===== SORT ARROWS ===== */
+.sort-arrow {
+    font-size: 9px;
+    color: var(--accent);
+    margin-left: 4px;
+}
+
+/* ===== TOAST ACTION ===== */
+.toast-action {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    border-radius: var(--radius-sm);
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toast-action:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== AUDIT VIEW ===== */
+.audit-view {
+    display: none;
+}
+
+.audit-view.active {
+    display: block;
+}
+
+.audit-summary {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.audit-pill {
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--card);
+    box-shadow: var(--shadow);
+}
+
+.audit-pill.ok { color: var(--success); }
+.audit-pill.warn { color: var(--warning); }
+.audit-pill.crit { color: var(--danger); }
+
+.audit-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.audit-item:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+}
+
+.audit-item-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.audit-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.audit-dot.red { background: var(--danger); }
+.audit-dot.yellow { background: var(--warning); }
+
+.audit-item-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.audit-item-meta {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.audit-findings {
+    list-style: none;
+    margin-top: 8px;
+    padding-left: 20px;
+}
+
+.audit-finding {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 3px 0;
+}
+
+.audit-finding.red {
+    color: var(--danger);
+}
+
+/* ===== CHARTS VIEW ===== */
+.charts-view {
+    display: none;
+}
+
+.charts-view.active {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.chart-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    margin-bottom: 14px;
+}
+
+.chart-body svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 12px;
+}
+
+.chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.chart-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.chart-empty {
+    color: var(--muted);
+    font-size: 13px;
+    padding: 24px;
+    text-align: center;
+}
+
+@media (max-width: 1024px) {
+    .charts-view.active {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== VAULT ===== */
+.vault-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(4px);
+}
+
+.vault-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.vault-dialog {
+    width: 460px;
+    max-width: calc(100% - 32px);
+    background: var(--bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.vault-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+}
+
+.vault-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vault-status {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.vault-warning {
+    font-size: 12px;
+    color: var(--warning);
+    background: var(--accent-light);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    line-height: 1.5;
+}
+
+.vault-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#vaultToggle.unlocked {
+    color: var(--success);
+}
+
+/* ===== PRINT (ESTATE BINDER) ===== */
+#printView {
+    display: none;
+}
+
+@media print {
+    .header,
+    .summary-section,
+    .filter-bar,
+    .main-content,
+    .modal-overlay,
+    .help-overlay,
+    .vault-overlay,
+    .toast-notification {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+        color: #000;
+    }
+
+    .main-container {
+        padding: 0;
+        max-width: none;
+    }
+
+    #printView {
+        display: block;
+        font-size: 12px;
+    }
+
+    .print-cover {
+        text-align: center;
+        padding: 120px 40px;
+        page-break-after: always;
+    }
+
+    .print-cover h1 {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .print-cover-meta {
+        font-size: 14px;
+        color: #444;
+        margin-top: 24px;
+        line-height: 2;
+    }
+
+    .print-toc {
+        page-break-after: always;
+    }
+
+    .print-toc h2,
+    .print-section h2 {
+        font-size: 18px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 6px;
+        margin: 24px 0 12px;
+    }
+
+    .print-toc ol {
+        padding-left: 24px;
+        line-height: 1.9;
+    }
+
+    .print-section {
+        page-break-inside: avoid;
+        margin-bottom: 28px;
+    }
+
+    table.print-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 8px;
+    }
+
+    table.print-table th,
+    table.print-table td {
+        border: 1px solid #999;
+        padding: 5px 8px;
+        text-align: left;
+        font-size: 11px;
+    }
+
+    table.print-table th {
+        background: #eee;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .primary-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+    
+    .detail-view.active {
+        flex-direction: column;
+    }
+    
+    .detail-sidebar {
+        width: 100%;
+        max-height: 300px;
+    }
+    
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 0 16px;
+        height: auto;
+        min-height: 56px;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .header-search {
+        order: 3;
+        width: 100%;
+    }
+    
+    .main-container {
+        padding: 16px;
+    }
+    
+    .primary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .status-toggles {
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-panel {
+        width: 100%;
+    }
+    
+    .modal-section-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-info-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .quick-info-left {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+/* ===== QUICK-ADD WIZARD ===== */
+.wizard-panel {
+    max-width: 640px;
+}
+.wizard-type-list {
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+.wizard-type-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-light);
+}
+.wizard-type-item:last-child {
+    border-bottom: none;
+}
+.wizard-type-item:hover {
+    background: var(--accent-light);
+}
+.wizard-type-item.selected {
+    background: var(--primary);
+    color: #fff;
+}
+.wizard-type-name {
+    font-weight: 600;
+}
+.wizard-type-cat {
+    font-size: 11px;
+    color: var(--muted);
+}
+.wizard-type-item.empty {
+    cursor: default;
+    color: var(--muted);
+    justify-content: center;
+}
+.wizard-step-label {
+    font-size: 12px;
+    color: var(--muted);
+}
+/* ===== BULK EDIT ===== */
+.col-check {
+    width: 36px;
+}
+.bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: var(--accent-light);
+    border-radius: var(--radius);
+}
+.bulk-count {
+    font-weight: 600;
+}
+/* ===== INLINE TABLE EDITING ===== */
+td[data-edit-field] {
+    cursor: pointer;
+}
+.inline-edit-input {
+    width: 100%;
+    min-width: 80px;
+    padding: 4px 6px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--text);
+    font: inherit;
+    box-sizing: border-box;
+}
+/* ===== KANBAN DRAG & DROP ===== */
+.kanban-card[draggable="true"] {
+    cursor: grab;
+}
+.kanban-card.dragging {
+    opacity: 0.4;
+    transform: scale(0.97);
+}
+.kanban-column.drag-over .kanban-body {
+    background: var(--accent-light);
+    border-radius: var(--radius);
+    outline: 2px dashed var(--accent);
+    outline-offset: -4px;
+}
+/* ===== COLUMN CONFIGURATION ===== */
+.table-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+.column-config {
+    position: relative;
+}
+.column-config-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 10px 12px;
+    z-index: 60;
+    min-width: 190px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.column-config-menu label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+}
+.column-config-menu label:hover {
+    color: var(--accent);
+}
+.markdown-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+/* ===== ACTION BAR (exports, import, print, quick-add) ===== */
+.action-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+.action-bar-spacer {
+    flex: 1;
+}
+/* ===== AUTO-SAVE ===== */
+.btn-icon.autosave-on {
+    color: var(--accent);
+    background: var(--accent-light);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="header-left">
+        <div class="logo">
+            <div class="logo-icon">📊</div>
+            <div class="logo-text">
+                <span class="logo-brand">{{TR_brand}}</span>
+                <span class="logo-sub">{{TR_subtitle}}</span>
+            </div>
+        </div>
+        <div class="layout-switcher">
+            <button class="layout-btn active" data-layout="dashboard" title="{{TR_layout_dashboard}}" aria-label="{{TR_layout_dashboard}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="table" title="{{TR_layout_table}}" aria-label="{{TR_layout_table}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="14" height="14" rx="1"/><path d="M1 5h14M1 9h14M5 1v14M9 1v14"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="kanban" title="{{TR_layout_kanban}}" aria-label="{{TR_layout_kanban}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="10" rx="1"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="timeline" title="{{TR_layout_timeline}}" aria-label="{{TR_layout_timeline}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/><path d="M2 8h4M10 8h4"/><circle cx="4" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="detail" title="{{TR_layout_detail}}" aria-label="{{TR_layout_detail}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="14" rx="1"/><rect x="7" y="1" width="8" height="8" rx="1"/><rect x="7" y="11" width="8" height="4" rx="1"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="compact" title="{{TR_layout_compact}}" aria-label="{{TR_layout_compact}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="audit" title="{{TR_layout_audit}}" aria-label="{{TR_layout_audit}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h7v12H3V4z"/><path d="M5.5 8l2 2 3.5-4"/></svg>
+            </button>
+            <button class="layout-btn" data-layout="charts" title="{{TR_layout_charts}}" aria-label="{{TR_layout_charts}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14h12"/><path d="M4 14V9M8 14V5M12 14V8"/></svg>
+            </button>
+        </div>
+    </div>
+    <div class="header-search">
+        <input type="text" id="searchInput" placeholder="{{TR_search_placeholder}}">
+    </div>
+    <div class="header-right">
+        <div class="template-switcher">
+            <select class="template-select" id="templateSelect" aria-label="{{TR_choose_template}}">
+                <option value="estateon">{{TR_template_estateon}}</option>
+                <option value="lumina">{{TR_template_lumina}}</option>
+                <option value="cardinal">{{TR_template_cardinal}}</option>
+                <option value="atlantic">{{TR_template_atlantic}}</option>
+                <option value="monarch">{{TR_template_monarch}}</option>
+            </select>
+        </div>
+        <button class="btn btn-icon" id="themeToggle" title="{{TR_toggle_theme}}">☾</button>
+        <button class="btn btn-icon" id="helpToggle" title="{{TR_help}}" aria-label="{{TR_help}}">?</button>
+        <button class="btn btn-icon" id="vaultToggle" title="{{TR_vault_title}}" aria-label="{{TR_vault_title}}">🔒</button>
+        <button class="btn btn-icon" id="autoSaveToggle" title="{{TR_autosave}}">💾</button>
+        <span class="unsaved-dot" id="unsavedIndicator" title="{{TR_unsaved_changes}}">●</span>
+        <button class="btn btn-primary" id="saveHTML">{{TR_save_html}}</button>
+    </div>
+</header>
+
+<!-- ACTION BAR (exports, import, print, quick-add) -->
+<div class="action-bar">
+    <button class="btn btn-secondary" id="exportMD">{{TR_export_md}}</button>
+    <button class="btn btn-secondary" id="exportExcel">{{TR_export_excel}}</button>
+    <button class="btn btn-secondary" id="exportJSON">{{TR_export_json}}</button>
+    <button class="btn btn-secondary" id="importJSON">{{TR_import_json}}</button>
+    <input type="file" id="importJSONFile" accept=".json,application/json" style="display:none">
+    <button class="btn btn-secondary" id="printBtn">{{TR_print}}</button>
+    <span class="action-bar-spacer"></span>
+    <button class="btn btn-primary" id="addAssetBtn">＋ {{TR_add_asset}}</button>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="main-container">
+    
+    <!-- SUMMARY STATS -->
+    <section class="summary-section">
+        <div class="primary-stats">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalAssets">0</div>
+                    <div class="stat-label">{{TR_total_assets}}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalFMV">$0</div>
+                    <div class="stat-label">{{TR_total_fmv}}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalIncome">$0</div>
+                    <div class="stat-label">{{TR_annual_income}}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalCategories">0</div>
+                    <div class="stat-label">{{TR_categories}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="quick-info-bar">
+            <div class="quick-info-left">
+                <div class="info-item">
+                    <span class="info-label">{{TR_active}}:</span>
+                    <span class="info-value accent" id="activeCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{{TR_dormant}}:</span>
+                    <span class="info-value" id="dormantCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{{TR_pending}}:</span>
+                    <span class="info-value" id="pendingCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">{{TR_closed}}:</span>
+                    <span class="info-value" id="closedCount">0</span>
+                </div>
+            </div>
+            <div class="info-item">
+                <span class="info-label">{{TR_last_updated}}:</span>
+                <span class="info-value" id="lastUpdated">-</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <div class="filter-group">
+            <span class="filter-label">{{TR_category}}</span>
+            <select class="filter-select" id="categoryFilter">
+                <option value="">{{TR_all_categories}}</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">{{TR_owner}}</span>
+            <select class="filter-select" id="ownerFilter">
+                <option value="">{{TR_all_owners}}</option>
+            </select>
+        </div>
+        <div class="status-toggles">
+            <button class="status-toggle-btn active" data-status="Active">
+                <span class="status-dot active"></span> {{TR_active}}
+            </button>
+            <button class="status-toggle-btn active" data-status="Dormant">
+                <span class="status-dot dormant"></span> {{TR_dormant}}
+            </button>
+            <button class="status-toggle-btn active" data-status="Pending">
+                <span class="status-dot pending"></span> {{TR_pending}}
+            </button>
+            <button class="status-toggle-btn active" data-status="Closed">
+                <span class="status-dot closed"></span> {{TR_closed}}
+            </button>
+        </div>
+    </div>
+    
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid" id="dashboardView"></div>
+        
+        <!-- Table View -->
+        <div class="table-view" id="tableView">
+            <div class="bulk-bar" id="bulkBar" style="display:none">
+                <span class="bulk-count" id="bulkCount"></span>
+                <button class="btn btn-secondary" id="bulkEditBtn">{{TR_bulk_edit}}</button>
+                <button class="btn btn-secondary" id="bulkClearBtn">{{TR_bulk_clear}}</button>
+            </div>
+            <div class="table-toolbar">
+                <div class="column-config">
+                    <button class="btn btn-secondary" id="columnConfigBtn">☰ {{TR_columns}}</button>
+                    <div class="column-config-menu" id="columnConfigMenu"></div>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr id="tableHeadRow">
+                        <th class="col-check"><input type="checkbox" id="bulkSelectAll" title="{{TR_bulk_select_hint}}" aria-label="{{TR_bulk_select_hint}}"></th>
+                        <th data-sort="id" data-col="id">{{TR_id}}</th>
+                        <th data-sort="asset_name" data-col="asset_name">{{TR_asset_name}}</th>
+                        <th data-sort="category" data-col="category">{{TR_category}}</th>
+                        <th data-sort="owner" data-col="owner">{{TR_owner}}</th>
+                        <th data-sort="institution" data-col="institution">{{TR_institution}}</th>
+                        <th data-sort="registration" data-col="registration">{{TR_registration}}</th>
+                        <th data-sort="fmv" data-col="fmv">{{TR_fmv}}</th>
+                        <th data-sort="status" data-col="status">{{TR_status}}</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div class="pagination" id="tablePagination"></div>
+        </div>
+        
+        <!-- Kanban View -->
+        <div class="kanban-view" id="kanbanView"></div>
+        
+        <!-- Timeline View -->
+        <div class="timeline-view" id="timelineView"></div>
+        
+        <!-- Detail View -->
+        <div class="detail-view" id="detailView">
+            <div class="detail-sidebar">
+                <div class="detail-sidebar-title">{{TR_assets}}</div>
+                <div id="detailAssetList"></div>
+            </div>
+            <div class="detail-main" id="detailContent">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-title">{{TR_select_asset}}</div>
+                    <div class="empty-state-desc">{{TR_select_asset_desc}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Compact View -->
+        <div class="compact-view" id="compactView"></div>
+        
+        <!-- Audit View -->
+        <div class="audit-view" id="auditView"></div>
+        
+        <!-- Charts View -->
+        <div class="charts-view" id="chartsView"></div>
+        
+    </div>
+    
+    <!-- Print View (estate binder, print only) -->
+    <div id="printView"></div>
+</div>
+
+<!-- HELP PANEL -->
+<div class="help-overlay" id="helpOverlay">
+    <div class="help-panel">
+        <div class="help-header">
+            <div class="help-title">{{TR_help_title}}</div>
+            <button class="help-close" id="helpClose">&times;</button>
+        </div>
+        <div class="help-body">
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_getting_started_title}}</div>
+                <p>{{TR_help_getting_started_text}}</p>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_look_feel_title}}</div>
+                <p>{{TR_help_look_feel_text}}</p>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_layouts_title}}</div>
+                <p>{{TR_help_layouts_intro}}</p>
+                <ul>
+                    <li>{{TR_help_layout_dashboard}}</li>
+                    <li>{{TR_help_layout_table}}</li>
+                    <li>{{TR_help_layout_kanban}}</li>
+                    <li>{{TR_help_layout_timeline}}</li>
+                    <li>{{TR_help_layout_detail}}</li>
+                    <li>{{TR_help_layout_compact}}</li>
+                    <li>{{TR_help_layout_audit}}</li>
+                    <li>{{TR_help_layout_charts}}</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_finding_title}}</div>
+                <p>{{TR_help_finding_text}}</p>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_editing_title}}</div>
+                <p>{{TR_help_editing_text}}</p>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_productivity_title}}</div>
+                <p>{{TR_help_productivity_text}}</p>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_vault_title}}</div>
+                <p>{{TR_help_vault_text}}</p>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_exporting_title}}</div>
+                <p>{{TR_help_exporting_intro}}</p>
+                <ul>
+                    <li>{{TR_help_export_md}}</li>
+                    <li>{{TR_help_export_excel}}</li>
+                    <li>{{TR_help_export_json}}</li>
+                    <li>{{TR_help_import_json}}</li>
+                    <li>{{TR_help_print}}</li>
+                    <li>{{TR_help_save_html}}</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_shortcuts_title}}</div>
+                <ul>
+                    <li>{{TR_help_shortcut_save}}</li>
+                    <li>{{TR_help_shortcut_export}}</li>
+                    <li>{{TR_help_shortcut_undo}}</li>
+                    <li>{{TR_help_shortcut_close}}</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <div class="help-section-title">{{TR_help_privacy_title}}</div>
+                <p>{{TR_help_privacy_text}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-panel">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">{{TR_edit_asset}}</div>
+            <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div class="modal-body" id="modalContent"></div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-secondary" id="modalDelete">{{TR_delete}}</button>
+                <button class="btn btn-secondary" id="modalDuplicate">{{TR_duplicate}}</button>
+            </div>
+            <div class="modal-footer-right">
+                <button class="btn btn-secondary" id="modalCancel">{{TR_cancel}}</button>
+                <button class="btn btn-primary" id="modalSave">{{TR_save_changes}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VAULT DIALOG -->
+<div class="vault-overlay" id="vaultOverlay">
+    <div class="vault-dialog">
+        <div class="vault-header">
+            <span>{{TR_vault_title}}</span>
+            <button class="modal-close" id="vaultClose">&times;</button>
+        </div>
+        <div class="vault-body">
+            <div class="vault-status" id="vaultStatusText"></div>
+            <div class="vault-warning">{{TR_vault_warning}}</div>
+            <div class="form-group" id="vaultPassGroup">
+                <label class="form-label">{{TR_vault_passphrase}}</label>
+                <input type="password" class="form-input" id="vaultPass1" autocomplete="off">
+            </div>
+            <div class="form-group" id="vaultConfirmGroup">
+                <label class="form-label">{{TR_vault_confirm}}</label>
+                <input type="password" class="form-input" id="vaultPass2" autocomplete="off">
+            </div>
+            <div class="vault-actions">
+                <button class="btn btn-primary" id="vaultSetBtn">{{TR_vault_set}}</button>
+                <button class="btn btn-primary" id="vaultUnlockBtn">{{TR_vault_unlock}}</button>
+                <button class="btn btn-secondary" id="vaultLockBtn">{{TR_vault_lock}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BULK EDIT MODAL -->
+<div class="modal-overlay" id="bulkOverlay">
+    <div class="modal-panel">
+        <div class="modal-header">
+            <div class="modal-title">{{TR_bulk_edit}}</div>
+            <button class="modal-close" id="bulkClose">&times;</button>
+        </div>
+        <div class="modal-body" id="bulkContent"></div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-secondary" id="bulkCancel">{{TR_cancel}}</button>
+                <button class="btn btn-primary" id="bulkApplyBtn">{{TR_bulk_apply}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK-ADD WIZARD -->
+<div class="modal-overlay" id="wizardOverlay">
+    <div class="modal-panel wizard-panel">
+        <div class="modal-header">
+            <div class="modal-title">{{TR_quick_add_title}}</div>
+            <button class="modal-close" id="wizardClose">&times;</button>
+        </div>
+        <div class="modal-body" id="wizardContent"></div>
+        <div class="modal-footer">
+            <span class="wizard-step-label" id="wizardStepLabel"></span>
+            <div class="modal-footer-right">
+                <button class="btn btn-secondary" id="wizardBack" style="display:none">{{TR_quick_add_back}}</button>
+                <button class="btn btn-primary" id="wizardNext">{{TR_quick_add_next}}</button>
+                <button class="btn btn-primary" id="wizardFinish" style="display:none">{{TR_quick_add_done}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== DATA =====
+const ASSETS_DATA = {{ASSETS_JSON}};
+const CATEGORIES_DATA = {{CATEGORIES_JSON}};
+const FIELDS_DATA = {{FIELDS_JSON}};
+
+let assets = JSON.parse(JSON.stringify(ASSETS_DATA));
+let currentLayout = localStorage.getItem('assetLayout') || 'dashboard';
+let currentAsset = null;
+let currentPage = 1;
+const itemsPerPage = 50;
+
+// Unsaved-changes indicator state
+let dirty = false;
+
+// Undo/redo stacks (snapshots of the assets array, capped at 50)
+const undoStack = [];
+const redoStack = [];
+
+// Table sort state, persisted across sessions
+let currentSort = null;
+try { currentSort = JSON.parse(localStorage.getItem('assetSort') || 'null'); } catch (e) { currentSort = null; }
+
+// Vault state: the passphrase lives in memory only, never persisted
+const SENSITIVE_FIELDS = ['login_password', 'security_questions'];
+let vaultPassphrase = null;
+
+// Field section groupings for the edit modal
+const FIELD_SECTIONS = {
+    "{{TR_core_identity}}": ["id", "category", "subcategory", "asset_name", "asset_type"],
+    "{{TR_ownership}}": ["owner", "joint_owner", "beneficiary", "beneficiary_type", "custodian", "nominee", "trust_name", "corporation"],
+    "{{TR_institution_access}}": ["institution", "institution_type", "branch", "account_number", "login_url", "login_username", "login_password", "two_factor", "security_questions"],
+    "{{TR_financial_value}}": ["currency", "acb", "acb_usd", "fmv", "fmv_usd", "cost_basis", "purchase_price", "current_balance", "market_value", "equity", "unrealized_gain", "unrealized_gain_pct", "annual_income", "yield_pct", "interest_rate", "dividend_rate"],
+    "{{TR_dates}}": ["open_date", "maturity_date", "purchase_date", "acquisition_date", "inception_date", "expiry_date", "last_valuation", "last_update", "next_review", "transfer_date"],
+    "{{TR_registration_tax}}": ["registration", "tax_treatment", "contribution_room", "contributions_ytd", "withdrawals_ytd", "rrsp_deduction", "cesg", "clb", "provincial_grant", "foreign_tax_credit", "withholding_tax", "asset_allocation"],
+    "{{TR_location_access}}": ["physical_location", "safe_deposit_box", "digital_wallet", "exchange", "online_access_url", "support_contact", "advisor_name", "advisor_contact"],
+    "{{TR_insurance}}": ["insurance_coverage", "insurance_provider", "insurance_policy", "insurance_premium", "insured_value", "replacement_cost"],
+    "{{TR_status_control}}": ["status", "priority", "volatility", "liquidity", "transferable", "pledgeable", "accessible"],
+    "{{TR_beneficiary_designation}}": ["primary_beneficiary", "contingent_beneficiary", "beneficiary_pct_primary", "beneficiary_pct_contingent", "pod", "tod", "poa", "mandate"],
+    "{{TR_estate_planning}}": ["probate_excluded", "will_clause", "trust_clause", "estate_duty", "capital_gains_exemption", "succession_plan", "power_of_appointment"],
+    "{{TR_documentation}}": ["document_path", "document_reference", "last_statement", "statement_frequency", "tax_slip_type", "tax_slip_received", "annual_report"],
+    "{{TR_notes}}": ["notes", "alert", "todo", "last_modified_by", "source"]
+};
+
+// Localized status labels for display
+const STATUS_LABELS = {
+    'Active': '{{TR_active}}',
+    'Dormant': '{{TR_dormant}}',
+    'Pending': '{{TR_pending}}',
+    'Closed': '{{TR_closed}}'
+};
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', () => {
+    loadFromLocalStorage();
+    initTemplate();
+    initTheme();
+    initFilters();
+    initLayout();
+    initModal();
+    initHelp();
+    initVault();
+    initWizard();
+    initBulkEdit();
+    initInlineEdit();
+    initKanbanDnD();
+    initColumnConfig();
+    initAutoSave();
+    initDelegation();
+    initSort();
+    initKeyboardShortcuts();
+    updateStats();
+    renderCurrentLayout();
+});
+
+// ===== TEMPLATE =====
+function initTemplate() {
+    const savedTemplate = localStorage.getItem('assetTemplate') || 'estateon';
+    document.documentElement.setAttribute('data-template', savedTemplate);
+    document.getElementById('templateSelect').value = savedTemplate;
+
+    // Default to light mode if user hasn't set a preference
+    if (!localStorage.getItem('theme')) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+
+    document.getElementById('templateSelect').addEventListener('change', (e) => {
+        const template = e.target.value;
+        document.documentElement.setAttribute('data-template', template);
+        localStorage.setItem('assetTemplate', template);
+    });
+}
+
+// ===== THEME =====
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggle').textContent = savedTheme === 'light' ? '☾' : '☀';
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        document.getElementById('themeToggle').textContent = next === 'light' ? '☾' : '☀';
+    });
+}
+
+// ===== LAYOUT =====
+function initLayout() {
+    document.querySelectorAll('.layout-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentLayout = btn.dataset.layout;
+            localStorage.setItem('assetLayout', currentLayout);
+            switchLayout(currentLayout);
+        });
+    });
+    switchLayout(currentLayout);
+}
+
+function switchLayout(layout) {
+    document.querySelectorAll('.layout-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.layout === layout);
+    });
+    
+    const viewMap = {
+        dashboard: 'dashboardView',
+        table: 'tableView',
+        kanban: 'kanbanView',
+        timeline: 'timelineView',
+        detail: 'detailView',
+        compact: 'compactView',
+        audit: 'auditView',
+        charts: 'chartsView'
+    };
+    
+    Object.values(viewMap).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+    
+    const viewEl = document.getElementById(viewMap[layout]);
+    if (viewEl) viewEl.classList.add('active');
+    
+    renderCurrentLayout();
+}
+
+// ===== FILTERS =====
+function initFilters() {
+    const categorySelect = document.getElementById('categoryFilter');
+    const ownerSelect = document.getElementById('ownerFilter');
+    
+    Object.keys(CATEGORIES_DATA).sort().forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+    });
+    
+    const owners = [...new Set(assets.map(a => a.owner).filter(Boolean))].sort();
+    owners.forEach(owner => {
+        const option = document.createElement('option');
+        option.value = owner;
+        option.textContent = owner;
+        ownerSelect.appendChild(option);
+    });
+    
+    document.getElementById('searchInput').addEventListener('input', debounce(renderCurrentLayout, 300));
+    categorySelect.addEventListener('change', renderCurrentLayout);
+    ownerSelect.addEventListener('change', renderCurrentLayout);
+    
+    document.querySelectorAll('.status-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('active');
+            renderCurrentLayout();
+        });
+    });
+}
+
+function getFilteredAssets() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    const owner = document.getElementById('ownerFilter').value;
+    const activeStatuses = [...document.querySelectorAll('.status-toggle-btn.active')].map(b => b.dataset.status);
+    
+    return assets.filter(asset => {
+        const matchesSearch = !search || 
+            (asset.asset_name || '').toLowerCase().includes(search) ||
+            (asset.institution || '').toLowerCase().includes(search) ||
+            (asset.owner || '').toLowerCase().includes(search) ||
+            (asset.category || '').toLowerCase().includes(search) ||
+            (asset.id || '').toLowerCase().includes(search);
+        const matchesCategory = !category || asset.category === category;
+        const matchesOwner = !owner || asset.owner === owner;
+        const matchesStatus = activeStatuses.includes(asset.status || 'Active');
+        return matchesSearch && matchesCategory && matchesOwner && matchesStatus;
+    });
+}
+
+// ===== RENDER LAYOUTS =====
+function renderCurrentLayout() {
+    updateStats();
+    switch (currentLayout) {
+        case 'dashboard': renderDashboard(); break;
+        case 'table': renderTable(); break;
+        case 'kanban': renderKanban(); break;
+        case 'timeline': renderTimeline(); break;
+        case 'detail': renderDetail(); break;
+        case 'compact': renderCompact(); break;
+        case 'audit': renderAudit(); break;
+        case 'charts': renderCharts(); break;
+    }
+}
+
+function renderDashboard() {
+    const container = document.getElementById('dashboardView');
+    const filtered = getFilteredAssets();
+    const grouped = groupBy(filtered, 'category');
+    
+    if (filtered.length === 0) {
+        container.innerHTML = emptyStateHTML('{{TR_no_assets_match}}', '{{TR_try_adjusting}}');
+        return;
+    }
+    
+    container.innerHTML = Object.entries(grouped).map(([cat, items]) => {
+        const catInfo = CATEGORIES_DATA[cat] || { icon: '📋', color: '#0D9488' };
+        return `
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-title">
+                        <div class="category-icon">${catInfo.icon}</div>
+                        <span>${cat}</span>
+                    </div>
+                    <span class="category-badge">${items.length}</span>
+                </div>
+                <div class="category-body">
+                    ${items.map(asset => renderAssetRow(asset)).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderAssetRow(asset) {
+    const fmv = parseFloat(asset.fmv) || 0;
+    const statusClass = (asset.status || 'Active').toLowerCase();
+    return `
+        <div class="asset-item" data-asset-id="${escapeHtml(asset.id)}">
+            <div class="asset-info">
+                <div class="asset-name">${escapeHtml(asset.asset_name || '{{TR_unnamed_asset}}')}</div>
+                <div class="asset-meta">
+                    <span>${escapeHtml(asset.institution || '—')}</span>
+                    <span>•</span>
+                    <span>${escapeHtml(asset.owner || '{{TR_no_owner}}')}</span>
+                </div>
+            </div>
+            <div class="asset-value">
+                <div class="asset-fmv">${formatCurrency(fmv)}</div>
+                <div class="asset-status">
+                    <span class="status-dot ${statusClass}"></span>
+                    ${STATUS_LABELS[asset.status || 'Active'] || asset.status || 'Active'}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function toggleCategory(header) {
+    const body = header.nextElementSibling;
+    body.classList.toggle('collapsed');
+}
+
+function renderTable() {
+    let filtered = getFilteredAssets();
+    if (currentSort && currentSort.key) {
+        filtered = sortAssets(filtered, currentSort.key, currentSort.dir);
+    }
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    currentPage = Math.min(currentPage, totalPages || 1);
+    const start = (currentPage - 1) * itemsPerPage;
+    const pageItems = filtered.slice(start, start + itemsPerPage);
+    
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = pageItems.map(asset => `
+        <tr data-asset-id="${escapeHtml(asset.id)}">
+            <td class="col-check"><input type="checkbox" class="row-check" data-check-id="${escapeHtml(asset.id)}" ${bulkSelected.has(asset.id) ? 'checked' : ''}></td>
+            <td data-edit-field="id" data-col="id" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.id)}</td>
+            <td class="asset-name-cell" data-edit-field="asset_name" data-col="asset_name" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.asset_name || '')}</td>
+            <td data-edit-field="category" data-col="category" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.category || '')}</td>
+            <td data-edit-field="owner" data-col="owner" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.owner || '')}</td>
+            <td data-edit-field="institution" data-col="institution" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.institution || '')}</td>
+            <td data-edit-field="registration" data-col="registration" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.registration || '')}</td>
+            <td data-edit-field="fmv" data-col="fmv" title="{{TR_inline_edit_hint}}">${formatCurrency(asset.fmv)}</td>
+            <td data-edit-field="status" data-col="status" title="{{TR_inline_edit_hint}}"><span class="status-dot ${ (asset.status || 'Active').toLowerCase() }"></span> ${STATUS_LABELS[asset.status || 'Active'] || asset.status || 'Active'}</td>
+        </tr>
+    `).join('');
+    applyColumnVisibility();
+    updateSortArrows();
+    renderPagination(totalPages);
+}
+
+function sortAssets(list, key, dir) {
+    const meta = (FIELDS_DATA && FIELDS_DATA[key]) || {};
+    const type = meta.type || 'text';
+    const mult = dir === 'desc' ? -1 : 1;
+    return [...list].sort((a, b) => {
+        const va = a[key] || '';
+        const vb = b[key] || '';
+        if (type === 'currency' || type === 'percent') {
+            return ((parseFloat(va) || 0) - (parseFloat(vb) || 0)) * mult;
+        }
+        if (type === 'date') {
+            return ((Date.parse(va) || 0) - (Date.parse(vb) || 0)) * mult;
+        }
+        return String(va).localeCompare(String(vb)) * mult;
+    });
+}
+
+function initSort() {
+    document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+        const arrow = document.createElement('span');
+        arrow.className = 'sort-arrow';
+        th.appendChild(arrow);
+        th.addEventListener('click', () => {
+            const key = th.dataset.sort;
+            if (currentSort && currentSort.key === key) {
+                currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort = { key, dir: 'asc' };
+            }
+            localStorage.setItem('assetSort', JSON.stringify(currentSort));
+            currentPage = 1;
+            renderTable();
+        });
+    });
+}
+
+function updateSortArrows() {
+    document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+        const arrow = th.querySelector('.sort-arrow');
+        if (!arrow) return;
+        arrow.textContent = (currentSort && currentSort.key === th.dataset.sort)
+            ? (currentSort.dir === 'asc' ? '▲' : '▼')
+            : '';
+    });
+}
+
+function renderPagination(totalPages) {
+    const container = document.getElementById('tablePagination');
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+    let html = '';
+    for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    currentPage = page;
+    renderTable();
+}
+
+function renderKanban() {
+    const filtered = getFilteredAssets();
+    const container = document.getElementById('kanbanView');
+    const statuses = ['Active', 'Dormant', 'Pending', 'Closed'];
+    const statusClass = { Active: 'active', Dormant: 'dormant', Pending: 'pending', Closed: 'closed' };
+
+    container.innerHTML = statuses.map(status => {
+        const items = filtered.filter(a => (a.status || 'Active') === status);
+        return `
+            <div class="kanban-column" data-kanban-status="${status}">
+                <div class="kanban-header ${statusClass[status]}">
+                    <span>${STATUS_LABELS[status] || status}</span>
+                    <span class="kanban-count">${items.length}</span>
+                </div>
+                <div class="kanban-body">
+                    ${items.map(asset => `
+                        <div class="kanban-card" data-asset-id="${escapeHtml(asset.id)}" draggable="true" title="{{TR_kanban_drag_hint}}">
+                            <div class="kanban-card-title">${escapeHtml(asset.asset_name || '{{TR_unnamed_asset}}')}</div>
+                            <div class="kanban-card-meta">
+                                <span>${escapeHtml(asset.institution || '—')}</span>
+                                <span>${formatCurrency(asset.fmv)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderTimeline() {
+    const filtered = getFilteredAssets();
+    const container = document.getElementById('timelineView');
+    const dated = filtered.filter(a => a.open_date || a.purchase_date || a.acquisition_date)
+        .sort((a, b) => (a.open_date || a.purchase_date || '').localeCompare(b.open_date || b.purchase_date || ''));
+    
+    if (dated.length === 0) {
+        container.innerHTML = emptyStateHTML('{{TR_no_dated_assets}}', '{{TR_no_dated_desc}}');
+        return;
+    }
+    
+    container.innerHTML = dated.map(asset => {
+        const date = asset.open_date || asset.purchase_date || asset.acquisition_date || '';
+        return `
+            <div class="timeline-item" data-asset-id="${escapeHtml(asset.id)}">
+                <div class="timeline-date">${date}</div>
+                <div class="timeline-content">
+                    <div class="timeline-title">${escapeHtml(asset.asset_name || '')}</div>
+                    <div class="timeline-desc">${escapeHtml(asset.institution || '')} • ${formatCurrency(asset.fmv)} • ${STATUS_LABELS[asset.status || 'Active'] || asset.status || 'Active'}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderDetail() {
+    const filtered = getFilteredAssets();
+    const listContainer = document.getElementById('detailAssetList');
+    const contentContainer = document.getElementById('detailContent');
+    
+    listContainer.innerHTML = filtered.map(asset => {
+        const isActive = currentAsset && currentAsset.id === asset.id;
+        return `
+            <div class="detail-asset-item ${isActive ? 'active' : ''}" data-detail-id="${escapeHtml(asset.id)}">
+                <span>${escapeHtml(asset.asset_name || '{{TR_unnamed_asset}}')}</span>
+                <span>${formatCurrency(asset.fmv)}</span>
+            </div>
+        `;
+    }).join('');
+    
+    if (!currentAsset || !filtered.find(a => a.id === currentAsset.id)) {
+        currentAsset = filtered[0] || null;
+    }
+    
+    if (!currentAsset) {
+        contentContainer.innerHTML = emptyStateHTML('{{TR_select_asset}}', '{{TR_select_asset_desc}}');
+        return;
+    }
+    
+    const sections = Object.entries(FIELD_SECTIONS).map(([section, fields]) => {
+        const rows = fields.map(field => `
+            <div class="detail-field">
+                <span class="detail-label">${escapeHtml(fieldLabel(field))}</span>
+                <span class="detail-value">${displayValue(field, currentAsset[field])}</span>
+            </div>
+        `).join('');
+        return `
+            <div class="detail-section">
+                <div class="detail-section-title">${section}</div>
+                ${rows}
+            </div>
+        `;
+    }).join('');
+    
+    contentContainer.innerHTML = `
+        <div class="detail-header">
+            <div>
+                <div class="detail-header-title">${escapeHtml(currentAsset.asset_name || '{{TR_unnamed_asset}}')}</div>
+                <div class="detail-header-subtitle">${escapeHtml(currentAsset.category || '')} • ${escapeHtml(currentAsset.institution || '')}</div>
+            </div>
+            <button class="btn btn-primary" data-asset-id="${escapeHtml(currentAsset.id)}">{{TR_edit_asset}}</button>
+        </div>
+        <div class="detail-grid">${sections}</div>
+    `;
+}
+
+function selectDetailAsset(id) {
+    currentAsset = assets.find(a => a.id === id);
+    renderDetail();
+}
+
+function renderCompact() {
+    const filtered = getFilteredAssets();
+    const container = document.getElementById('compactView');
+    const grouped = groupBy(filtered, 'category');
+    
+    if (filtered.length === 0) {
+        container.innerHTML = emptyStateHTML('{{TR_no_assets_match}}', '{{TR_try_adjusting}}');
+        return;
+    }
+    
+    container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
+        <div class="compact-category">
+            <div class="compact-category-header">
+                <span>${escapeHtml(cat)}</span>
+                <span>${items.length}</span>
+            </div>
+            ${items.map(asset => `
+                <div class="compact-asset" data-asset-id="${escapeHtml(asset.id)}">
+                    <div class="compact-asset-main">
+                        <span class="status-dot ${ (asset.status || 'Active').toLowerCase() }"></span>
+                        <span class="compact-asset-name">${escapeHtml(asset.asset_name || '')}</span>
+                        <span class="compact-asset-meta">${escapeHtml(asset.institution || '')}</span>
+                    </div>
+                    <span class="compact-asset-value">${formatCurrency(asset.fmv)}</span>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+}
+
+// ===== STATS =====
+function updateStats() {
+    const filtered = getFilteredAssets();
+    const totalFMV = filtered.reduce((sum, a) => sum + (parseFloat(a.fmv) || 0), 0);
+    const totalIncome = filtered.reduce((sum, a) => sum + (parseFloat(a.annual_income) || 0), 0);
+    const statusCounts = { Active: 0, Dormant: 0, Pending: 0, Closed: 0 };
+    filtered.forEach(a => { statusCounts[a.status || 'Active'] = (statusCounts[a.status || 'Active'] || 0) + 1; });
+    
+    document.getElementById('totalAssets').textContent = filtered.length.toLocaleString('en-CA');
+    document.getElementById('totalFMV').textContent = formatCurrency(totalFMV);
+    document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+    document.getElementById('totalCategories').textContent = Object.keys(groupBy(filtered, 'category')).length;
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
+    document.getElementById('activeCount').textContent = statusCounts.Active;
+    document.getElementById('dormantCount').textContent = statusCounts.Dormant;
+    document.getElementById('pendingCount').textContent = statusCounts.Pending;
+    document.getElementById('closedCount').textContent = statusCounts.Closed;
+}
+
+// ===== MODAL / EDIT =====
+function initModal() {
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalCancel').addEventListener('click', closeModal);
+    document.getElementById('modalSave').addEventListener('click', saveAsset);
+    document.getElementById('modalDelete').addEventListener('click', deleteAsset);
+    document.getElementById('modalDuplicate').addEventListener('click', duplicateAsset);
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modalOverlay') closeModal();
+    });
+}
+
+function initHelp() {
+    document.getElementById('helpToggle').addEventListener('click', openHelp);
+    document.getElementById('helpClose').addEventListener('click', closeHelp);
+    document.getElementById('helpOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'helpOverlay') closeHelp();
+    });
+}
+
+function openHelp() {
+    document.getElementById('helpOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeHelp() {
+    document.getElementById('helpOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Plaintext of decrypted sensitive fields for the currently open modal (memory only)
+let modalDecrypted = {};
+
+function openModal(assetId) {
+    const asset = assets.find(a => a.id === assetId);
+    if (asset) showAssetModal(asset);
+}
+
+async function showAssetModal(asset) {
+    currentAsset = asset;
+    modalDecrypted = {};
+    
+    document.getElementById('modalTitle').textContent = `{{TR_edit_prefix}}${asset.asset_name || asset.id}`;
+    document.getElementById('modalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Decrypt sensitive fields for display when the vault is unlocked
+    for (const field of SENSITIVE_FIELDS) {
+        if (isEncryptedVal(asset[field]) && vaultPassphrase) {
+            try {
+                modalDecrypted[field] = await decryptValue(asset[field]);
+            } catch (e) {
+                console.error('Failed to decrypt field', field, e);
+            }
+        }
+    }
+    
+    const container = document.getElementById('modalContent');
+    container.innerHTML = Object.entries(FIELD_SECTIONS).map(([section, fields]) => {
+        const inputs = fields.map(field => renderFieldInput(field, asset)).join('');
+        return `
+            <div class="modal-section">
+                <div class="modal-section-header">
+                    <span class="modal-section-title">${section}</span>
+                    <span class="modal-section-toggle">▼</span>
+                </div>
+                <div class="modal-section-body">${inputs}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderFieldInput(field, asset) {
+    const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
+    const type = meta.type || 'text';
+    const label = escapeHtml(fieldLabel(field));
+    const encrypted = isEncryptedVal(asset[field]);
+    const rawValue = encrypted ? '' : (asset[field] === null || asset[field] === undefined ? '' : String(asset[field]));
+    const value = encrypted ? (modalDecrypted[field] !== undefined ? modalDecrypted[field] : '') : rawValue;
+    const isLong = ['notes', 'alert', 'todo'].includes(field) || type === 'textarea';
+    let control;
+    
+    if (encrypted && modalDecrypted[field] === undefined) {
+        // Vault locked (or undecryptable): masked read-only placeholder, ciphertext preserved on save
+        control = `<input type="text" class="form-input" data-field="${field}" data-enc-readonly="1" value="{{TR_masked}}" readonly>`;
+    } else if (isLong) {
+        control = `<textarea class="form-textarea" data-field="${field}">${escapeHtml(value)}</textarea>`;
+    } else if (type === 'select') {
+        const options = meta.options || [];
+        const optList = (value !== '' && !options.includes(value)) ? [value, ...options] : options;
+        control = `<select class="form-select" data-field="${field}">` +
+            optList.map(o => `<option value="${escapeHtml(o)}" ${o === value ? 'selected' : ''}>${escapeHtml(o)}</option>`).join('') +
+            `</select>`;
+    } else if (type === 'currency') {
+        control = `<input type="number" step="0.01" min="0" class="form-input" data-field="${field}" value="${escapeHtml(value)}">`;
+    } else if (type === 'percent') {
+        control = `<input type="number" step="0.1" min="0" max="100" class="form-input" data-field="${field}" value="${escapeHtml(value)}">`;
+    } else if (type === 'date') {
+        control = `<input type="date" class="form-input" data-field="${field}" value="${escapeHtml(value)}">`;
+    } else if (type === 'url') {
+        control = `<input type="url" class="form-input" data-field="${field}" value="${escapeHtml(value)}">`;
+    } else if (type === 'password') {
+        control = `<div class="pw-wrap"><input type="password" class="form-input" data-field="${field}" value="${escapeHtml(value)}">` +
+            `<button type="button" class="pw-eye" data-pw-toggle title="{{TR_show_password}}">👁</button></div>`;
+    } else {
+        control = `<input type="text" class="form-input" data-field="${field}" value="${escapeHtml(value)}">`;
+    }
+    
+    return `
+        <div class="form-group ${isLong ? 'full-width' : ''}">
+            <label class="form-label">${label}</label>
+            ${control}
+            ${isLong ? `<div class="markdown-hint">{{TR_markdown_hint}}</div>` : ''}
+        </div>
+    `;
+}
+
+function toggleModalSection(header) {
+    header.parentElement.classList.toggle('collapsed');
+}
+
+function togglePwVisibility(btn) {
+    const input = btn.parentElement.querySelector('input');
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+// ===== FORM VALIDATION =====
+function validateModal(inputs) {
+    let ok = true;
+    let firstInvalid = null;
+    inputs.forEach(input => {
+        clearFieldError(input);
+        const field = input.dataset.field;
+        if (input.dataset.encReadonly === '1') return;
+        const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
+        const v = (input.value || '').trim();
+        let err = '';
+        if ((field === 'id' || field === 'asset_name') && !v) {
+            err = '{{TR_err_required}}';
+        } else if (v && (meta.type === 'currency' || meta.type === 'percent') && isNaN(Number(v))) {
+            err = '{{TR_err_number}}';
+        } else if (v && meta.type === 'date' && isNaN(Date.parse(v))) {
+            err = '{{TR_err_date}}';
+        } else if (v && meta.type === 'select' && meta.options && !meta.options.includes(v)) {
+            err = '{{TR_err_select}}';
+        }
+        if (err) {
+            showFieldError(input, err);
+            ok = false;
+            if (!firstInvalid) firstInvalid = input;
+        }
+    });
+    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return ok;
+}
+
+function showFieldError(input, message) {
+    input.classList.add('input-error');
+    const group = input.closest('.form-group');
+    if (!group || group.querySelector('.form-error')) return;
+    const err = document.createElement('div');
+    err.className = 'form-error';
+    err.textContent = message;
+    group.appendChild(err);
+}
+
+function clearFieldError(input) {
+    input.classList.remove('input-error');
+    const group = input.closest('.form-group');
+    if (group) {
+        const err = group.querySelector('.form-error');
+        if (err) err.remove();
+    }
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+    currentAsset = null;
+    modalDecrypted = {};
+}
+
+async function saveAsset() {
+    if (!currentAsset) return;
+    const inputs = [...document.querySelectorAll('#modalContent [data-field]')];
+    if (!validateModal(inputs)) {
+        showToast('{{TR_err_fix}}');
+        return;
+    }
+    const isNew = !assets.some(a => a.id === currentAsset.id);
+    pushUndo();
+    for (const input of inputs) {
+        const field = input.dataset.field;
+        if (input.dataset.encReadonly === '1') continue; // untouched ciphertext
+        let value = input.value;
+        if (SENSITIVE_FIELDS.includes(field)) {
+            // Unchanged decrypted value: keep the existing ciphertext untouched
+            if (modalDecrypted[field] !== undefined && value === modalDecrypted[field]) continue;
+            if (value !== '' && vaultPassphrase) {
+                value = await encryptValue(value);
+            }
+        }
+        currentAsset[field] = value;
+    }
+    if (isNew) assets.push(currentAsset);
+    saveToLocalStorage();
+    markDirty();
+    closeModal();
+    renderCurrentLayout();
+    showToast('{{TR_asset_saved}}', { label: '{{TR_undo}}', fn: undo });
+}
+
+function deleteAsset() {
+    if (!currentAsset) return;
+    if (!confirm(`{{TR_delete_confirm}} ${currentAsset.asset_name || currentAsset.id}?`)) return;
+    pushUndo();
+    assets = assets.filter(a => a.id !== currentAsset.id);
+    saveToLocalStorage();
+    markDirty();
+    closeModal();
+    renderCurrentLayout();
+    showToast('{{TR_asset_deleted}}', { label: '{{TR_undo}}', fn: undo });
+}
+
+function duplicateAsset() {
+    if (!currentAsset) return;
+    const copy = JSON.parse(JSON.stringify(currentAsset));
+    copy.id = uniqueAssetId((copy.id || 'asset') + '-copy');
+    copy.account_number = '';
+    Object.keys(copy).forEach(k => { if (k.startsWith('login_')) copy[k] = ''; });
+    copy.security_questions = '';
+    showAssetModal(copy);
+    showToast('{{TR_asset_duplicated}}');
+}
+
+function uniqueAssetId(base) {
+    if (!assets.some(a => a.id === base)) return base;
+    let n = 2;
+    while (assets.some(a => a.id === `${base}-${n}`)) n++;
+    return `${base}-${n}`;
+}
+
+// ===== UNDO / REDO =====
+function pushUndo() {
+    undoStack.push(JSON.stringify(assets));
+    if (undoStack.length > 50) undoStack.shift();
+    redoStack.length = 0;
+}
+
+function undo() {
+    if (!undoStack.length) return;
+    redoStack.push(JSON.stringify(assets));
+    assets = JSON.parse(undoStack.pop());
+    saveToLocalStorage();
+    markDirty();
+    renderCurrentLayout();
+    showToast('{{TR_undone}}', { label: '{{TR_redo}}', fn: redo });
+}
+
+function redo() {
+    if (!redoStack.length) return;
+    undoStack.push(JSON.stringify(assets));
+    assets = JSON.parse(redoStack.pop());
+    saveToLocalStorage();
+    markDirty();
+    renderCurrentLayout();
+    showToast('{{TR_redone}}', { label: '{{TR_undo}}', fn: undo });
+}
+
+// ===== EVENT DELEGATION =====
+function initDelegation() {
+    document.addEventListener('click', (e) => {
+        const pwToggle = e.target.closest('[data-pw-toggle]');
+        if (pwToggle) { togglePwVisibility(pwToggle); return; }
+        const pageBtn = e.target.closest('[data-page]');
+        if (pageBtn) { goToPage(parseInt(pageBtn.dataset.page, 10)); return; }
+        const assetEl = e.target.closest('[data-asset-id]');
+        // Table cells are inline-editable (dblclick) and the checkbox column
+        // drives bulk selection — neither should open the edit modal on click.
+        if (assetEl && !e.target.closest('td[data-edit-field], td.col-check')) { openModal(assetEl.dataset.assetId); return; }
+        const detailEl = e.target.closest('[data-detail-id]');
+        if (detailEl) { selectDetailAsset(detailEl.dataset.detailId); return; }
+        const catHeader = e.target.closest('.category-header, .compact-category-header');
+        if (catHeader) { toggleCategory(catHeader); return; }
+        const sectionHeader = e.target.closest('.modal-section-header');
+        if (sectionHeader) { toggleModalSection(sectionHeader); return; }
+    });
+    // Clear inline validation errors as the user types
+    document.getElementById('modalContent').addEventListener('input', (e) => {
+        if (e.target.matches('[data-field]')) clearFieldError(e.target);
+    });
+}
+
+// ===== QUICK-ADD WIZARD =====
+let wizardStep = 1;
+let wizardType = null;
+const wizardForm = {};
+
+function openWizard() {
+    wizardStep = 1;
+    wizardType = null;
+    Object.keys(wizardForm).forEach(k => delete wizardForm[k]);
+    document.getElementById('wizardOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderWizard();
+}
+
+function closeWizard() {
+    document.getElementById('wizardOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+    wizardType = null;
+}
+
+function wizardCatalog() {
+    // Deduplicate the 517-template catalog by asset name for the type picker.
+    const seen = new Set();
+    const out = [];
+    for (const a of ASSETS_DATA) {
+        const key = (a.asset_name || '') + '|' + (a.category || '');
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push(a);
+    }
+    return out;
+}
+
+function renderWizard() {
+    const label = document.getElementById('wizardStepLabel');
+    label.textContent = '{{TR_quick_add_step}}'.replace('{n}', wizardStep);
+    document.getElementById('wizardBack').style.display = wizardStep === 1 ? 'none' : '';
+    document.getElementById('wizardNext').style.display = wizardStep === 4 ? 'none' : '';
+    document.getElementById('wizardFinish').style.display = wizardStep === 4 ? '' : 'none';
+    const content = document.getElementById('wizardContent');
+    if (wizardStep === 1) renderWizardStep1(content);
+    else if (wizardStep === 2) renderWizardStep2(content);
+    else if (wizardStep === 3) renderWizardStep3(content);
+    else renderWizardStep4(content);
+}
+
+function renderWizardStep1(content) {
+    const catalog = wizardCatalog();
+    content.innerHTML = `
+        <div class="form-group">
+            <label class="form-label">{{TR_quick_add_search_placeholder}}</label>
+            <input type="text" id="wizardSearch" class="form-input" placeholder="{{TR_quick_add_search_placeholder}}" autocomplete="off">
+        </div>
+        <div class="wizard-type-list" id="wizardTypeList"></div>
+    `;
+    const list = content.querySelector('#wizardTypeList');
+    const search = content.querySelector('#wizardSearch');
+    const renderList = (q) => {
+        const query = (q || '').toLowerCase();
+        const items = catalog.filter(t =>
+            !query ||
+            (t.asset_name || '').toLowerCase().includes(query) ||
+            (t.category || '').toLowerCase().includes(query) ||
+            (t.institution_type || '').toLowerCase().includes(query));
+        if (!items.length) {
+            list.innerHTML = `<div class="wizard-type-item empty">{{TR_quick_add_no_results}}</div>`;
+            return;
+        }
+        list.innerHTML = items.map(t => `
+            <div class="wizard-type-item ${wizardType && wizardType.asset_name === t.asset_name && wizardType.category === t.category ? 'selected' : ''}" data-type="${escapeHtml(t.asset_name)}" data-cat="${escapeHtml(t.category)}">
+                <span class="wizard-type-name">${escapeHtml(t.asset_name)}</span>
+                <span class="wizard-type-cat">${escapeHtml(t.category)}</span>
+            </div>
+        `).join('');
+    };
+    renderList('');
+    search.addEventListener('input', (e) => renderList(e.target.value));
+    list.addEventListener('click', (e) => {
+        const item = e.target.closest('.wizard-type-item[data-type]');
+        if (!item) return;
+        wizardType = catalog.find(t => t.asset_name === item.dataset.type && t.category === item.dataset.cat) || null;
+        list.querySelectorAll('.wizard-type-item').forEach(el =>
+            el.classList.toggle('selected', el === item));
+    });
+}
+
+function renderWizardStep2(content) {
+    const institutions = [...new Set(ASSETS_DATA.map(a => a.institution).filter(Boolean))].sort();
+    const defaultInst = wizardForm.institution !== undefined ? wizardForm.institution
+        : ((wizardType && wizardType.institution) || '');
+    content.innerHTML = `
+        <div class="form-group">
+            <label class="form-label">{{TR_institution}}</label>
+            <input type="text" id="wizardInstitution" class="form-input" list="wizardInstList" value="${escapeHtml(defaultInst)}" autocomplete="off">
+            <datalist id="wizardInstList">${institutions.map(i => `<option value="${escapeHtml(i)}">`).join('')}</datalist>
+        </div>
+        <div class="form-group">
+            <label class="form-label">${escapeHtml(fieldLabel('institution_type'))}</label>
+            <input type="text" id="wizardInstType" class="form-input" value="${escapeHtml((wizardType && wizardType.institution_type) || '')}" readonly>
+        </div>
+    `;
+    content.querySelector('#wizardInstitution').addEventListener('input', (e) => {
+        wizardForm.institution = e.target.value;
+    });
+    wizardForm.instType = (wizardType && wizardType.institution_type) || '';
+}
+
+function renderWizardStep3(content) {
+    const owners = [...new Set(assets.map(a => a.owner).filter(Boolean))].sort();
+    const ownerVal = wizardForm.owner !== undefined ? wizardForm.owner : '';
+    const statusVal = wizardForm.status || 'Active';
+    content.innerHTML = `
+        <div class="form-group">
+            <label class="form-label">{{TR_owner}}</label>
+            <input type="text" id="wizardOwner" class="form-input" list="wizardOwnerList" value="${escapeHtml(ownerVal)}" autocomplete="off">
+            <datalist id="wizardOwnerList">${owners.map(o => `<option value="${escapeHtml(o)}">`).join('')}</datalist>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{{TR_status}}</label>
+            <select id="wizardStatus" class="form-select">
+                <option value="Active" ${statusVal === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Dormant" ${statusVal === 'Dormant' ? 'selected' : ''}>Dormant</option>
+                <option value="Pending" ${statusVal === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Closed" ${statusVal === 'Closed' ? 'selected' : ''}>Closed</option>
+            </select>
+        </div>
+    `;
+    content.querySelector('#wizardOwner').addEventListener('input', (e) => {
+        wizardForm.owner = e.target.value;
+    });
+    content.querySelector('#wizardStatus').addEventListener('change', (e) => {
+        wizardForm.status = e.target.value;
+    });
+}
+
+function renderWizardStep4(content) {
+    const nameVal = wizardForm.assetName !== undefined ? wizardForm.assetName
+        : ((wizardType && wizardType.asset_name) || '');
+    const fmvVal = wizardForm.fmv !== undefined ? wizardForm.fmv : 0;
+    const acbVal = wizardForm.acb !== undefined ? wizardForm.acb : 0;
+    const curVal = wizardForm.currency || 'CAD';
+    content.innerHTML = `
+        <div class="form-group">
+            <label class="form-label">{{TR_asset_name}}</label>
+            <input type="text" id="wizardAssetName" class="form-input" value="${escapeHtml(nameVal)}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">{{TR_fmv}}</label>
+            <input type="number" step="0.01" min="0" id="wizardFmv" class="form-input" value="${fmvVal}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">${escapeHtml(fieldLabel('acb'))}</label>
+            <input type="number" step="0.01" min="0" id="wizardAcb" class="form-input" value="${acbVal}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">${escapeHtml(fieldLabel('currency'))}</label>
+            <select id="wizardCurrency" class="form-select">
+                <option value="CAD" ${curVal === 'CAD' ? 'selected' : ''}>CAD</option>
+                <option value="USD" ${curVal === 'USD' ? 'selected' : ''}>USD</option>
+                <option value="EUR" ${curVal === 'EUR' ? 'selected' : ''}>EUR</option>
+            </select>
+        </div>
+    `;
+    const persist = (key, el) => el.addEventListener('input', () => { wizardForm[key] = el.value; });
+    persist('assetName', content.querySelector('#wizardAssetName'));
+    persist('fmv', content.querySelector('#wizardFmv'));
+    persist('acb', content.querySelector('#wizardAcb'));
+    content.querySelector('#wizardCurrency').addEventListener('change', (e) => {
+        wizardForm.currency = e.target.value;
+    });
+}
+
+function wizardNext() {
+    if (wizardStep === 1 && !wizardType) {
+        showToast('{{TR_quick_add_no_results}}');
+        return;
+    }
+    wizardStep = Math.min(4, wizardStep + 1);
+    renderWizard();
+}
+
+function wizardBack() {
+    wizardStep = Math.max(1, wizardStep - 1);
+    renderWizard();
+}
+
+function wizardFinish() {
+    if (!wizardType) return;
+    const name = (wizardForm.assetName || '').trim() || wizardType.asset_name;
+    const asset = JSON.parse(JSON.stringify(wizardType));  // copy all 108 field defaults
+    asset.id = uniqueAssetId('W-' + Date.now().toString().slice(-6));
+    asset.asset_name = name;
+    asset.institution = (wizardForm.institution || '').trim() || asset.institution;
+    asset.institution_type = wizardForm.instType || asset.institution_type;
+    asset.owner = (wizardForm.owner || '').trim();
+    asset.status = wizardForm.status || 'Active';
+    asset.fmv = parseFloat(wizardForm.fmv) || 0;
+    asset.acb = parseFloat(wizardForm.acb) || 0;
+    asset.currency = wizardForm.currency || 'CAD';
+    asset.last_update = new Date().toISOString().slice(0, 10);
+    asset.last_modified_by = 'user';
+    asset.source = 'quick-add';
+    pushUndo();
+    assets.push(asset);
+    saveToLocalStorage();
+    markDirty();
+    refreshOwnerFilter();
+    closeWizard();
+    renderCurrentLayout();
+    showToast('{{TR_quick_add_created}}', { label: '{{TR_undo}}', fn: undo });
+}
+
+function initWizard() {
+    document.getElementById('addAssetBtn').addEventListener('click', openWizard);
+    document.getElementById('wizardClose').addEventListener('click', closeWizard);
+    document.getElementById('wizardNext').addEventListener('click', wizardNext);
+    document.getElementById('wizardBack').addEventListener('click', wizardBack);
+    document.getElementById('wizardFinish').addEventListener('click', wizardFinish);
+    document.getElementById('wizardOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'wizardOverlay') closeWizard();
+    });
+}
+
+// ===== BULK EDIT =====
+const bulkSelected = new Set();
+
+function updateBulkUI() {
+    const bar = document.getElementById('bulkBar');
+    const count = bulkSelected.size;
+    bar.style.display = count ? '' : 'none';
+    document.getElementById('bulkCount').textContent =
+        '{{TR_bulk_selected}}'.replace('{n}', count);
+}
+
+function toggleBulkCheck(id, checked) {
+    if (checked) bulkSelected.add(id); else bulkSelected.delete(id);
+    updateBulkUI();
+}
+
+function openBulkEdit() {
+    document.getElementById('bulkOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderBulkContent();
+}
+
+function closeBulkEdit() {
+    document.getElementById('bulkOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function renderBulkContent() {
+    const container = document.getElementById('bulkContent');
+    const fieldOptions = Object.entries(FIELDS_DATA || {}).map(([key, meta]) =>
+        `<option value="${escapeHtml(key)}">${escapeHtml(fieldLabel(key))}</option>`).join('');
+    container.innerHTML = `
+        <div class="form-group">
+            <label class="form-label">{{TR_bulk_field}}</label>
+            <select id="bulkFieldSelect" class="form-select">${fieldOptions}</select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">{{TR_bulk_value}}</label>
+            <div id="bulkValueWrap"></div>
+        </div>
+    `;
+    document.getElementById('bulkFieldSelect').addEventListener('change', renderBulkValueInput);
+    renderBulkValueInput();
+}
+
+function renderBulkValueInput() {
+    const field = document.getElementById('bulkFieldSelect').value;
+    const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
+    const wrap = document.getElementById('bulkValueWrap');
+    const type = meta.type || 'text';
+    let control;
+    if (type === 'select') {
+        const options = (meta.options || []).map(o =>
+            `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+        control = `<select id="bulkValueInput" class="form-select">${options}</select>`;
+    } else if (type === 'currency' || type === 'percent') {
+        control = `<input type="number" step="0.01" min="0" id="bulkValueInput" class="form-input">`;
+    } else if (type === 'date') {
+        control = `<input type="date" id="bulkValueInput" class="form-input">`;
+    } else if (type === 'password') {
+        control = `<input type="password" id="bulkValueInput" class="form-input">`;
+    } else {
+        control = `<input type="text" id="bulkValueInput" class="form-input">`;
+    }
+    wrap.innerHTML = control;
+}
+
+async function applyBulkEdit() {
+    if (!bulkSelected.size) {
+        showToast('{{TR_bulk_none_selected}}');
+        return;
+    }
+    const field = document.getElementById('bulkFieldSelect').value;
+    const value = document.getElementById('bulkValueInput').value;
+    pushUndo();
+    for (const id of bulkSelected) {
+        const asset = assets.find(a => a.id === id);
+        if (!asset) continue;
+        if (SENSITIVE_FIELDS.includes(field) && value !== '' && vaultPassphrase) {
+            asset[field] = await encryptValue(value);
+        } else {
+            asset[field] = value;
+        }
+    }
+    saveToLocalStorage();
+    markDirty();
+    const n = bulkSelected.size;
+    bulkSelected.clear();
+    closeBulkEdit();
+    renderCurrentLayout();
+    updateBulkUI();
+    showToast('{{TR_bulk_applied}}'.replace('{n}', n), { label: '{{TR_undo}}', fn: undo });
+}
+
+function initBulkEdit() {
+    document.getElementById('bulkSelectAll').addEventListener('change', (e) => {
+        document.querySelectorAll('#tableBody .row-check').forEach(cb => {
+            cb.checked = e.target.checked;
+            toggleBulkCheck(cb.dataset.checkId, e.target.checked);
+        });
+        updateBulkUI();
+    });
+    document.getElementById('tableBody').addEventListener('change', (e) => {
+        const cb = e.target.closest('.row-check');
+        if (cb) toggleBulkCheck(cb.dataset.checkId, cb.checked);
+    });
+    document.getElementById('bulkEditBtn').addEventListener('click', openBulkEdit);
+    document.getElementById('bulkClearBtn').addEventListener('click', () => {
+        bulkSelected.clear();
+        document.querySelectorAll('#tableBody .row-check').forEach(cb => { cb.checked = false; });
+        updateBulkUI();
+    });
+    document.getElementById('bulkClose').addEventListener('click', closeBulkEdit);
+    document.getElementById('bulkCancel').addEventListener('click', closeBulkEdit);
+    document.getElementById('bulkApplyBtn').addEventListener('click', applyBulkEdit);
+    document.getElementById('bulkOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'bulkOverlay') closeBulkEdit();
+    });
+}
+
+// ===== INLINE TABLE EDITING =====
+function inlineEditCell(td) {
+    const tr = td.closest('tr');
+    const id = tr.dataset.assetId;
+    const asset = assets.find(a => a.id === id);
+    if (!asset || td.dataset.editing === '1') return;
+    const field = td.dataset.editField;
+    const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
+    const type = meta.type || 'text';
+    const encrypted = isEncryptedVal(asset[field]);
+    const current = encrypted ? '' : (asset[field] === null || asset[field] === undefined ? '' : String(asset[field]));
+    td.dataset.editing = '1';
+    const original = td.innerHTML;
+
+    let control;
+    if (type === 'select') {
+        const options = (meta.options || []).filter(o => o !== '');
+        const optList = (current !== '' && !options.includes(current)) ? [current, ...options] : options;
+        control = document.createElement('select');
+        control.className = 'inline-edit-input';
+        optList.forEach(o => {
+            const opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o;
+            opt.selected = (o === current);
+            control.appendChild(opt);
+        });
+    } else if (type === 'currency' || type === 'percent') {
+        control = document.createElement('input');
+        control.type = 'number';
+        control.step = '0.01';
+        control.min = '0';
+        control.className = 'inline-edit-input';
+        control.value = current;
+    } else if (type === 'date') {
+        control = document.createElement('input');
+        control.type = 'date';
+        control.className = 'inline-edit-input';
+        control.value = current;
+    } else {
+        control = document.createElement('input');
+        control.type = 'text';
+        control.className = 'inline-edit-input';
+        control.value = current;
+    }
+
+    td.innerHTML = '';
+    td.appendChild(control);
+    control.focus();
+
+    let saved = false;
+    const finish = async () => {
+        if (saved) return;
+        saved = true;
+        const value = control.value;
+        if (value !== current && field !== 'id') {
+            pushUndo();
+            if (SENSITIVE_FIELDS.includes(field) && value !== '' && vaultPassphrase) {
+                asset[field] = await encryptValue(value);
+            } else {
+                asset[field] = value;
+            }
+            saveToLocalStorage();
+            markDirty();
+            renderTable();
+            updateBulkUI();
+            showToast('{{TR_asset_saved}}', { label: '{{TR_undo}}', fn: undo });
+        } else {
+            td.innerHTML = original;
+            delete td.dataset.editing;
+        }
+    };
+
+    control.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); finish(); }
+        if (e.key === 'Escape') {
+            saved = true;
+            td.innerHTML = original;
+            delete td.dataset.editing;
+        }
+    });
+    control.addEventListener('blur', finish);
+    // Keep the delegating click handler from opening the modal when editing
+    control.addEventListener('click', (e) => e.stopPropagation());
+}
+
+function initInlineEdit() {
+    document.getElementById('tableBody').addEventListener('dblclick', (e) => {
+        const td = e.target.closest('td[data-edit-field]');
+        if (td) inlineEditCell(td);
+    });
+}
+
+// ===== KANBAN DRAG & DROP =====
+let kanbanDragId = null;
+
+function initKanbanDnD() {
+    const view = document.getElementById('kanbanView');
+    view.addEventListener('dragstart', (e) => {
+        const card = e.target.closest('.kanban-card[data-asset-id]');
+        if (!card) return;
+        kanbanDragId = card.dataset.assetId;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', kanbanDragId);
+    });
+    view.addEventListener('dragend', (e) => {
+        const card = e.target.closest('.kanban-card');
+        if (card) card.classList.remove('dragging');
+        view.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+        kanbanDragId = null;
+    });
+    view.addEventListener('dragover', (e) => {
+        if (!kanbanDragId) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const col = e.target.closest('.kanban-column[data-kanban-status]');
+        view.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+        if (col) col.classList.add('drag-over');
+    });
+    view.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const col = e.target.closest('.kanban-column[data-kanban-status]');
+        view.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+        const id = kanbanDragId || e.dataTransfer.getData('text/plain');
+        kanbanDragId = null;
+        if (!col || !id) return;
+        const status = col.dataset.kanbanStatus;
+        const asset = assets.find(a => a.id === id);
+        if (!asset || (asset.status || 'Active') === status) return;
+        pushUndo();
+        asset.status = status;
+        saveToLocalStorage();
+        markDirty();
+        renderCurrentLayout();
+        showToast('{{TR_kanban_status_updated}}', { label: '{{TR_undo}}', fn: undo });
+    });
+}
+
+// ===== COLUMN CONFIGURATION =====
+const TABLE_COLUMNS = ['id', 'asset_name', 'category', 'owner', 'institution', 'registration', 'fmv', 'status'];
+let visibleColumns = null;
+try { visibleColumns = JSON.parse(localStorage.getItem('assetColumns') || 'null'); } catch (e) { visibleColumns = null; }
+if (!visibleColumns) visibleColumns = [...TABLE_COLUMNS];
+
+function applyColumnVisibility() {
+    document.querySelectorAll('.data-table th[data-col], .data-table td[data-col]').forEach(el => {
+        el.style.display = visibleColumns.includes(el.dataset.col) ? '' : 'none';
+    });
+}
+
+function renderColumnConfigMenu() {
+    const menu = document.getElementById('columnConfigMenu');
+    menu.innerHTML = TABLE_COLUMNS.map(col =>
+        `<label><input type="checkbox" data-col-check="${col}" ${visibleColumns.includes(col) ? 'checked' : ''}> ${escapeHtml(fieldLabel(col))}</label>`
+    ).join('');
+}
+
+function toggleColumnConfigMenu() {
+    const menu = document.getElementById('columnConfigMenu');
+    renderColumnConfigMenu();
+    menu.style.display = menu.style.display === 'none' ? '' : 'none';
+}
+
+function initColumnConfig() {
+    document.getElementById('columnConfigBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleColumnConfigMenu();
+    });
+    document.getElementById('columnConfigMenu').addEventListener('change', (e) => {
+        const cb = e.target.closest('[data-col-check]');
+        if (!cb) return;
+        const col = cb.dataset.colCheck;
+        if (cb.checked) {
+            if (!visibleColumns.includes(col)) visibleColumns.push(col);
+        } else {
+            visibleColumns = visibleColumns.filter(c => c !== col);
+            if (!visibleColumns.length) {  // never allow zero columns
+                cb.checked = true;
+                visibleColumns.push(col);
+                return;
+            }
+        }
+        localStorage.setItem('assetColumns', JSON.stringify(visibleColumns));
+        applyColumnVisibility();
+        showToast('{{TR_column_saved}}');
+    });
+    document.addEventListener('click', (e) => {
+        // Close the menu only for clicks outside the dropdown (toggle button or menu)
+        if (!e.target.closest('.column-config')) {
+            document.getElementById('columnConfigMenu').style.display = 'none';
+        }
+    });
+}
+
+// ===== EXPORT =====
+function exportMarkdown() {
+    let md = '# {{TR_md_title}}\\n\\n';
+    md += `{{TR_md_generated}}: ${new Date().toLocaleDateString('{{TR_locale}}')}\\n\\n`;
+    const grouped = groupBy(getFilteredAssets(), 'category');
+    Object.entries(grouped).forEach(([cat, items]) => {
+        md += `## ${cat}\\n\\n`;
+        md += '| {{TR_md_id}} | {{TR_md_asset}} | {{TR_md_owner}} | {{TR_md_institution}} | {{TR_md_value}} | {{TR_md_status}} |\\n';
+        md += '|----|-------|-------|-------------|-----|--------|\\n';
+        items.forEach(a => {
+            md += `| ${a.id} | ${a.asset_name || ''} | ${a.owner || ''} | ${a.institution || ''} | ${formatCurrency(a.fmv)} | ${STATUS_LABELS[a.status || 'Active'] || a.status || 'Active'} |\\n`;
+        });
+        md += '\\n';
+    });
+    downloadFile(md, '{{TR_export_md_filename}}', 'text/markdown');
+    showToast('{{TR_markdown_exported}}');
+}
+
+function exportExcel() {
+    const rows = getFilteredAssets().map(a => [
+        a.id,
+        a.category,
+        a.asset_name || '',
+        a.owner || '',
+        a.institution || '',
+        maskAccount(a.account_number),
+        a.registration || '',
+        a.currency || 'CAD',
+        a.acb || 0,
+        a.fmv || 0,
+        a.annual_income || 0,
+        STATUS_LABELS[a.status || 'Active'] || a.status || 'Active'
+    ].map(csvEscape).join(','));
+    const csv = '{{TR_csv_header}}' + '\n' + rows.join('\n');
+    downloadFile(csv, '{{TR_export_csv_filename}}', 'text/csv');
+    showToast('{{TR_excel_exported}}');
+}
+
+// RFC-4180 escaping + spreadsheet formula-injection guard
+function csvEscape(value) {
+    let s = String(value === null || value === undefined ? '' : value);
+    if (/^[=+\-@]/.test(s)) s = "'" + s;
+    if (/[",\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+    return s;
+}
+
+function exportJSON() {
+    downloadFile(JSON.stringify(assets, null, 2), '{{TR_export_json_filename}}', 'application/json');
+    showToast('{{TR_json_exported}}');
+}
+
+function importJSON(file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            const data = JSON.parse(reader.result);
+            if (!Array.isArray(data) || data.some(a => !a || typeof a !== 'object' || !a.id)) {
+                throw new Error('Invalid asset file');
+            }
+            pushUndo();
+            assets = data;
+            saveToLocalStorage();
+            markDirty();
+            refreshOwnerFilter();
+            renderCurrentLayout();
+            showToast('{{TR_json_imported}}', { label: '{{TR_undo}}', fn: undo });
+        } catch (e) {
+            console.error('JSON import failed', e);
+            showToast('{{TR_json_import_error}}');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function refreshOwnerFilter() {
+    const ownerSelect = document.getElementById('ownerFilter');
+    const current = ownerSelect.value;
+    ownerSelect.innerHTML = '<option value="">{{TR_all_owners}}</option>';
+    const owners = [...new Set(assets.map(a => a.owner).filter(Boolean))].sort();
+    owners.forEach(owner => {
+        const option = document.createElement('option');
+        option.value = owner;
+        option.textContent = owner;
+        ownerSelect.appendChild(option);
+    });
+    ownerSelect.value = owners.includes(current) ? current : '';
+}
+
+function saveHTML() {
+    // Write the current in-memory assets back into the embedded data block so
+    // the downloaded file carries every edit made since it was opened.
+    const scriptEl = [...document.scripts].find(s => s.textContent.includes('const ASSETS_DATA ='));
+    let restored = null;
+    if (scriptEl) {
+        const original = scriptEl.textContent;
+        const marker = 'const ASSETS_DATA = ';
+        const endMarker = ';\nconst CATEGORIES_DATA';
+        const start = original.indexOf(marker);
+        const end = original.indexOf(endMarker, start);
+        if (start !== -1 && end !== -1) {
+            const json = JSON.stringify(assets).replace(/</g, '\\u003c');
+            scriptEl.textContent = original.slice(0, start + marker.length) + json + original.slice(end);
+            restored = original;
+        }
+    }
+    downloadFile('<!DOCTYPE html>\n' + document.documentElement.outerHTML, '{{TR_export_html_filename}}', 'text/html');
+    if (restored !== null && scriptEl) scriptEl.textContent = restored;
+    clearDirty();
+    showToast('{{TR_html_saved}}');
+}
+
+// ===== UNSAVED CHANGES INDICATOR =====
+function markDirty() {
+    dirty = true;
+    updateDirtyUI();
+    scheduleAutoSave();
+}
+
+function clearDirty() {
+    dirty = false;
+    updateDirtyUI();
+}
+
+function updateDirtyUI() {
+    const dot = document.getElementById('unsavedIndicator');
+    if (dot) dot.classList.toggle('visible', dirty);
+}
+
+// ===== AUTO-SAVE (extends unsaved-changes indicator) =====
+let autoSaveEnabled = localStorage.getItem('autoSaveEnabled') !== '0';
+let autoSaveTimer = null;
+let lastAutoSaveToast = 0;
+
+function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    if (!autoSaveEnabled) return;
+    autoSaveTimer = setTimeout(performAutoSave, 1500);
+}
+
+function performAutoSave() {
+    saveToLocalStorage();
+    clearDirty();
+    // Throttle toasts so rapid edits don't spam notifications
+    const now = Date.now();
+    if (now - lastAutoSaveToast > 4000) {
+        lastAutoSaveToast = now;
+        showToast('{{TR_autosave_saved}}');
+    }
+}
+
+function toggleAutoSave() {
+    autoSaveEnabled = !autoSaveEnabled;
+    localStorage.setItem('autoSaveEnabled', autoSaveEnabled ? '1' : '0');
+    const btn = document.getElementById('autoSaveToggle');
+    btn.classList.toggle('autosave-on', autoSaveEnabled);
+    btn.title = autoSaveEnabled ? '{{TR_autosave_on}}' : '{{TR_autosave_off}}';
+    showToast(autoSaveEnabled ? '{{TR_autosave_enabled}}' : '{{TR_autosave_disabled}}');
+    if (autoSaveEnabled && dirty) scheduleAutoSave();
+}
+
+function initAutoSave() {
+    const btn = document.getElementById('autoSaveToggle');
+    btn.classList.toggle('autosave-on', autoSaveEnabled);
+    btn.title = autoSaveEnabled ? '{{TR_autosave_on}}' : '{{TR_autosave_off}}';
+    btn.addEventListener('click', toggleAutoSave);
+}
+
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ===== LOCAL STORAGE =====
+function saveToLocalStorage() {
+    localStorage.setItem('assets', JSON.stringify(assets));
+}
+
+function loadFromLocalStorage() {
+    const saved = localStorage.getItem('assets');
+    if (saved) {
+        try {
+            assets = JSON.parse(saved);
+        } catch (e) {
+            console.error('Failed to load saved assets', e);
+        }
+    }
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+function initKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        const inFormControl = e.target.matches('input, textarea, select') || e.target.isContentEditable;
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            saveToLocalStorage();
+            clearDirty();
+            showToast('{{TR_saved_to_storage}}');
+        }
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            exportMarkdown();
+        }
+        if (e.ctrlKey && !inFormControl && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            if (e.shiftKey) redo(); else undo();
+        }
+        if (e.key === 'Escape') {
+            closeModal();
+            closeHelp();
+            closeVault();
+            closeWizard();
+        }
+    });
+    
+    document.getElementById('exportMD').addEventListener('click', exportMarkdown);
+    document.getElementById('exportExcel').addEventListener('click', exportExcel);
+    document.getElementById('exportJSON').addEventListener('click', exportJSON);
+    document.getElementById('importJSON').addEventListener('click', () => {
+        document.getElementById('importJSONFile').click();
+    });
+    document.getElementById('importJSONFile').addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) importJSON(e.target.files[0]);
+        e.target.value = '';
+    });
+    document.getElementById('printBtn').addEventListener('click', () => {
+        renderPrintView();
+        window.print();
+    });
+    window.addEventListener('beforeprint', renderPrintView);
+    document.getElementById('saveHTML').addEventListener('click', saveHTML);
+}
+
+// ===== TOAST =====
+function showToast(message, action) {
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--primary);
+        color: white;
+        padding: 12px 20px;
+        border-radius: var(--radius);
+        font-weight: 500;
+        font-size: 13px;
+        z-index: 2000;
+        box-shadow: var(--shadow-lg);
+        animation: slideIn 0.25s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    `;
+    const text = document.createElement('span');
+    text.textContent = message;
+    toast.appendChild(text);
+    if (action && action.label && typeof action.fn === 'function') {
+        const btn = document.createElement('button');
+        btn.className = 'toast-action';
+        btn.textContent = action.label;
+        btn.addEventListener('click', () => {
+            action.fn();
+            toast.remove();
+        });
+        toast.appendChild(btn);
+    }
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.25s ease forwards';
+        setTimeout(() => toast.remove(), 250);
+    }, 4000);
+}
+
+// ===== CREDENTIAL VAULT (AES-256-GCM + PBKDF2) =====
+function initVault() {
+    document.getElementById('vaultToggle').addEventListener('click', openVault);
+    document.getElementById('vaultClose').addEventListener('click', closeVault);
+    document.getElementById('vaultOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'vaultOverlay') closeVault();
+    });
+    document.getElementById('vaultSetBtn').addEventListener('click', vaultSetPassphrase);
+    document.getElementById('vaultUnlockBtn').addEventListener('click', vaultUnlock);
+    document.getElementById('vaultLockBtn').addEventListener('click', vaultLock);
+    updateVaultUI();
+}
+
+function vaultCryptoAvailable() {
+    if (window.crypto && crypto.subtle) return true;
+    showToast('{{TR_vault_no_crypto}}');
+    return false;
+}
+
+function vaultHasEncryptedData() {
+    return assets.some(a => SENSITIVE_FIELDS.some(f => isEncryptedVal(a[f])));
+}
+
+function openVault() {
+    document.getElementById('vaultOverlay').classList.add('active');
+    updateVaultUI();
+}
+
+function closeVault() {
+    document.getElementById('vaultOverlay').classList.remove('active');
+    document.getElementById('vaultPass1').value = '';
+    document.getElementById('vaultPass2').value = '';
+}
+
+function updateVaultUI() {
+    const status = document.getElementById('vaultStatusText');
+    const passGroup = document.getElementById('vaultPassGroup');
+    const confirmGroup = document.getElementById('vaultConfirmGroup');
+    const setBtn = document.getElementById('vaultSetBtn');
+    const unlockBtn = document.getElementById('vaultUnlockBtn');
+    const lockBtn = document.getElementById('vaultLockBtn');
+    const hasEncrypted = vaultHasEncryptedData();
+    
+    if (vaultPassphrase) {
+        status.textContent = '{{TR_vault_status_unlocked}}';
+        passGroup.style.display = 'none';
+        confirmGroup.style.display = 'none';
+        setBtn.style.display = 'none';
+        unlockBtn.style.display = 'none';
+        lockBtn.style.display = '';
+    } else if (hasEncrypted) {
+        status.textContent = '{{TR_vault_status_locked}}';
+        passGroup.style.display = '';
+        confirmGroup.style.display = 'none';
+        setBtn.style.display = 'none';
+        unlockBtn.style.display = '';
+        lockBtn.style.display = 'none';
+    } else {
+        status.textContent = '{{TR_vault_status_not_set}}';
+        passGroup.style.display = '';
+        confirmGroup.style.display = '';
+        setBtn.style.display = '';
+        unlockBtn.style.display = 'none';
+        lockBtn.style.display = 'none';
+    }
+    document.getElementById('vaultToggle').classList.toggle('unlocked', !!vaultPassphrase);
+}
+
+async function vaultSetPassphrase() {
+    if (!vaultCryptoAvailable()) return;
+    const p1 = document.getElementById('vaultPass1').value;
+    const p2 = document.getElementById('vaultPass2').value;
+    if (!p1) { showToast('{{TR_vault_empty}}'); return; }
+    if (p1 !== p2) { showToast('{{TR_vault_mismatch}}'); return; }
+    vaultPassphrase = p1;
+    // Encrypt every plaintext credential at rest
+    for (const asset of assets) {
+        for (const field of SENSITIVE_FIELDS) {
+            const v = asset[field];
+            if (v && !isEncryptedVal(v)) {
+                asset[field] = await encryptValue(String(v));
+            }
+        }
+    }
+    saveToLocalStorage();
+    markDirty();
+    updateVaultUI();
+    renderCurrentLayout();
+    showToast('{{TR_vault_set_done}}');
+}
+
+async function vaultUnlock() {
+    if (!vaultCryptoAvailable()) return;
+    const p1 = document.getElementById('vaultPass1').value;
+    if (!p1) { showToast('{{TR_vault_empty}}'); return; }
+    vaultPassphrase = p1;
+    // Verify against the first encrypted value found
+    for (const asset of assets) {
+        for (const field of SENSITIVE_FIELDS) {
+            if (isEncryptedVal(asset[field])) {
+                try {
+                    await decryptValue(asset[field]);
+                    updateVaultUI();
+                    renderCurrentLayout();
+                    showToast('{{TR_vault_unlocked_toast}}');
+                    return;
+                } catch (e) {
+                    vaultPassphrase = null;
+                    showToast('{{TR_vault_wrong}}');
+                    return;
+                }
+            }
+        }
+    }
+    // Nothing encrypted yet: accept as the new session passphrase
+    updateVaultUI();
+    showToast('{{TR_vault_unlocked_toast}}');
+}
+
+function vaultLock() {
+    vaultPassphrase = null;
+    updateVaultUI();
+    renderCurrentLayout();
+    showToast('{{TR_vault_locked_toast}}');
+}
+
+function isEncryptedVal(v) {
+    return v !== null && typeof v === 'object' && v.enc === true;
+}
+
+function bufToB64(bytes) {
+    let s = '';
+    new Uint8Array(bytes).forEach(b => { s += String.fromCharCode(b); });
+    return btoa(s);
+}
+
+function b64ToBytes(b64) {
+    return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+}
+
+async function deriveVaultKey(passphrase, saltB64) {
+    const keyMaterial = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: b64ToBytes(saltB64), iterations: 100000, hash: 'SHA-256' },
+        keyMaterial,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+    );
+}
+
+async function encryptValue(plain) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveVaultKey(vaultPassphrase, bufToB64(salt));
+    const ct = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain)
+    );
+    return { enc: true, salt: bufToB64(salt), iv: bufToB64(iv), ct: bufToB64(ct) };
+}
+
+async function decryptValue(obj) {
+    const key = await deriveVaultKey(vaultPassphrase, obj.salt);
+    const pt = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: b64ToBytes(obj.iv) }, key, b64ToBytes(obj.ct)
+    );
+    return new TextDecoder().decode(pt);
+}
+
+// ===== SENSITIVE FIELD MASKING =====
+function maskAccount(value) {
+    const s = String(value || '');
+    if (!s) return '';
+    return s.length <= 4 ? '****' : '****' + s.slice(-4);
+}
+
+function displayValue(field, value) {
+    if (value === null || value === undefined || value === '') return '—';
+    if (isEncryptedVal(value)) return '{{TR_masked}}';
+    if (SENSITIVE_FIELDS.includes(field)) return '{{TR_masked}}';
+    if (field === 'account_number') return escapeHtml(maskAccount(value));
+    // Notes / alerts / todos support lightweight Markdown
+    if (['notes', 'alert', 'todo'].includes(field)) return renderMarkdown(value);
+    return escapeHtml(value);
+}
+
+// ===== MARKDOWN NOTES RENDERING (no library, safe) =====
+function renderMarkdown(text) {
+    if (!text) return '';
+    let s = escapeHtml(String(text));
+    // Inline code
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // Bold
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    // Italic
+    s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=$|[\s).,!?])/g, '$1<em>$2</em>');
+    // Links (http/https only, open in new tab)
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    // Simple unordered lists (- or * prefix) and line breaks
+    const lines = s.split('\n');
+    let html = '';
+    let inList = false;
+    for (const line of lines) {
+        const m = line.match(/^\s*[-*]\s+(.*)$/);
+        if (m) {
+            if (!inList) { html += '<ul>'; inList = true; }
+            html += '<li>' + m[1] + '</li>';
+        } else {
+            if (inList) { html += '</ul>'; inList = false; }
+            if (html) html += '<br>';
+            html += line;
+        }
+    }
+    if (inList) html += '</ul>';
+    return html;
+}
+
+// ===== AUDIT VIEW =====
+const REGISTERED_TYPES = ['TFSA', 'RRSP', 'RESP', 'RRIF', 'LIRA', 'LIF', 'LRIF', 'PRIF', 'RPP', 'DPSP', 'RDSP', 'FHSA'];
+
+function validateAsset(a) {
+    const findings = [];
+    const reg = (a.registration || '').trim();
+    const isRegistered = REGISTERED_TYPES.includes(reg);
+    const isInsurance = /insurance/i.test(a.category || '') || !!a.insurance_policy;
+    
+    if ((isRegistered || isInsurance) && !a.beneficiary && !a.primary_beneficiary) {
+        findings.push({ level: 'red', message: '{{TR_audit_missing_beneficiary}}' });
+    }
+    if (!(parseFloat(a.fmv) > 0)) {
+        findings.push({ level: 'yellow', message: '{{TR_audit_missing_fmv}}' });
+    }
+    if (!a.institution) {
+        findings.push({ level: 'yellow', message: '{{TR_audit_missing_institution}}' });
+    }
+    if (!a.owner) {
+        findings.push({ level: 'yellow', message: '{{TR_audit_missing_owner}}' });
+    }
+    if ((!reg || reg === 'Non-registered' || reg === 'Margin') &&
+        parseFloat(a.fmv) > 0 && !a.acb &&
+        /invest|equit|stock|fund|fixed income|crypto|securit/i.test(a.category || '')) {
+        findings.push({ level: 'yellow', message: '{{TR_audit_missing_acb}}' });
+    }
+    Object.keys(FIELDS_DATA || {}).forEach(f => {
+        const meta = FIELDS_DATA[f];
+        if (meta.type === 'select' && meta.options && a[f] && !meta.options.includes(a[f])) {
+            findings.push({ level: 'yellow', message: `${fieldLabel(f)} {{TR_audit_bad_select}}` });
+        }
+    });
+    if (isRegistered && a.contribution_room !== '' && a.contribution_room !== undefined &&
+        parseFloat(a.contributions_ytd) > parseFloat(a.contribution_room)) {
+        findings.push({ level: 'red', message: '{{TR_audit_over_contribution}}' });
+    }
+    const lastDate = a.last_update || a.last_valuation;
+    if (lastDate) {
+        const t = Date.parse(lastDate);
+        if (!isNaN(t) && (Date.now() - t) > 365 * 24 * 3600 * 1000) {
+            findings.push({ level: 'yellow', message: '{{TR_audit_stale}}' });
+        }
+    }
+    return findings;
+}
+
+function renderAudit() {
+    const container = document.getElementById('auditView');
+    const results = assets.map(a => ({ asset: a, findings: validateAsset(a) }));
+    const critical = results.filter(r => r.findings.some(f => f.level === 'red'));
+    const attention = results.filter(r => r.findings.length > 0 && !r.findings.some(f => f.level === 'red'));
+    const okCount = results.length - critical.length - attention.length;
+    
+    let html = `
+        <div class="audit-summary">
+            <span class="audit-pill ok">✓ ${okCount} {{TR_audit_ok}}</span>
+            <span class="audit-pill warn">● ${attention.length} {{TR_audit_attention}}</span>
+            <span class="audit-pill crit">▲ ${critical.length} {{TR_audit_critical}}</span>
+        </div>
+    `;
+    
+    const flagged = [...critical, ...attention];
+    if (flagged.length === 0) {
+        html += emptyStateHTML('{{TR_audit_all_clear}}', '');
+    } else {
+        html += flagged.map(r => {
+            const level = r.findings.some(f => f.level === 'red') ? 'red' : 'yellow';
+            return `
+                <div class="audit-item" data-asset-id="${escapeHtml(r.asset.id)}">
+                    <div class="audit-item-head">
+                        <span class="audit-dot ${level}"></span>
+                        <span class="audit-item-name">${escapeHtml(r.asset.asset_name || r.asset.id)}</span>
+                        <span class="audit-item-meta">${escapeHtml(r.asset.category || '')}</span>
+                    </div>
+                    <ul class="audit-findings">
+                        ${r.findings.map(f => `<li class="audit-finding ${f.level}">${f.level === 'red' ? '🔴' : '🟡'} ${escapeHtml(f.message)}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }).join('');
+    }
+    container.innerHTML = html;
+}
+
+// ===== CHARTS VIEW (pure SVG, no library) =====
+const CHART_COLORS = ['#C5A55A', '#1A2744', '#059669', '#2563EB', '#D97706', '#DC2626', '#7C3AED', '#0D9488', '#DB2777', '#65A30D', '#7A8A9E'];
+
+function renderCharts() {
+    const container = document.getElementById('chartsView');
+    const filtered = getFilteredAssets();
+    
+    // FMV by category (top 8 + Other)
+    const byCategory = sumBy(filtered, a => a.category || '{{TR_uncategorized}}');
+    const topCats = byCategory.slice(0, 8);
+    const restSum = byCategory.slice(8).reduce((s, d) => s + d.value, 0);
+    if (restSum > 0) topCats.push({ label: '{{TR_chart_other}}', value: restSum });
+    
+    // FMV by registration
+    const byReg = sumBy(filtered, a => (a.registration || '').trim() || '{{TR_chart_non_registered}}');
+    
+    // Top 10 institutions
+    const byInst = sumBy(filtered, a => a.institution || '{{TR_no_data}}').slice(0, 10);
+    
+    // Liquidity ladder
+    const lockedIn = ['LIRA', 'LIF', 'LRIF', 'PRIF'];
+    const buckets = [
+        { label: '{{TR_liquidity_liquid}}', value: 0 },
+        { label: '{{TR_liquidity_near}}', value: 0 },
+        { label: '{{TR_liquidity_locked}}', value: 0 },
+        { label: '{{TR_liquidity_illiquid}}', value: 0 },
+        { label: '{{TR_liquidity_unspecified}}', value: 0 }
+    ];
+    filtered.forEach(a => {
+        const v = parseFloat(a.fmv) || 0;
+        if (v <= 0) return;
+        if (lockedIn.includes((a.registration || '').trim())) buckets[2].value += v;
+        else if (a.liquidity === 'High') buckets[0].value += v;
+        else if (a.liquidity === 'Medium') buckets[1].value += v;
+        else if (a.liquidity === 'Low') buckets[3].value += v;
+        else buckets[4].value += v;
+    });
+    
+    container.innerHTML =
+        chartCard('{{TR_chart_fmv_by_category}}', svgDonut(topCats), chartLegend(topCats)) +
+        chartCard('{{TR_chart_fmv_by_registration}}', svgBarChart(byReg), '') +
+        chartCard('{{TR_chart_top_institutions}}', svgHBarChart(byInst), '') +
+        chartCard('{{TR_chart_liquidity}}', svgHBarChart(buckets.filter(b => b.value > 0)), '');
+}
+
+function sumBy(list, keyFn) {
+    const totals = {};
+    list.forEach(a => {
+        const v = parseFloat(a.fmv) || 0;
+        if (v <= 0) return;
+        const key = keyFn(a);
+        totals[key] = (totals[key] || 0) + v;
+    });
+    return Object.entries(totals)
+        .map(([label, value]) => ({ label, value }))
+        .sort((a, b) => b.value - a.value);
+}
+
+function chartCard(title, svg, legend) {
+    return `
+        <div class="chart-card">
+            <div class="chart-title">${title}</div>
+            <div class="chart-body">${svg}</div>
+            ${legend}
+        </div>
+    `;
+}
+
+function chartLegend(data) {
+    if (!data.length) return '';
+    return `<div class="chart-legend">${data.map((d, i) =>
+        `<span class="chart-legend-item"><span class="chart-swatch" style="background:${CHART_COLORS[i % CHART_COLORS.length]}"></span>${escapeHtml(d.label)}</span>`
+    ).join('')}</div>`;
+}
+
+function svgDonut(data) {
+    if (!data.length) return `<div class="chart-empty">{{TR_chart_no_data}}</div>`;
+    const total = data.reduce((s, d) => s + d.value, 0);
+    const r = 70;
+    const cx = 100;
+    const cy = 100;
+    const circ = 2 * Math.PI * r;
+    let offset = 0;
+    const segments = data.map((d, i) => {
+        const frac = d.value / total;
+        const dash = `${frac * circ} ${circ}`;
+        const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${CHART_COLORS[i % CHART_COLORS.length]}" stroke-width="32" stroke-dasharray="${dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${cx} ${cy})"><title>${escapeHtml(d.label)}: ${formatCurrency(d.value)}</title></circle>`;
+        offset += frac * circ;
+        return seg;
+    }).join('');
+    return `<svg viewBox="0 0 200 200" width="200" height="200" role="img">
+        ${segments}
+        <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="13" font-weight="700" fill="currentColor">${formatCompact(total)}</text>
+        <text x="${cx}" y="${cy + 12}" text-anchor="middle" font-size="9" fill="currentColor" opacity="0.6">{{TR_total_fmv}}</text>
+    </svg>`;
+}
+
+function svgBarChart(data) {
+    if (!data.length) return `<div class="chart-empty">{{TR_chart_no_data}}</div>`;
+    const max = Math.max(...data.map(d => d.value));
+    const barW = 56;
+    const gap = 24;
+    const chartH = 180;
+    const labelH = 30;
+    const width = data.length * (barW + gap) + gap;
+    const height = chartH + labelH + 20;
+    const bars = data.map((d, i) => {
+        const h = Math.max(2, (d.value / max) * chartH);
+        const x = gap + i * (barW + gap);
+        const y = chartH - h;
+        return `
+            <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="4" fill="${CHART_COLORS[i % CHART_COLORS.length]}"><title>${escapeHtml(d.label)}: ${formatCurrency(d.value)}</title></rect>
+            <text x="${x + barW / 2}" y="${y - 5}" text-anchor="middle" font-size="10" fill="currentColor">${formatCompact(d.value)}</text>
+            <text x="${x + barW / 2}" y="${chartH + 14}" text-anchor="middle" font-size="10" fill="currentColor">${escapeHtml(truncate(d.label, 9))}</text>
+        `;
+    }).join('');
+    return `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img">${bars}</svg>`;
+}
+
+function svgHBarChart(data) {
+    if (!data.length) return `<div class="chart-empty">{{TR_chart_no_data}}</div>`;
+    const max = Math.max(...data.map(d => d.value));
+    const labelW = 150;
+    const barMaxW = 260;
+    const valueW = 70;
+    const rowH = 28;
+    const width = labelW + barMaxW + valueW;
+    const height = data.length * rowH + 6;
+    const rows = data.map((d, i) => {
+        const w = Math.max(2, (d.value / max) * barMaxW);
+        const y = i * rowH + 4;
+        return `
+            <text x="${labelW - 8}" y="${y + rowH / 2}" text-anchor="end" font-size="11" fill="currentColor" dominant-baseline="middle">${escapeHtml(truncate(d.label, 20))}</text>
+            <rect x="${labelW}" y="${y + 4}" width="${w}" height="${rowH - 12}" rx="3" fill="${CHART_COLORS[i % CHART_COLORS.length]}"><title>${escapeHtml(d.label)}: ${formatCurrency(d.value)}</title></rect>
+            <text x="${labelW + w + 6}" y="${y + rowH / 2}" font-size="10" fill="currentColor" dominant-baseline="middle">${formatCompact(d.value)}</text>
+        `;
+    }).join('');
+    return `<svg viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img">${rows}</svg>`;
+}
+
+function formatCompact(value) {
+    const n = parseFloat(value) || 0;
+    if (Math.abs(n) >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1000) return '$' + (n / 1000).toFixed(0) + 'k';
+    return '$' + n.toFixed(0);
+}
+
+function truncate(s, max) {
+    s = String(s);
+    return s.length > max ? s.slice(0, max - 1) + '…' : s;
+}
+
+// ===== PRINT VIEW (ESTATE BINDER) =====
+function renderPrintView() {
+    const el = document.getElementById('printView');
+    const sorted = [...assets].sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+    const grouped = groupBy(sorted, 'category');
+    const categories = Object.keys(grouped);
+    const totalFMV = assets.reduce((sum, a) => sum + (parseFloat(a.fmv) || 0), 0);
+    const dateStr = new Date().toLocaleDateString('{{TR_locale}}');
+    
+    const cover = `
+        <div class="print-cover">
+            <h1>{{TR_print_cover_title}}</h1>
+            <div>{{TR_brand}}</div>
+            <div class="print-cover-meta">
+                {{TR_md_generated}}: ${dateStr}<br>
+                {{TR_total_assets}}: ${assets.length}<br>
+                {{TR_total_fmv}}: ${formatCurrency(totalFMV)}
+            </div>
+        </div>
+    `;
+    
+    const toc = `
+        <div class="print-toc">
+            <h2>{{TR_print_toc}}</h2>
+            <ol>
+                ${categories.map(c => `<li>${escapeHtml(c)} (${grouped[c].length})</li>`).join('')}
+                <li>{{TR_print_beneficiaries}}</li>
+                <li>{{TR_print_insurance}}</li>
+            </ol>
+        </div>
+    `;
+    
+    const headerRow = `<tr><th>{{TR_id}}</th><th>{{TR_asset_name}}</th><th>{{TR_owner}}</th><th>{{TR_institution}}</th><th>{{TR_registration}}</th><th>{{TR_fmv}}</th><th>{{TR_status}}</th></tr>`;
+    const sections = categories.map(cat => `
+        <div class="print-section">
+            <h2>${escapeHtml(cat)}</h2>
+            <table class="print-table">
+                ${headerRow}
+                ${grouped[cat].map(a => `
+                    <tr>
+                        <td>${escapeHtml(a.id || '')}</td>
+                        <td>${escapeHtml(a.asset_name || '')}</td>
+                        <td>${escapeHtml(a.owner || '')}</td>
+                        <td>${escapeHtml(a.institution || '')}</td>
+                        <td>${escapeHtml(a.registration || '')}</td>
+                        <td>${formatCurrency(a.fmv)}</td>
+                        <td>${escapeHtml(a.status || '')}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+    `).join('');
+    
+    const withBeneficiaries = assets.filter(a => a.beneficiary || a.primary_beneficiary);
+    const beneficiarySection = `
+        <div class="print-section">
+            <h2>{{TR_print_beneficiaries}}</h2>
+            <table class="print-table">
+                <tr><th>{{TR_asset_name}}</th><th>{{TR_print_beneficiary}}</th><th>{{TR_col_primary_beneficiary}}</th><th>{{TR_print_contingent}}</th></tr>
+                ${withBeneficiaries.map(a => `
+                    <tr>
+                        <td>${escapeHtml(a.asset_name || '')}</td>
+                        <td>${escapeHtml(a.beneficiary || '')}</td>
+                        <td>${escapeHtml(a.primary_beneficiary || '')}</td>
+                        <td>${escapeHtml(a.contingent_beneficiary || '')}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+    `;
+    
+    const insuranceAssets = assets.filter(a => /insurance/i.test(a.category || '') || a.insurance_policy);
+    const insuranceSection = `
+        <div class="print-section">
+            <h2>{{TR_print_insurance}}</h2>
+            <table class="print-table">
+                <tr><th>{{TR_asset_name}}</th><th>{{TR_print_provider}}</th><th>{{TR_print_policy}}</th><th>{{TR_print_coverage}}</th><th>{{TR_print_premium}}</th><th>{{TR_print_beneficiary}}</th></tr>
+                ${insuranceAssets.map(a => `
+                    <tr>
+                        <td>${escapeHtml(a.asset_name || '')}</td>
+                        <td>${escapeHtml(a.insurance_provider || a.institution || '')}</td>
+                        <td>${escapeHtml(maskAccount(a.insurance_policy))}</td>
+                        <td>${a.insurance_coverage ? formatCurrency(a.insurance_coverage) : ''}</td>
+                        <td>${a.insurance_premium ? formatCurrency(a.insurance_premium) : ''}</td>
+                        <td>${escapeHtml(a.beneficiary || a.primary_beneficiary || '')}</td>
+                    </tr>
+                `).join('')}
+            </table>
+        </div>
+    `;
+    
+    el.innerHTML = cover + toc + sections + beneficiarySection + insuranceSection;
+}
+
+// ===== UTILITIES =====
+function groupBy(arr, key) {
+    return arr.reduce((acc, item) => {
+        const val = item[key] || '{{TR_uncategorized}}';
+        acc[val] = acc[val] || [];
+        acc[val].push(item);
+        return acc;
+    }, {});
+}
+
+function formatCurrency(value) {
+    const num = parseFloat(value) || 0;
+    return '$' + num.toLocaleString('en-CA', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+function formatLabel(field) {
+    return field.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
+}
+
+function fieldLabel(field) {
+    const meta = (typeof FIELDS_DATA !== 'undefined' && FIELDS_DATA[field]) || null;
+    return (meta && meta.label) || formatLabel(field);
+}
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function emptyStateHTML(title, desc) {
+    return `
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-title">${title}</div>
+            <div class="empty-state-desc">${desc}</div>
+        </div>
+    `;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+</script>
+
+</body>
+</html>
