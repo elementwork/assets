@@ -1,6 +1,6 @@
 # Asset Inventory Generator — Administrator Guide
 
-> **Last updated:** 2026-08-09 16:46:21
+> **Last updated:** 2026-08-09 17:31:28
 > **Audience:** Administrators / maintainers who install, generate, customize, or
 > troubleshoot the tool. End users should read the in-dashboard help (the **?** button)
 > instead — it covers everyday usage in English and Chinese.
@@ -13,6 +13,12 @@ A self-contained, offline-first asset inventory tool for Canadian families in On
 The Python generator produces three artifact types (Markdown, multi-sheet Excel, and a
 single-file HTML dashboard) in English and Chinese. No server, no external runtime for the
 dashboard, and no data leaves the user's device.
+
+> **Distribution model:** the generator is **closed-source** — it is an internal build tool.
+> End users receive generated artifacts: a free HTML download (Free tier, 15 categories /
+> 256 assets) or email-delivered paid files (Plus/Pro) that embed a signed license + family
+> binding + watermark. Feature→tier mapping is in `docs/dev/versioning_plan.md`; this guide
+> documents the internal build/test pipeline only.
 
 ### Components
 

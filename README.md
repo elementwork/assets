@@ -1,12 +1,18 @@
 # Asset Inventory Generator
 
-> **Last updated:** 2026-08-09 16:46:21
+> **Last updated:** 2026-08-09 17:31:28
 
 A generator for Canadian families in Ontario that produces a structured asset inventory in three formats:
 
 - **Markdown** — human-readable reference document
 - **Excel** — multi-sheet workbook for analysis
 - **HTML Dashboard** — self-contained, interactive dashboard with inline editing, multiple layouts, and export options
+
+> **Distribution model:** the generator is a **closed-source** internal build tool. Shipped
+> artifacts are tiered — **Free** (HTML dashboard, 15 categories / 256 assets) downloadable
+> from a landing page, and **Plus / Pro** (full catalog + File Lock + Ontario intelligence +
+> Export; email-delivered with a signed license). Feature→tier mapping and copy-protection
+> design: `docs/dev/versioning_plan.md`. CLI instructions below are for maintainers.
 
 ## Project structure
 
