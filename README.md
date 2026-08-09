@@ -1,6 +1,6 @@
 # Asset Inventory Generator
 
-> **Last updated:** 2026-07-31 23:08:58
+> **Last updated:** 2026-08-09 16:30:38
 
 A generator for Canadian families in Ontario that produces a structured asset inventory in three formats:
 
@@ -98,7 +98,7 @@ Features:
 - Inline table editing (double-click a cell) and sortable, configurable table columns
 - Kanban drag-and-drop between status columns
 - Markdown rendering for notes / alerts / to-dos
-- Credential vault — AES-256-GCM encryption with passphrase lock/unlock
+- File lock (optional, default off) — encrypts the whole file with AES-256-GCM using a birth-date + family-word passphrase; browser unlock gate, ciphertext to text editors
 - Audit view (traffic-light validation) and pure-SVG charts (no libraries)
 - Auto-save to browser storage plus Save-HTML that carries every edit into the downloaded file
 - Export to Markdown, CSV, JSON, and self-contained HTML; print-ready estate binder
@@ -121,8 +121,8 @@ This validates the whole pipeline and requires Python 3.9+ and `openpyxl`:
    `{{TR_*}}` template placeholders in the generated HTML
 3. **Browser E2E** (headless Chromium via Playwright) — renders both dashboards and
    exercises search, filters, themes, all 5 templates, all 8 layouts, table sorting,
-   schema-driven edit modal, validation, undo/redo, duplicate, delete, credential
-   vault (encrypt/lock/wrong-passphrase/unlock), charts, exports, JSON import, print,
+   schema-driven edit modal, validation, undo/redo, duplicate, delete, file lock
+   (encrypt/unlock/wrong-passphrase/backoff), charts, exports, JSON import, print,
    quick-add wizard, bulk edit, inline editing, kanban drag-and-drop, column
    configuration, markdown notes, and auto-save
 4. **Screenshots** saved to `tests/screenshots/` for visual review

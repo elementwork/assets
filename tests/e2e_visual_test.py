@@ -8,7 +8,8 @@ Pipeline under test:
        Excel workbook structure, Markdown content)
     3. Headless-Chromium interaction on the generated dashboards (en + zh):
        stats, search, filters, themes, templates, layouts, table sorting, edit modal,
-       validation, undo/redo, duplicate, delete, vault, charts, exports, import, print
+       validation, undo/redo, duplicate, delete, file lock (whole-file encryption),
+       charts, exports, import, print
     4. Screenshots captured to tests/screenshots/ for visual review
 
 Exit code 0 = all checks pass, 1 = one or more failures.
@@ -359,43 +360,68 @@ def e2e_en(browser):
     check("en: deleted asset removed (517)",
           page.locator("#dashboardView .asset-item").count() == 517)
 
-    # Vault: give the vault a real credential to encrypt first (blank template
-    # data has no plaintext credentials, so set/encrypt/lock would be no-ops).
+    # File lock: enable whole-file encryption (birth date + family word) and
+    # download the encrypted bootloader copy.
     _open_modal(page, "A-0001")
     page.fill('#modalContent [data-field="login_password"]', "s3cret-pw!")
     _save_modal(page)
-    page.click("#vaultToggle")
-    page.wait_for_selector("#vaultOverlay.active", timeout=5000)
-    page.fill("#vaultPass1", "test-passphrase-123")
-    page.fill("#vaultPass2", "test-passphrase-123")
-    page.click("#vaultSetBtn")
-    page.wait_for_timeout(2500)  # PBKDF2 derivation
-    status = page.text_content("#vaultStatusText")
-    check("en: vault set -> unlocked", "unlocked" in status.lower(), status)
-    enc = page.evaluate("assets.find(a => a.id === 'A-0001').login_password")
-    check("en: credential encrypted at rest",
-          isinstance(enc, dict) and enc.get("enc") is True, str(enc)[:60])
-    check("en: vault set cleared undo/redo history",
-          page.evaluate("undoStack.length === 0 && redoStack.length === 0"))
-    page.click("#vaultLockBtn")
-    page.wait_for_timeout(200)
-    status = page.text_content("#vaultStatusText")
-    check("en: vault lock", "locked" in status.lower(), status)
-    page.fill("#vaultPass1", "wrong-passphrase")
-    page.click("#vaultUnlockBtn")
-    page.wait_for_timeout(2500)
-    toast = page.locator(".toast-notification").text_content() if page.locator(".toast-notification").count() else ""
-    status = page.text_content("#vaultStatusText")
-    check("en: vault rejects wrong passphrase",
-          "incorrect" in toast.lower() and "locked" in status.lower(),
-          f"toast={toast!r} status={status!r}")
-    page.fill("#vaultPass1", "test-passphrase-123")
-    page.click("#vaultUnlockBtn")
-    page.wait_for_timeout(2500)
-    status = page.text_content("#vaultStatusText")
-    check("en: vault unlocks with correct passphrase", "unlocked" in status.lower(), status)
+    page.click("#lockToggle")
+    page.wait_for_selector("#lockOverlay.active", timeout=5000)
+    status = page.text_content("#lockStatusText")
+    check("en: lock not-set status", "plain text" in status.lower() or "明文" in status, status)
+    page.fill("#lockBirth", "19750108")
+    page.fill("#lockWord1", "chen")
+    page.fill("#lockWord2", "chen")
+    with page.expect_download() as dl:
+        page.click("#lockEnableBtn")
+    locked_path = Path(dl.value.path())
+    locked_html = locked_path.read_text(encoding="utf-8") if locked_path else ""
+    check("en: lock downloads encrypted file",
+          "id=\"gateBtn\"" in locked_html, f"size={len(locked_html)}")
+    check("en: locked file hides plaintext data",
+          "const ASSETS_DATA" not in locked_html and "s3cret-pw!" not in locked_html)
+    check("en: locked session sets passphrase flag",
+          page.evaluate("!!window.__LOCK_PASS__"))
     page.keyboard.press("Escape")
     page.wait_for_timeout(200)
+    # Save HTML in a locked session produces another encrypted file
+    with page.expect_download() as dl:
+        page.evaluate("saveHTML()")
+    re_locked = Path(dl.value.path()).read_text(encoding="utf-8") if dl.value.path() else ""
+    check("en: locked-session saveHTML stays encrypted",
+          "id=\"gateBtn\"" in re_locked and "const ASSETS_DATA" not in re_locked)
+
+    # Open the locked file in a fresh context: gate shows, wrong passphrase
+    # rejected with backoff, correct passphrase unlocks to the full dashboard.
+    lock_tmp = Path(tempfile.mkdtemp()) / "e2e-locked.html"
+    lock_tmp.write_text(locked_html, encoding="utf-8")
+    lock_ctx = browser.new_context()
+    lock_page = lock_ctx.new_page()
+    lock_err = []
+    lock_page.on("pageerror", lambda e: lock_err.append(str(e)))
+    lock_page.goto(lock_tmp.as_uri(), wait_until="load")
+    lock_page.wait_for_timeout(400)
+    check("en: locked file shows unlock gate", lock_page.locator("#gateBtn").count() == 1)
+    lock_page.fill("#gateBirth", "19991231")
+    lock_page.fill("#gateWord", "wrong")
+    lock_page.click("#gateBtn")
+    lock_page.wait_for_timeout(1200)
+    check("en: wrong passphrase rejected",
+          "Incorrect" in (lock_page.text_content("#gateErr") or "") or "不正确" in (lock_page.text_content("#gateErr") or ""),
+          lock_page.text_content("#gateErr").strip())
+    lock_page.fill("#gateBirth", "19750108")
+    lock_page.fill("#gateWord", "chen")
+    lock_page.click("#gateBtn")
+    lock_page.wait_for_timeout(1800)
+    check("en: correct passphrase unlocks dashboard",
+          lock_page.text_content("#totalAssets") == "517", lock_page.text_content("#totalAssets"))
+    check("en: unlocked locked-file carries credentials",
+          lock_page.evaluate("assets.find(a => a.id === 'A-0001').login_password") == "s3cret-pw!")
+    check("en: locked unlock has no JS errors", not lock_err, f"{lock_err[:3]}")
+    lock_ctx.close()
+    # Reset the main session to plaintext so the remaining export/save tests
+    # exercise the normal (unlocked) path.
+    page.evaluate("lockPassphrase = null; window.__LOCK_PASS__ = null;")
 
     # Exports (downloads)
     with page.expect_download() as dl:
@@ -579,17 +605,6 @@ def e2e_en(browser):
     })()""")
     check("en: csvEscape guards leading-space formula", guard_ok,
           page.evaluate("csvEscape(' =cmd|xyz')"))
-
-    # saveHTML must not bake decrypted plaintext from an open edit modal
-    _open_modal(page, "A-0001")
-    page.wait_for_timeout(300)
-    with page.expect_download() as dl:
-        page.evaluate("saveHTML()")  # modal is open, so trigger via JS
-    leak_html = Path(dl.value.path()).read_text(encoding="utf-8") if dl.value.path() else ""
-    check("en: saveHTML excludes modal plaintext password",
-          "s3cret-pw!" not in leak_html)
-    page.keyboard.press("Escape")
-    page.wait_for_timeout(200)
 
     # Audit view follows the active search/filter
     _layout(page, "audit")

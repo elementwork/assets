@@ -1846,8 +1846,8 @@ body {
     }
 }
 
-/* ===== VAULT ===== */
-.vault-overlay {
+/* ===== FILE LOCK ===== */
+.lock-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1864,12 +1864,12 @@ body {
     backdrop-filter: blur(4px);
 }
 
-.vault-overlay.active {
+.lock-overlay.active {
     opacity: 1;
     visibility: visible;
 }
 
-.vault-dialog {
+.lock-dialog {
     width: 460px;
     max-width: calc(100% - 32px);
     background: var(--bg);
@@ -1878,7 +1878,7 @@ body {
     overflow: hidden;
 }
 
-.vault-header {
+.lock-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1890,20 +1890,20 @@ body {
     color: var(--text);
 }
 
-.vault-body {
+.lock-body {
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.vault-status {
+.lock-status {
     font-size: 13px;
     color: var(--text-secondary);
     line-height: 1.5;
 }
 
-.vault-warning {
+.lock-warning {
     font-size: 12px;
     color: var(--warning);
     background: var(--accent-light);
@@ -1912,13 +1912,19 @@ body {
     line-height: 1.5;
 }
 
-.vault-actions {
+.lock-actions {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
 }
 
-#vaultToggle.unlocked {
+.lock-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+#lockToggle.unlocked {
     color: var(--success);
 }
 
@@ -1934,7 +1940,7 @@ body {
     .main-content,
     .modal-overlay,
     .help-overlay,
-    .vault-overlay,
+    .lock-overlay,
     .toast-notification {
         display: none !important;
     }
@@ -2309,7 +2315,7 @@ td[data-edit-field] {
         </div>
         <button class="btn btn-icon" id="themeToggle" title="切换主题">☾</button>
         <button class="btn btn-icon" id="helpToggle" title="帮助" aria-label="帮助">?</button>
-        <button class="btn btn-icon" id="vaultToggle" title="凭据保险库" aria-label="凭据保险库">🔒</button>
+        <button class="btn btn-icon" id="lockToggle" title="文件锁" aria-label="文件锁">🔒</button>
         <button class="btn btn-icon" id="autoSaveToggle" title="自动保存">💾</button>
         <span class="unsaved-dot" id="unsavedIndicator" title="有未保存的更改 — 请使用保存 HTML 保留">●</span>
         <button class="btn btn-primary" id="saveHTML">保存 HTML</button>
@@ -2537,8 +2543,8 @@ td[data-edit-field] {
                 <p>看板卡片可在状态列之间拖放。使用☰列菜单显示或隐藏表格列。备注、提醒和待办事项支持 Markdown（粗体、斜体、链接、列表）。💾按钮可切换自动保存。</p>
             </div>
             <div class="help-section">
-                <div class="help-section-title">凭据保险库</div>
-                <p>🔒按钮可打开凭据保险库：设置口令后，使用 AES-256-GCM 加密密码和安全问题。口令不会被存储——没有口令，加密数据将无法恢复。</p>
+                <div class="help-section-title">文件锁</div>
+                <p>🔒按钮可启用文件锁：使用 AES-256-GCM 对整个文件加密，口令由所有者的出生日期（YYYYMMDD）加一个家庭词派生。口令永远不会被存储。锁定后，在浏览器中打开文件会提示输入出生日期和家庭词；用文本编辑器打开只能看到密文。多次尝试失败后会触发等待时间。</p>
             </div>
             <div class="help-section">
                 <div class="help-section-title">导出与保存</div>
@@ -2591,27 +2597,33 @@ td[data-edit-field] {
 </div>
 
 <!-- VAULT DIALOG -->
-<div class="vault-overlay" id="vaultOverlay">
-    <div class="vault-dialog">
-        <div class="vault-header">
-            <span>凭据保险库</span>
-            <button class="modal-close" id="vaultClose">&times;</button>
+<div class="lock-overlay" id="lockOverlay">
+    <div class="lock-dialog">
+        <div class="lock-header">
+            <span>文件锁</span>
+            <button class="modal-close" id="lockClose">&times;</button>
         </div>
-        <div class="vault-body">
-            <div class="vault-status" id="vaultStatusText"></div>
-            <div class="vault-warning">口令不会被存储。没有口令 = 无法恢复。如遗失口令，加密数据将无法找回。</div>
-            <div class="form-group" id="vaultPassGroup">
-                <label class="form-label">口令</label>
-                <input type="password" class="form-input" id="vaultPass1" autocomplete="off">
+        <div class="lock-body">
+            <div class="lock-status" id="lockStatusText"></div>
+            <div class="lock-warning">口令永远不会被存储。它由所有者的出生日期（YYYYMMDD）加一个家庭词派生而来。没有口令 = 无法恢复 —— 若遗忘其中任何一项，文件将无法打开。</div>
+            <div id="lockEnableFields">
+                <div class="form-group">
+                    <label class="form-label">所有者出生日期（YYYYMMDD）</label>
+                    <input type="text" class="form-input" id="lockBirth" placeholder="例如 19750108" maxlength="8" inputmode="numeric" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">家庭词</label>
+                    <input type="password" class="form-input" id="lockWord1" placeholder="家庭词" autocomplete="off">
+                    <div class="lock-hint">家人会知道的词（如母亲的娘家姓氏）。</div>
+                </div>
+                <div class="form-group" id="lockConfirmGroup">
+                    <label class="form-label">确认家庭词</label>
+                    <input type="password" class="form-input" id="lockWord2" placeholder="家庭词" autocomplete="off">
+                </div>
             </div>
-            <div class="form-group" id="vaultConfirmGroup">
-                <label class="form-label">确认口令</label>
-                <input type="password" class="form-input" id="vaultPass2" autocomplete="off">
-            </div>
-            <div class="vault-actions">
-                <button class="btn btn-primary" id="vaultSetBtn">设置口令并加密</button>
-                <button class="btn btn-primary" id="vaultUnlockBtn">解锁</button>
-                <button class="btn btn-secondary" id="vaultLockBtn">锁定</button>
+            <div class="lock-actions">
+                <button class="btn btn-primary" id="lockEnableBtn">启用文件锁并下载加密副本</button>
+                <button class="btn btn-secondary" id="lockDisableBtn">禁用文件锁</button>
             </div>
         </div>
     </div>
@@ -60389,9 +60401,13 @@ const redoStack = [];
 let currentSort = null;
 try { currentSort = JSON.parse(localStorage.getItem('assetSort') || 'null'); } catch (e) { currentSort = null; }
 
-// Vault state: the passphrase lives in memory only, never persisted
-const SENSITIVE_FIELDS = ['login_password', 'security_questions'];
-let vaultPassphrase = null;
+// File-lock state: the passphrase lives in memory only, never persisted.
+// When set, this is a locked session: the whole file is encrypted and the
+// passphrase was derived from birth date (YYYYMMDD) + family word.
+let lockPassphrase = null;
+let lockFailedAttempts = 0;
+let lockNextAttemptAt = 0;
+const LOCK_PBKDF2_ITERATIONS = 100000;
 
 // Field section groupings for the edit modal
 const FIELD_SECTIONS = {
@@ -60439,7 +60455,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLayout();
     initModal();
     initHelp();
-    initVault();
+    initLock();
     initWizard();
     initBulkEdit();
     initInlineEdit();
@@ -60936,38 +60952,19 @@ function closeHelp() {
     document.body.style.overflow = '';
 }
 
-// Plaintext of decrypted sensitive fields for the currently open modal (memory only)
-let modalDecrypted = {};
-let modalToken = 0;
+// ===== EDIT MODAL =====
 
 function openModal(assetId) {
     const asset = findAsset(assetId);
     if (asset) showAssetModal(asset);
 }
 
-async function showAssetModal(asset) {
-    const token = ++modalToken;
+function showAssetModal(asset) {
     currentAsset = asset;
-    modalDecrypted = {};
     
     document.getElementById('modalTitle').textContent = `编辑：${asset.asset_name || asset.id}`;
     document.getElementById('modalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
-    
-    // Decrypt sensitive fields for display when the vault is unlocked
-    for (const field of SENSITIVE_FIELDS) {
-        if (isEncryptedVal(asset[field]) && vaultPassphrase) {
-            try {
-                const decrypted = await decryptValue(asset[field]);
-                // Discard stale results if a newer asset was opened meanwhile.
-                if (token !== modalToken) return;
-                modalDecrypted[field] = decrypted;
-            } catch (e) {
-                console.error('Failed to decrypt field', field, e);
-            }
-        }
-    }
-    if (token !== modalToken) return;
     
     const container = document.getElementById('modalContent');
     container.innerHTML = Object.entries(FIELD_SECTIONS).map(([section, fields]) => {
@@ -60988,16 +60985,11 @@ function renderFieldInput(field, asset) {
     const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
     const type = meta.type || 'text';
     const label = escapeHtml(fieldLabel(field));
-    const encrypted = isEncryptedVal(asset[field]);
-    const rawValue = encrypted ? '' : (asset[field] === null || asset[field] === undefined ? '' : String(asset[field]));
-    const value = encrypted ? (modalDecrypted[field] !== undefined ? modalDecrypted[field] : '') : rawValue;
+    const value = asset[field] === null || asset[field] === undefined ? '' : String(asset[field]);
     const isLong = ['notes', 'alert', 'todo'].includes(field) || type === 'textarea';
     let control;
     
-    if (encrypted && modalDecrypted[field] === undefined) {
-        // Vault locked (or undecryptable): masked read-only placeholder, ciphertext preserved on save
-        control = `<input type="text" class="form-input" data-field="${field}" data-enc-readonly="1" value="••••" readonly>`;
-    } else if (isLong) {
+    if (isLong) {
         control = `<textarea class="form-textarea" data-field="${field}">${escapeHtml(value)}</textarea>`;
     } else if (type === 'select') {
         const options = meta.options || [];
@@ -61046,7 +61038,6 @@ function validateModal(inputs) {
     inputs.forEach(input => {
         clearFieldError(input);
         const field = input.dataset.field;
-        if (input.dataset.encReadonly === '1') return;
         const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
         const v = (input.value || '').trim();
         let err = '';
@@ -61092,10 +61083,9 @@ function closeModal() {
     document.getElementById('modalOverlay').classList.remove('active');
     document.body.style.overflow = '';
     currentAsset = null;
-    modalDecrypted = {};
 }
 
-async function saveAsset() {
+function saveAsset() {
     if (!currentAsset) return;
     const inputs = [...document.querySelectorAll('#modalContent [data-field]')];
     if (!validateModal(inputs)) {
@@ -61106,16 +61096,7 @@ async function saveAsset() {
     pushUndo();
     for (const input of inputs) {
         const field = input.dataset.field;
-        if (input.dataset.encReadonly === '1') continue; // untouched ciphertext
-        let value = input.value;
-        if (SENSITIVE_FIELDS.includes(field)) {
-            // Unchanged decrypted value: keep the existing ciphertext untouched
-            if (modalDecrypted[field] !== undefined && value === modalDecrypted[field]) continue;
-            if (value !== '' && vaultPassphrase) {
-                value = await encryptValue(value);
-            }
-        }
-        currentAsset[field] = value;
+        currentAsset[field] = input.value;
     }
     if (isNew) assets.push(currentAsset);
     saveToLocalStorage();
@@ -61512,11 +61493,7 @@ async function applyBulkEdit() {
     for (const id of bulkSelected) {
         const asset = findAsset(id);
         if (!asset) continue;
-        if (SENSITIVE_FIELDS.includes(field) && value !== '' && vaultPassphrase) {
-            asset[field] = await encryptValue(value);
-        } else {
-            asset[field] = value;
-        }
+        asset[field] = value;
     }
     saveToLocalStorage();
     markDirty();
@@ -61563,8 +61540,7 @@ function inlineEditCell(td) {
     const field = td.dataset.editField;
     const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
     const type = meta.type || 'text';
-    const encrypted = isEncryptedVal(asset[field]);
-    const current = encrypted ? '' : (asset[field] === null || asset[field] === undefined ? '' : String(asset[field]));
+    const current = asset[field] === null || asset[field] === undefined ? '' : String(asset[field]);
     td.dataset.editing = '1';
     const original = td.innerHTML;
 
@@ -61611,11 +61587,7 @@ function inlineEditCell(td) {
         const value = control.value;
         if (value !== current && field !== 'id') {
             pushUndo();
-            if (SENSITIVE_FIELDS.includes(field) && value !== '' && vaultPassphrase) {
-                asset[field] = await encryptValue(value);
-            } else {
-                asset[field] = value;
-            }
+            asset[field] = value;
             saveToLocalStorage();
             markDirty();
             renderTable();
@@ -61847,11 +61819,10 @@ function refreshOwnerFilter() {
     ownerSelect.value = owners.includes(current) ? current : '';
 }
 
-function saveHTML() {
+function serializeCurrentHTML() {
     // Write the current in-memory assets back into the embedded data block so
     // the downloaded file carries every edit made since it was opened.
     const scriptEl = [...document.scripts].find(s => s.textContent.includes('const ASSETS_DATA ='));
-    let restored = null;
     if (scriptEl) {
         const original = scriptEl.textContent;
         const marker = 'const ASSETS_DATA = ';
@@ -61861,20 +61832,27 @@ function saveHTML() {
         if (start !== -1 && end !== -1) {
             const json = JSON.stringify(assets).replace(/</g, '\\u003c');
             scriptEl.textContent = original.slice(0, start + marker.length) + json + original.slice(end);
-            restored = original;
+            const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            scriptEl.textContent = original;
+            return html;
         }
     }
-    // Serialize a sanitized clone so decrypted credentials sitting in an open
-    // edit modal's inputs are never baked into the downloaded file.
-    const clone = document.documentElement.cloneNode(true);
-    clone.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-        if (SENSITIVE_FIELDS.includes(el.dataset.field)) {
-            if (el.tagName === 'TEXTAREA') el.textContent = '';
-            else el.setAttribute('value', '');
-        }
-    });
-    downloadFile('<!DOCTYPE html>\n' + clone.outerHTML, 'asset-inventory-dashboard-zh.html', 'text/html');
-    if (restored !== null && scriptEl) scriptEl.textContent = restored;
+    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+}
+
+function saveHTML() {
+    const html = serializeCurrentHTML();
+    if (lockPassphrase) {
+        // Locked session: re-encrypt the whole file with the in-memory passphrase.
+        buildLockedFile(html, lockPassphrase).then(() => {
+            clearDirty();
+            showToast('已保存加密文件');
+        }).catch(() => {
+            showToast('当前浏览器环境不支持 Web Crypto');
+        });
+        return;
+    }
+    downloadFile(html, 'asset-inventory-dashboard-zh.html', 'text/html');
     clearDirty();
     showToast('HTML 已保存');
 }
@@ -61983,7 +61961,7 @@ function initKeyboardShortcuts() {
         if (e.key === 'Escape') {
             closeModal();
             closeHelp();
-            closeVault();
+            closeLock();
             closeWizard();
         }
     });
@@ -62051,138 +62029,120 @@ function showToast(message, action) {
     }, 4000);
 }
 
-// ===== CREDENTIAL VAULT (AES-256-GCM + PBKDF2) =====
-function initVault() {
-    document.getElementById('vaultToggle').addEventListener('click', openVault);
-    document.getElementById('vaultClose').addEventListener('click', closeVault);
-    document.getElementById('vaultOverlay').addEventListener('click', (e) => {
-        if (e.target.id === 'vaultOverlay') closeVault();
+// ===== FILE LOCK (whole-file AES-256-GCM + PBKDF2) =====
+function initLock() {
+    document.getElementById('lockToggle').addEventListener('click', openLock);
+    document.getElementById('lockClose').addEventListener('click', closeLock);
+    document.getElementById('lockOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'lockOverlay') closeLock();
     });
-    document.getElementById('vaultSetBtn').addEventListener('click', vaultSetPassphrase);
-    document.getElementById('vaultUnlockBtn').addEventListener('click', vaultUnlock);
-    document.getElementById('vaultLockBtn').addEventListener('click', vaultLock);
-    updateVaultUI();
+    document.getElementById('lockEnableBtn').addEventListener('click', lockEnable);
+    document.getElementById('lockDisableBtn').addEventListener('click', lockDisable);
+    // Auto-unlock if we were opened as a locked file (bootloader injected
+    // __LOCK_BLOB__ into the dashboard before document.write).
+    if (window.__LOCK_BLOB__) {
+        lockPassphrase = window.__LOCK_PASS__ || null;
+    }
+    updateLockUI();
 }
 
-function vaultCryptoAvailable() {
+function lockCryptoAvailable() {
     if (window.crypto && crypto.subtle) return true;
     showToast('当前浏览器环境不支持 Web Crypto');
     return false;
 }
 
-function vaultHasEncryptedData() {
-    return assets.some(a => SENSITIVE_FIELDS.some(f => isEncryptedVal(a[f])));
+function lockHasBlob() {
+    return !!(window.__LOCK_BLOB__ || document.getElementById('lockBlob'));
 }
 
-function openVault() {
-    document.getElementById('vaultOverlay').classList.add('active');
-    updateVaultUI();
+function openLock() {
+    document.getElementById('lockOverlay').classList.add('active');
+    updateLockUI();
 }
 
-function closeVault() {
-    document.getElementById('vaultOverlay').classList.remove('active');
-    document.getElementById('vaultPass1').value = '';
-    document.getElementById('vaultPass2').value = '';
+function closeLock() {
+    document.getElementById('lockOverlay').classList.remove('active');
+    document.getElementById('lockBirth').value = '';
+    document.getElementById('lockWord1').value = '';
+    document.getElementById('lockWord2').value = '';
 }
 
-function updateVaultUI() {
-    const status = document.getElementById('vaultStatusText');
-    const passGroup = document.getElementById('vaultPassGroup');
-    const confirmGroup = document.getElementById('vaultConfirmGroup');
-    const setBtn = document.getElementById('vaultSetBtn');
-    const unlockBtn = document.getElementById('vaultUnlockBtn');
-    const lockBtn = document.getElementById('vaultLockBtn');
-    const hasEncrypted = vaultHasEncryptedData();
-    
-    if (vaultPassphrase) {
-        status.textContent = '保险库已解锁，仅本次会话有效。';
-        passGroup.style.display = 'none';
+function updateLockUI() {
+    const status = document.getElementById('lockStatusText');
+    const enableFields = document.getElementById('lockEnableFields');
+    const confirmGroup = document.getElementById('lockConfirmGroup');
+    const enableBtn = document.getElementById('lockEnableBtn');
+    const disableBtn = document.getElementById('lockDisableBtn');
+    const isLockedSession = !!lockPassphrase;
+
+    if (isLockedSession) {
+        status.textContent = '此文件已解锁（仅本次会话有效）。';
+        enableFields.style.display = 'none';
+        enableBtn.style.display = 'none';
+        disableBtn.style.display = '';
+    } else if (lockHasBlob()) {
+        // A locked file that has not been unlocked yet in this session.
+        status.textContent = '此文件已锁定。请输入出生日期和家庭词以打开。';
+        enableFields.style.display = 'none';
         confirmGroup.style.display = 'none';
-        setBtn.style.display = 'none';
-        unlockBtn.style.display = 'none';
-        lockBtn.style.display = '';
-    } else if (hasEncrypted) {
-        status.textContent = '保险库已锁定。请输入口令以查看或编辑加密凭据。';
-        passGroup.style.display = '';
-        confirmGroup.style.display = 'none';
-        setBtn.style.display = 'none';
-        unlockBtn.style.display = '';
-        lockBtn.style.display = 'none';
+        enableBtn.style.display = 'none';
+        disableBtn.style.display = 'none';
     } else {
-        status.textContent = '尚未设置保险库口令。密码和安全问题当前以明文存储。';
-        passGroup.style.display = '';
-        confirmGroup.style.display = '';
-        setBtn.style.display = '';
-        unlockBtn.style.display = 'none';
-        lockBtn.style.display = 'none';
+        status.textContent = '未设置文件锁。文件以明文存储。';
+        enableFields.style.display = '';
+        enableBtn.style.display = '';
+        disableBtn.style.display = 'none';
     }
-    document.getElementById('vaultToggle').classList.toggle('unlocked', !!vaultPassphrase);
+    document.getElementById('lockToggle').classList.toggle('unlocked', isLockedSession);
 }
 
-async function vaultSetPassphrase() {
-    if (!vaultCryptoAvailable()) return;
-    const p1 = document.getElementById('vaultPass1').value;
-    const p2 = document.getElementById('vaultPass2').value;
-    if (!p1) { showToast('请输入口令'); return; }
-    if (p1 !== p2) { showToast('两次输入的口令不一致'); return; }
-    vaultPassphrase = p1;
-    // Encrypt every plaintext credential at rest
-    for (const asset of assets) {
-        for (const field of SENSITIVE_FIELDS) {
-            const v = asset[field];
-            if (v && !isEncryptedVal(v)) {
-                asset[field] = await encryptValue(String(v));
-            }
-        }
+function lockBuildPassphrase(birth, word) {
+    const digits = String(birth || '').replace(/\D/g, '');
+    const w = String(word || '').trim().toLowerCase();
+    return digits + '|' + w;
+}
+
+function lockValidate(birth, w1, w2) {
+    const digits = String(birth || '').replace(/\D/g, '');
+    if (digits.length !== 8) return { ok: false, msg: '出生日期必须为 8 位数字（YYYYMMDD）' };
+    if (!w1 || w1.trim().length < 2) return { ok: false, msg: '家庭词至少需要 2 个字符' };
+    if (w1 !== w2) return { ok: false, msg: '两次输入的家庭词不一致' };
+    return { ok: true };
+}
+
+async function lockEnable() {
+    if (!lockCryptoAvailable()) return;
+    const birth = document.getElementById('lockBirth').value;
+    const w1 = document.getElementById('lockWord1').value;
+    const w2 = document.getElementById('lockWord2').value;
+    const v = lockValidate(birth, w1, w2);
+    if (!v.ok) { showToast(v.msg); return; }
+    const pass = lockBuildPassphrase(birth, w1);
+    lockPassphrase = pass;
+    window.__LOCK_PASS__ = pass;
+    const html = serializeCurrentHTML();
+    try {
+        await buildLockedFile(html, pass);
+        updateLockUI();
+        renderCurrentLayout();
+        showToast('已启用文件锁 — 加密副本已下载');
+    } catch (e) {
+        lockPassphrase = null;
+        window.__LOCK_PASS__ = null;
+        showToast('加密负载缺失或损坏');
     }
-    // Drop undo/redo history so Undo cannot restore the pre-encryption
-    // plaintext snapshots and persist plaintext credentials again.
-    undoStack.length = 0;
-    redoStack.length = 0;
-    saveToLocalStorage();
-    markDirty();
-    updateVaultUI();
+}
+
+async function lockDisable() {
+    if (!lockPassphrase) return;
+    const html = serializeCurrentHTML();
+    downloadFile(html, 'asset-inventory-dashboard-zh.html', 'text/html');
+    lockPassphrase = null;
+    window.__LOCK_PASS__ = null;
+    updateLockUI();
     renderCurrentLayout();
-    showToast('保险库已设置 — 凭据已加密存储');
-}
-
-async function vaultUnlock() {
-    if (!vaultCryptoAvailable()) return;
-    const p1 = document.getElementById('vaultPass1').value;
-    if (!p1) { showToast('请输入口令'); return; }
-    vaultPassphrase = p1;
-    // Verify against the first encrypted value found
-    for (const asset of assets) {
-        for (const field of SENSITIVE_FIELDS) {
-            if (isEncryptedVal(asset[field])) {
-                try {
-                    await decryptValue(asset[field]);
-                    updateVaultUI();
-                    renderCurrentLayout();
-                    showToast('保险库已解锁（仅本次会话）');
-                    return;
-                } catch (e) {
-                    vaultPassphrase = null;
-                    showToast('口令错误');
-                    return;
-                }
-            }
-        }
-    }
-    // Nothing encrypted yet: accept as the new session passphrase
-    updateVaultUI();
-    showToast('保险库已解锁（仅本次会话）');
-}
-
-function vaultLock() {
-    vaultPassphrase = null;
-    updateVaultUI();
-    renderCurrentLayout();
-    showToast('保险库已锁定');
-}
-
-function isEncryptedVal(v) {
-    return v !== null && typeof v === 'object' && v.enc === true;
+    showToast('已禁用文件锁 — 明文副本已下载');
 }
 
 function bufToB64(bytes) {
@@ -62195,12 +62155,12 @@ function b64ToBytes(b64) {
     return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 }
 
-async function deriveVaultKey(passphrase, saltB64) {
+async function lockDeriveKey(passphrase, saltBytes) {
     const keyMaterial = await crypto.subtle.importKey(
         'raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']
     );
     return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt: b64ToBytes(saltB64), iterations: 100000, hash: 'SHA-256' },
+        { name: 'PBKDF2', salt: saltBytes, iterations: LOCK_PBKDF2_ITERATIONS, hash: 'SHA-256' },
         keyMaterial,
         { name: 'AES-GCM', length: 256 },
         false,
@@ -62208,25 +62168,129 @@ async function deriveVaultKey(passphrase, saltB64) {
     );
 }
 
-async function encryptValue(plain) {
+async function buildLockedFile(html, passphrase) {
+    if (!lockCryptoAvailable()) throw new Error('no-crypto');
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await deriveVaultKey(vaultPassphrase, bufToB64(salt));
+    const key = await lockDeriveKey(passphrase, salt);
     const ct = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain)
+        { name: 'AES-GCM', iv }, key, new TextEncoder().encode(html)
     );
-    return { enc: true, salt: bufToB64(salt), iv: bufToB64(iv), ct: bufToB64(ct) };
+    const blob = {
+        salt: bufToB64(salt),
+        iv: bufToB64(iv),
+        ct: bufToB64(ct)
+    };
+    const payload = JSON.stringify(blob);
+    const stub = buildLockedStub(payload);
+    downloadFile(stub, 'asset-inventory-dashboard-locked-zh.html', 'text/html');
 }
 
-async function decryptValue(obj) {
-    const key = await deriveVaultKey(vaultPassphrase, obj.salt);
-    const pt = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv: b64ToBytes(obj.iv) }, key, b64ToBytes(obj.ct)
-    );
-    return new TextDecoder().decode(pt);
+function buildLockedStub(payload) {
+    // A plaintext "bootloader" gate that decrypts the encrypted dashboard and
+    // injects it. Text editors only see this gate + a base64 ciphertext blob.
+    return `<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>文件锁</title>
+<style>
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0f172a;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .gate{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:28px;width:min(92vw,420px);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .gate h1{font-size:18px;margin:0 0 6px}
+  .gate p{font-size:12.5px;color:#94a3b8;line-height:1.55;margin:6px 0}
+  .gate label{display:block;font-size:12px;margin:12px 0 4px;color:#cbd5e1}
+  .gate input{width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:14px}
+  .gate button{margin-top:16px;width:100%;padding:11px;border:none;border-radius:8px;background:#C5A55A;color:#0f172a;font-weight:700;font-size:14px;cursor:pointer}
+  .gate button:disabled{opacity:.5;cursor:not-allowed}
+  .gate .err{color:#f87171;font-size:12.5px;min-height:18px;margin-top:8px}
+  .gate .wait{color:#fbbf24;font-size:12.5px;min-height:18px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gate">
+  <h1>🔒 文件锁</h1>
+  <p>此文件已锁定。请输入出生日期和家庭词以打开。</p>
+  <label for="gateBirth">所有者出生日期（YYYYMMDD）</label>
+  <input id="gateBirth" maxlength="8" inputmode="numeric" placeholder="例如 19750108" autocomplete="off">
+  <label for="gateWord">家庭词</label>
+  <input id="gateWord" type="password" placeholder="家庭词" autocomplete="off">
+  <div class="err" id="gateErr"></div>
+  <div class="wait" id="gateWait"></div>
+  <button id="gateBtn">解锁文件</button>
+</div>
+<script id="lockBlob" type="application/json">${payload}<\/script>
+<script>
+(function () {
+    var BLOB = JSON.parse(document.getElementById('lockBlob').textContent);
+    var attempts = 0;
+    var waitUntil = 0;
+    var btn = document.getElementById('gateBtn');
+    var err = document.getElementById('gateErr');
+    var wait = document.getElementById('gateWait');
+
+    function b64ToBytes(b64) { return Uint8Array.from(atob(b64), function (c) { return c.charCodeAt(0); }); }
+    function pass() {
+        var b = document.getElementById('gateBirth').value.replace(/\\D/g, '');
+        var w = document.getElementById('gateWord').value.trim().toLowerCase();
+        return b + '|' + w;
+    }
+    function derive(p, salt) {
+        return crypto.subtle.importKey('raw', new TextEncoder().encode(p), 'PBKDF2', false, ['deriveKey']).then(function (km) {
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt: salt, iterations: ${LOCK_PBKDF2_ITERATIONS}, hash: 'SHA-256' },
+                km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+        });
+    }
+    function onAttempt() {
+        var now = Date.now();
+        if (now < waitUntil) {
+            var s = Math.ceil((waitUntil - now) / 1000);
+            wait.textContent = '尝试次数过多 — 请等待 {n} 秒后再试'.replace('{n}', s);
+            return;
+        }
+        err.textContent = '';
+        wait.textContent = '';
+        btn.disabled = true;
+        var p = pass();
+        var digits = document.getElementById('gateBirth').value.replace(/\\D/g, '');
+        if (digits.length !== 8 || !document.getElementById('gateWord').value.trim()) {
+            err.textContent = '出生日期或家庭词不正确';
+            btn.disabled = false;
+            return;
+        }
+        derive(p, b64ToBytes(BLOB.salt)).then(function (key) {
+            return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64ToBytes(BLOB.iv) }, key, b64ToBytes(BLOB.ct));
+        }).then(function (pt) {
+            window.__LOCK_PASS__ = p;
+            window.__LOCK_BLOB__ = true;
+            document.open();
+            document.write(new TextDecoder().decode(pt));
+            document.close();
+        }).catch(function () {
+            attempts += 1;
+            // Exponential backoff: no wait for the first 3 failures, then
+            // 2s, 4s, 8s, ... capped at 120s.
+            var delay = attempts <= 3 ? 0 : Math.min(Math.pow(2, attempts - 3), 120);
+            waitUntil = Date.now() + delay * 1000;
+            if (delay > 0) {
+                wait.textContent = '尝试次数过多 — 请等待 {n} 秒后再试'.replace('{n}', delay);
+            } else {
+                err.textContent = '出生日期或家庭词不正确';
+            }
+            btn.disabled = false;
+        });
+    }
+    btn.addEventListener('click', onAttempt);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Enter') onAttempt(); });
+})();
+<\/script>
+</body>
+</html>`;
 }
 
-// ===== SENSITIVE FIELD MASKING =====
+// ===== SENSITIVE FIELD MASKING (display only) =====
 function maskAccount(value) {
     const s = String(value || '');
     if (!s) return '';
@@ -62235,8 +62299,6 @@ function maskAccount(value) {
 
 function displayValue(field, value) {
     if (value === null || value === undefined || value === '') return '—';
-    if (isEncryptedVal(value)) return '••••';
-    if (SENSITIVE_FIELDS.includes(field)) return '••••';
     if (field === 'account_number') return escapeHtml(maskAccount(value));
     // Notes / alerts / todos support lightweight Markdown
     if (['notes', 'alert', 'todo'].includes(field)) return renderMarkdown(value);

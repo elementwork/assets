@@ -1,6 +1,6 @@
 # Asset Inventory Generator — Administrator Guide
 
-> **Last updated:** 2026-08-09 14:01:12
+> **Last updated:** 2026-08-09 16:30:38
 > **Audience:** Administrators / maintainers who install, generate, customize, or
 > troubleshoot the tool. End users should read the in-dashboard help (the **?** button)
 > instead — it covers everyday usage in English and Chinese.
@@ -160,10 +160,10 @@ python3 tests/e2e_visual_test.py
 Covers: regeneration (en/zh), static artifact checks (placeholders, sheet structure,
 asset counts), `--demo` fixture validation, and headless-Chromium interaction on both
 dashboards (search, filters, themes, 5 templates, 8 layouts, editing, validation,
-undo/redo, duplicate, delete, credential vault, charts, exports, import, print,
+undo/redo, duplicate, delete, file lock, charts, exports, import, print,
 quick-add, bulk edit, inline edit, kanban, columns, markdown, auto-save, plus regression
-coverage for CSV injection, plaintext leak on save, numeric-id import, audit filters,
-compact collapse). **122 checks**; exit code 0 = pass. Screenshots land in
+coverage for CSV injection, numeric-id import, audit filters, compact collapse).
+**125 checks**; exit code 0 = pass. Screenshots land in
 `tests/screenshots/` (gitignored).
 
 ### Pre-push checklist (see `docs/agents/pre-push.md`)
@@ -181,13 +181,17 @@ compact collapse). **122 checks**; exit code 0 = pass. Screenshots land in
 
 ## 7. Security model
 
-- **Credential vault:** AES-256-GCM via Web Crypto; key derived with PBKDF2
-  (100,000 iterations, random 16-byte salt per field, 12-byte IV). Passphrase is never
-  stored — **no passphrase = no recovery**.
-- Setting a passphrase clears undo/redo history so an Undo cannot restore pre-encryption
-  plaintext.
-- **Save HTML sanitization:** when serializing, decrypted credential inputs in an open
-  edit modal are stripped before the file is written.
+- **File Lock (whole-file encryption, default off):** the entire dashboard HTML is
+  encrypted with AES-256-GCM via Web Crypto; the key is derived with PBKDF2
+  (100,000 iterations, random 16-byte salt + 12-byte IV per file). The passphrase is
+  derived from the owner's birth date (YYYYMMDD) plus a family word and is never stored —
+  **no passphrase = no recovery**.
+- Enabling the lock downloads a **bootloader copy**: a small plaintext gate that holds the
+  ciphertext. Opening it in a browser shows an unlock prompt; a text editor only sees
+  ciphertext. After a few wrong attempts, an exponential waiting period is enforced.
+- **Save HTML in a locked session** re-encrypts the whole file with the in-memory
+  passphrase, so the downloaded file stays encrypted. Disabling the lock downloads a plain
+  copy.
 - **XSS hardening:** user-supplied values (names, categories, dates) are HTML-escaped;
   `status` is validated against a whitelist before use in CSS class names.
 - **CSV export:** RFC-4180 escaping plus a formula-injection guard
@@ -197,8 +201,13 @@ compact collapse). **122 checks**; exit code 0 = pass. Screenshots land in
 
 ### Security limitations to document for users
 
-- Exported **JSON** contains the full asset array: ciphertext when the vault is set,
-  otherwise **plaintext** (by design when no passphrase is configured).
+- The file lock protects the file at rest (text editor / scanning / casual viewing). It is
+  not a substitute for strong-key protection: the passphrase space is small
+  (birth date + family word), so someone who knows the birth date — or can guess the word —
+  can attempt an offline brute force. The in-browser backoff only slows repeated attempts
+  through the UI; it cannot stop offline cracking of a copied file.
+- Exported **JSON** contains the full asset array in **plaintext** when the file is not
+  locked (the lock only guards the HTML artifact).
 - localStorage persistence is per browser origin; clearing browser storage loses edits
   unless the user exported via Save HTML.
 
@@ -215,7 +224,8 @@ compact collapse). **122 checks**; exit code 0 = pass. Screenshots land in
 | Wrong field count (e.g. 109 vs 108) | `FIELD_DEFINITIONS` and `ASSET_FIELDS.md` must match; the E2E does not yet assert this |
 | Filtered output looks empty | Filters apply to source (English) data before translation; check `--owner`/`--category` spelling |
 | Downloaded HTML shows old data | Another copy of the file shares the same localStorage key; use a fresh profile or open via USB/different browser |
-| Vault data unrecoverable | Passphrase is never stored; there is no recovery path — this is by design |
+| Locked file data unrecoverable | Passphrase is never stored; there is no recovery path — this is by design |
+| Locked file won't open in a text editor | Expected — the file is a bootloader + ciphertext; open it in a browser and enter birth date + family word |
 
 ---
 

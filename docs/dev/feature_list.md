@@ -1,6 +1,6 @@
 # Feature List: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-09 13:47:49
+> **Status:** Living document · Last updated 2026-08-09 16:30:38
 > **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
 > **Roadmap:** Planned / in-progress features → see `future_plan.md`
 
@@ -58,9 +58,9 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 4.1 | AES-256-GCM credential vault (Web Crypto) — PBKDF2 100k, per-field salt/IV, ciphertext at rest | ✅ |
-| 4.2 | Vault UX: set/confirm passphrase, lock, unlock, wrong-passphrase rejection, "no passphrase = no recovery" warning | ✅ |
-| 4.3 | Sensitive-field masking — masked read-only placeholders, password inputs, account-number masking | ✅ |
+| 4.1 | Whole-file encryption (File Lock, default off) — AES-256-GCM via Web Crypto, PBKDF2 100k, bootloader unlock gate | ✅ |
+| 4.2 | Lock UX: birth date (YYYYMMDD) + family word, confirm, enable → downloads encrypted copy; disable → plain copy | ✅ |
+| 4.3 | Locked file: browser shows unlock gate; text editor sees only ciphertext; wrong-passphrase backoff (exponential wait) | ✅ |
 | 4.4 | XSS-safe rendering — event delegation, HTML-escaped ids | ✅ |
 | 4.5 | CSV formula-injection guard (`= + - @` prefix) + RFC-4180 escaping | ✅ |
 
@@ -90,5 +90,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 122 checks: generation, static artifacts, demo fixture, headless-Chromium interaction incl. quick-add wizard, bulk edit, inline edit, kanban DnD, column config, markdown, auto-save (en/zh), plus regression coverage for CSV injection, plaintext-leak on save, numeric-id import, audit filters, compact collapse (en/zh), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 125 checks: generation, static artifacts, demo fixture, headless-Chromium interaction incl. quick-add wizard, bulk edit, inline edit, kanban DnD, column config, markdown, auto-save (en/zh), plus file-lock (encrypt/unlock/backoff/re-save) and regression coverage for CSV injection, numeric-id import, audit filters, compact collapse (en/zh), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |
