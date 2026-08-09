@@ -1,6 +1,6 @@
 # Asset Inventory Generator
 
-> **Last updated:** 2026-08-09 16:30:38
+> **Last updated:** 2026-08-09 16:46:21
 
 A generator for Canadian families in Ontario that produces a structured asset inventory in three formats:
 

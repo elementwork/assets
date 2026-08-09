@@ -1,6 +1,6 @@
 # Promotion & Sales Plan: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-09 16:33:40
+> **Status:** Living document · Last updated 2026-08-09 16:46:21
 > **Product:** Self-contained, offline-first asset inventory for Canadian families in Ontario
 > (Markdown + Excel + single-file HTML dashboard, en/zh, optional whole-file encryption)
 > **Companion docs:** `feature_list.md` (what to sell), `future_plan.md` (what's next)

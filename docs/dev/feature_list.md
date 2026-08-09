@@ -1,6 +1,6 @@
 # Feature List: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-09 16:30:38
+> **Status:** Living document · Last updated 2026-08-09 16:49:47
 > **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
 > **Roadmap:** Planned / in-progress features → see `future_plan.md`
 

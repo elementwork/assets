@@ -1,10 +1,10 @@
 # Future Plan: Asset Inventory Generator (Merged)
 
-> **Status:** Living document · Last updated 2026-08-09 16:30:38
+> **Status:** Living document · Last updated 2026-08-09 16:49:47
 > **Sources merged (now superseded by this file):** `Improve_plans.md` (Imp-*), `Qoder-plan.md` (Q-*), `Implement_plan.md` (Impl-*)
 > **Scope:** Roadmap only — this document plans features; it does not implement them.
-> **Legend:** ⬜ Not started · 🟡 Partial (core exists, gaps remain)
-> **Shipped:** Features already implemented are tracked in `feature_list.md`, not here.
+> **Legend:** ✅ Done (implemented, see `feature_list.md`) · ⬜ Not started · 🟡 Partial (core exists, gaps remain)
+> **Shipped:** Features already implemented are tracked in `feature_list.md`; items here marked ✅ are done and retained for traceability.
 
 The tool generates a structured asset inventory (517 assets, 32 categories, 108 fields)
 as Markdown, multi-sheet Excel, and a self-contained HTML dashboard for Canadian families
@@ -28,7 +28,7 @@ The Audit layout exists but only covers a subset of the planned beneficiary audi
 
 | ID | Feature | Status | Source |
 |----|---------|--------|--------|
-| SEC-1 | **Master lock screen** — AES-encrypt the entire `ASSETS_DATA`; unlock gates the whole dashboard; file becomes email/USB-safe | ⬜ | Imp-B2, Impl-3.3 |
+| SEC-1 | **File lock (whole-file encryption)** — AES-256-GCM encrypts the entire dashboard HTML (bootloader gate); birth-date + family-word passphrase; browser unlock with backoff; file becomes email/USB-safe; implemented (default off) | ✅ | Imp-B2, Impl-3.3 |
 | SEC-2 | **Schema versioning & migration** — `schema_version` in localStorage/embedded JSON; migration map on load | ⬜ | Imp-G5, Q-F1 |
 | SEC-3 | **Session timeout auto-lock** — inactivity (default 15 min) re-locks the vault/master screen | ⬜ | Imp-B5 |
 | SEC-4 | **Secure clipboard** — clear clipboard 30 s after copying a credential | ⬜ | Imp-B4 |
@@ -139,7 +139,7 @@ The Audit layout exists but only covers a subset of the planned beneficiary audi
 
 ## 3. Suggested build order
 
-1. **Foundation (P0):** SEC-1 master lock, SEC-2 schema versioning, SEC-9 honest CSV/xlsx, EN-3 cleanup, EN-4 test expansion — hardens what exists before adding surface area.
+1. **Foundation (P0):** ~~SEC-1 file lock (done)~~, SEC-2 schema versioning, SEC-9 honest CSV/xlsx, EN-3 cleanup, EN-4 test expansion — hardens what exists before adding surface area.
 2. **Net-worth core:** NW-1 liabilities, NW-2 computed fields, NW-3 ownership/tenancy, PL-1 family profiles, IO-1 CSV import, PL-12 net worth trend.
 3. **Ontario estate brain (the differentiator):** ON-1 EAT, ON-2 death tax, ON-4 readiness score, PL-2 death simulator, PL-7 Executor Mode.
 4. **Trust layer:** SEC-7 sharing profiles, SEC-8 password health, UX-18 crypto protocol, IO-7 professional binder, ON-5 T1135.
@@ -149,5 +149,5 @@ The Audit layout exists but only covers a subset of the planned beneficiary audi
 
 - `python3 tests/e2e_visual_test.py` — all 125 checks green after every change (regenerates outputs, validates Markdown/Excel/HTML, drives both dashboards headless)
 - Golden path per feature: load demo fixture → act → save HTML → reopen in a fresh browser → state persists
-- Security: encrypted data is ciphertext in page source; wrong passphrase rejected; exports redact per profile
+- Security: locked file is ciphertext in a text editor (bootloader gate); wrong birth date/family word rejected with backoff; save-HTML in a locked session stays encrypted
 - Docs: every new field documented in `docs/dev/ASSET_FIELDS.md`

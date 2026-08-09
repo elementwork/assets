@@ -1,6 +1,6 @@
 # Asset Inventory Generator — Administrator Guide
 
-> **Last updated:** 2026-08-09 16:30:38
+> **Last updated:** 2026-08-09 16:46:21
 > **Audience:** Administrators / maintainers who install, generate, customize, or
 > troubleshoot the tool. End users should read the in-dashboard help (the **?** button)
 > instead — it covers everyday usage in English and Chinese.
