@@ -1173,6 +1173,10 @@ body {
     margin-bottom: 12px;
 }
 
+.compact-category-body.collapsed {
+    display: none;
+}
+
 .compact-category-header {
     display: flex;
     justify-content: space-between;
@@ -2694,12 +2698,24 @@ const FIELD_SECTIONS = {
 };
 
 // Localized status labels for display
+const LOCALE = '{{TR_locale}}';
+const CURRENCY_SYMBOL = '{{TR_currency_symbol}}';
 const STATUS_LABELS = {
     'Active': '{{TR_active}}',
     'Dormant': '{{TR_dormant}}',
     'Pending': '{{TR_pending}}',
     'Closed': '{{TR_closed}}'
 };
+// Known status values only — used for class names to prevent attribute injection.
+const STATUS_WHITELIST = ['Active', 'Dormant', 'Pending', 'Closed'];
+
+function safeStatus(status) {
+    return STATUS_WHITELIST.includes(status) ? status : 'Active';
+}
+
+function statusDotClass(status) {
+    return safeStatus(status).toLowerCase();
+}
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', () => {
@@ -2841,7 +2857,7 @@ function getFilteredAssets() {
             (asset.institution || '').toLowerCase().includes(search) ||
             (asset.owner || '').toLowerCase().includes(search) ||
             (asset.category || '').toLowerCase().includes(search) ||
-            (asset.id || '').toLowerCase().includes(search);
+            String(asset.id == null ? '' : asset.id).toLowerCase().includes(search);
         const matchesCategory = !category || asset.category === category;
         const matchesOwner = !owner || asset.owner === owner;
         const matchesStatus = activeStatuses.includes(asset.status || 'Active');
@@ -2881,7 +2897,7 @@ function renderDashboard() {
                 <div class="category-header">
                     <div class="category-title">
                         <div class="category-icon">${catInfo.icon}</div>
-                        <span>${cat}</span>
+                        <span>${escapeHtml(cat)}</span>
                     </div>
                     <span class="category-badge">${items.length}</span>
                 </div>
@@ -2895,7 +2911,7 @@ function renderDashboard() {
 
 function renderAssetRow(asset) {
     const fmv = parseFloat(asset.fmv) || 0;
-    const statusClass = (asset.status || 'Active').toLowerCase();
+    const statusClass = statusDotClass(asset.status);
     return `
         <div class="asset-item" data-asset-id="${escapeHtml(asset.id)}">
             <div class="asset-info">
@@ -2910,7 +2926,7 @@ function renderAssetRow(asset) {
                 <div class="asset-fmv">${formatCurrency(fmv)}</div>
                 <div class="asset-status">
                     <span class="status-dot ${statusClass}"></span>
-                    ${STATUS_LABELS[asset.status || 'Active'] || asset.status || 'Active'}
+                    ${STATUS_LABELS[safeStatus(asset.status)] || '{{TR_active}}'}
                 </div>
             </div>
         </div>
@@ -2943,7 +2959,7 @@ function renderTable() {
             <td data-edit-field="institution" data-col="institution" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.institution || '')}</td>
             <td data-edit-field="registration" data-col="registration" title="{{TR_inline_edit_hint}}">${escapeHtml(asset.registration || '')}</td>
             <td data-edit-field="fmv" data-col="fmv" title="{{TR_inline_edit_hint}}">${formatCurrency(asset.fmv)}</td>
-            <td data-edit-field="status" data-col="status" title="{{TR_inline_edit_hint}}"><span class="status-dot ${ (asset.status || 'Active').toLowerCase() }"></span> ${STATUS_LABELS[asset.status || 'Active'] || asset.status || 'Active'}</td>
+            <td data-edit-field="status" data-col="status" title="{{TR_inline_edit_hint}}"><span class="status-dot ${statusDotClass(asset.status)}"></span> ${STATUS_LABELS[safeStatus(asset.status)] || '{{TR_active}}'}</td>
         </tr>
     `).join('');
     applyColumnVisibility();
@@ -3060,10 +3076,10 @@ function renderTimeline() {
         const date = asset.open_date || asset.purchase_date || asset.acquisition_date || '';
         return `
             <div class="timeline-item" data-asset-id="${escapeHtml(asset.id)}">
-                <div class="timeline-date">${date}</div>
+                <div class="timeline-date">${escapeHtml(date)}</div>
                 <div class="timeline-content">
                     <div class="timeline-title">${escapeHtml(asset.asset_name || '')}</div>
-                    <div class="timeline-desc">${escapeHtml(asset.institution || '')} • ${formatCurrency(asset.fmv)} • ${STATUS_LABELS[asset.status || 'Active'] || asset.status || 'Active'}</div>
+                    <div class="timeline-desc">${escapeHtml(asset.institution || '')} • ${formatCurrency(asset.fmv)} • ${STATUS_LABELS[safeStatus(asset.status)] || '{{TR_active}}'}</div>
                 </div>
             </div>
         `;
@@ -3085,7 +3101,7 @@ function renderDetail() {
         `;
     }).join('');
     
-    if (!currentAsset || !filtered.find(a => a.id === currentAsset.id)) {
+    if (!currentAsset || !filtered.some(a => String(a.id) === String(currentAsset.id))) {
         currentAsset = filtered[0] || null;
     }
     
@@ -3122,7 +3138,7 @@ function renderDetail() {
 }
 
 function selectDetailAsset(id) {
-    currentAsset = assets.find(a => a.id === id);
+    currentAsset = findAsset(id);
     renderDetail();
 }
 
@@ -3142,16 +3158,18 @@ function renderCompact() {
                 <span>${escapeHtml(cat)}</span>
                 <span>${items.length}</span>
             </div>
+            <div class="compact-category-body">
             ${items.map(asset => `
                 <div class="compact-asset" data-asset-id="${escapeHtml(asset.id)}">
                     <div class="compact-asset-main">
-                        <span class="status-dot ${ (asset.status || 'Active').toLowerCase() }"></span>
+                        <span class="status-dot ${statusDotClass(asset.status)}"></span>
                         <span class="compact-asset-name">${escapeHtml(asset.asset_name || '')}</span>
                         <span class="compact-asset-meta">${escapeHtml(asset.institution || '')}</span>
                     </div>
                     <span class="compact-asset-value">${formatCurrency(asset.fmv)}</span>
                 </div>
             `).join('')}
+            </div>
         </div>
     `).join('');
 }
@@ -3164,11 +3182,11 @@ function updateStats() {
     const statusCounts = { Active: 0, Dormant: 0, Pending: 0, Closed: 0 };
     filtered.forEach(a => { statusCounts[a.status || 'Active'] = (statusCounts[a.status || 'Active'] || 0) + 1; });
     
-    document.getElementById('totalAssets').textContent = filtered.length.toLocaleString('en-CA');
+    document.getElementById('totalAssets').textContent = filtered.length.toLocaleString(LOCALE);
     document.getElementById('totalFMV').textContent = formatCurrency(totalFMV);
     document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
     document.getElementById('totalCategories').textContent = Object.keys(groupBy(filtered, 'category')).length;
-    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-CA');
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString(LOCALE);
     document.getElementById('activeCount').textContent = statusCounts.Active;
     document.getElementById('dormantCount').textContent = statusCounts.Dormant;
     document.getElementById('pendingCount').textContent = statusCounts.Pending;
@@ -3207,13 +3225,15 @@ function closeHelp() {
 
 // Plaintext of decrypted sensitive fields for the currently open modal (memory only)
 let modalDecrypted = {};
+let modalToken = 0;
 
 function openModal(assetId) {
-    const asset = assets.find(a => a.id === assetId);
+    const asset = findAsset(assetId);
     if (asset) showAssetModal(asset);
 }
 
 async function showAssetModal(asset) {
+    const token = ++modalToken;
     currentAsset = asset;
     modalDecrypted = {};
     
@@ -3225,12 +3245,16 @@ async function showAssetModal(asset) {
     for (const field of SENSITIVE_FIELDS) {
         if (isEncryptedVal(asset[field]) && vaultPassphrase) {
             try {
-                modalDecrypted[field] = await decryptValue(asset[field]);
+                const decrypted = await decryptValue(asset[field]);
+                // Discard stale results if a newer asset was opened meanwhile.
+                if (token !== modalToken) return;
+                modalDecrypted[field] = decrypted;
             } catch (e) {
                 console.error('Failed to decrypt field', field, e);
             }
         }
     }
+    if (token !== modalToken) return;
     
     const container = document.getElementById('modalContent');
     container.innerHTML = Object.entries(FIELD_SECTIONS).map(([section, fields]) => {
@@ -3419,6 +3443,11 @@ function uniqueAssetId(base) {
 }
 
 // ===== UNDO / REDO =====
+function findAsset(id) {
+    const key = String(id);
+    return assets.find(a => String(a.id) === key);
+}
+
 function pushUndo() {
     undoStack.push(JSON.stringify(assets));
     if (undoStack.length > 50) undoStack.shift();
@@ -3589,10 +3618,10 @@ function renderWizardStep3(content) {
         <div class="form-group">
             <label class="form-label">{{TR_status}}</label>
             <select id="wizardStatus" class="form-select">
-                <option value="Active" ${statusVal === 'Active' ? 'selected' : ''}>Active</option>
-                <option value="Dormant" ${statusVal === 'Dormant' ? 'selected' : ''}>Dormant</option>
-                <option value="Pending" ${statusVal === 'Pending' ? 'selected' : ''}>Pending</option>
-                <option value="Closed" ${statusVal === 'Closed' ? 'selected' : ''}>Closed</option>
+                <option value="Active" ${statusVal === 'Active' ? 'selected' : ''}>${STATUS_LABELS['Active']}</option>
+                <option value="Dormant" ${statusVal === 'Dormant' ? 'selected' : ''}>${STATUS_LABELS['Dormant']}</option>
+                <option value="Pending" ${statusVal === 'Pending' ? 'selected' : ''}>${STATUS_LABELS['Pending']}</option>
+                <option value="Closed" ${statusVal === 'Closed' ? 'selected' : ''}>${STATUS_LABELS['Closed']}</option>
             </select>
         </div>
     `;
@@ -3643,7 +3672,7 @@ function renderWizardStep4(content) {
 
 function wizardNext() {
     if (wizardStep === 1 && !wizardType) {
-        showToast('{{TR_quick_add_no_results}}');
+        showToast('{{TR_quick_add_select_type}}');
         return;
     }
     wizardStep = Math.min(4, wizardStep + 1);
@@ -3768,7 +3797,7 @@ async function applyBulkEdit() {
     const value = document.getElementById('bulkValueInput').value;
     pushUndo();
     for (const id of bulkSelected) {
-        const asset = assets.find(a => a.id === id);
+        const asset = findAsset(id);
         if (!asset) continue;
         if (SENSITIVE_FIELDS.includes(field) && value !== '' && vaultPassphrase) {
             asset[field] = await encryptValue(value);
@@ -3816,7 +3845,7 @@ function initBulkEdit() {
 function inlineEditCell(td) {
     const tr = td.closest('tr');
     const id = tr.dataset.assetId;
-    const asset = assets.find(a => a.id === id);
+    const asset = findAsset(id);
     if (!asset || td.dataset.editing === '1') return;
     const field = td.dataset.editField;
     const meta = (FIELDS_DATA && FIELDS_DATA[field]) || {};
@@ -3940,7 +3969,7 @@ function initKanbanDnD() {
         kanbanDragId = null;
         if (!col || !id) return;
         const status = col.dataset.kanbanStatus;
-        const asset = assets.find(a => a.id === id);
+        const asset = findAsset(id);
         if (!asset || (asset.status || 'Active') === status) return;
         pushUndo();
         asset.status = status;
@@ -3955,7 +3984,8 @@ function initKanbanDnD() {
 const TABLE_COLUMNS = ['id', 'asset_name', 'category', 'owner', 'institution', 'registration', 'fmv', 'status'];
 let visibleColumns = null;
 try { visibleColumns = JSON.parse(localStorage.getItem('assetColumns') || 'null'); } catch (e) { visibleColumns = null; }
-if (!visibleColumns) visibleColumns = [...TABLE_COLUMNS];
+// Never allow zero columns even if a persisted (or corrupted) value is empty.
+if (!visibleColumns || !Array.isArray(visibleColumns) || !visibleColumns.length) visibleColumns = [...TABLE_COLUMNS];
 
 function applyColumnVisibility() {
     document.querySelectorAll('.data-table th[data-col], .data-table td[data-col]').forEach(el => {
@@ -4048,7 +4078,8 @@ function exportExcel() {
 // RFC-4180 escaping + spreadsheet formula-injection guard
 function csvEscape(value) {
     let s = String(value === null || value === undefined ? '' : value);
-    if (/^[=+\-@]/.test(s)) s = "'" + s;
+    // Guard against formula injection even with leading whitespace (e.g. " =cmd").
+    if (/^\s*[=+\-@]/.test(s)) s = "'" + s;
     if (/[",\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
     return s;
 }
@@ -4063,8 +4094,16 @@ function importJSON(file) {
     reader.onload = () => {
         try {
             const data = JSON.parse(reader.result);
-            if (!Array.isArray(data) || data.some(a => !a || typeof a !== 'object' || !a.id)) {
+            if (!Array.isArray(data) || data.some(a => !a || typeof a !== 'object' || !('id' in a))) {
                 throw new Error('Invalid asset file');
+            }
+            // Normalize ids to strings and reject duplicates so lookups
+            // (strict === against dataset strings) keep working.
+            const seen = new Set();
+            for (const a of data) {
+                a.id = String(a.id);
+                if (seen.has(a.id)) throw new Error('Duplicate asset id');
+                seen.add(a.id);
             }
             pushUndo();
             assets = data;
@@ -4112,7 +4151,16 @@ function saveHTML() {
             restored = original;
         }
     }
-    downloadFile('<!DOCTYPE html>\n' + document.documentElement.outerHTML, '{{TR_export_html_filename}}', 'text/html');
+    // Serialize a sanitized clone so decrypted credentials sitting in an open
+    // edit modal's inputs are never baked into the downloaded file.
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+        if (SENSITIVE_FIELDS.includes(el.dataset.field)) {
+            if (el.tagName === 'TEXTAREA') el.textContent = '';
+            else el.setAttribute('value', '');
+        }
+    });
+    downloadFile('<!DOCTYPE html>\n' + clone.outerHTML, '{{TR_export_html_filename}}', 'text/html');
     if (restored !== null && scriptEl) scriptEl.textContent = restored;
     clearDirty();
     showToast('{{TR_html_saved}}');
@@ -4159,6 +4207,7 @@ function performAutoSave() {
 
 function toggleAutoSave() {
     autoSaveEnabled = !autoSaveEnabled;
+    if (!autoSaveEnabled) clearTimeout(autoSaveTimer);
     localStorage.setItem('autoSaveEnabled', autoSaveEnabled ? '1' : '0');
     const btn = document.getElementById('autoSaveToggle');
     btn.classList.toggle('autosave-on', autoSaveEnabled);
@@ -4373,6 +4422,10 @@ async function vaultSetPassphrase() {
             }
         }
     }
+    // Drop undo/redo history so Undo cannot restore the pre-encryption
+    // plaintext snapshots and persist plaintext credentials again.
+    undoStack.length = 0;
+    redoStack.length = 0;
     saveToLocalStorage();
     markDirty();
     updateVaultUI();
@@ -4557,7 +4610,7 @@ function validateAsset(a) {
 
 function renderAudit() {
     const container = document.getElementById('auditView');
-    const results = assets.map(a => ({ asset: a, findings: validateAsset(a) }));
+    const results = getFilteredAssets().map(a => ({ asset: a, findings: validateAsset(a) }));
     const critical = results.filter(r => r.findings.some(f => f.level === 'red'));
     const attention = results.filter(r => r.findings.length > 0 && !r.findings.some(f => f.level === 'red'));
     const okCount = results.length - critical.length - attention.length;
@@ -4735,9 +4788,9 @@ function svgHBarChart(data) {
 
 function formatCompact(value) {
     const n = parseFloat(value) || 0;
-    if (Math.abs(n) >= 1000000) return '$' + (n / 1000000).toFixed(1) + 'M';
-    if (Math.abs(n) >= 1000) return '$' + (n / 1000).toFixed(0) + 'k';
-    return '$' + n.toFixed(0);
+    if (Math.abs(n) >= 1000000) return CURRENCY_SYMBOL + (n / 1000000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1000) return CURRENCY_SYMBOL + (n / 1000).toFixed(0) + 'k';
+    return CURRENCY_SYMBOL + n.toFixed(0);
 }
 
 function truncate(s, max) {
@@ -4791,7 +4844,7 @@ function renderPrintView() {
                         <td>${escapeHtml(a.institution || '')}</td>
                         <td>${escapeHtml(a.registration || '')}</td>
                         <td>${formatCurrency(a.fmv)}</td>
-                        <td>${escapeHtml(a.status || '')}</td>
+                        <td>${STATUS_LABELS[safeStatus(a.status)] || '{{TR_active}}'}</td>
                     </tr>
                 `).join('')}
             </table>
@@ -4851,11 +4904,11 @@ function groupBy(arr, key) {
 
 function formatCurrency(value) {
     const num = parseFloat(value) || 0;
-    return '$' + num.toLocaleString('en-CA', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    return CURRENCY_SYMBOL + num.toLocaleString(LOCALE, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 
 function formatLabel(field) {
-    return field.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());
+    return field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
 function fieldLabel(field) {

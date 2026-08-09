@@ -170,11 +170,11 @@ UI_TRANSLATIONS = {
         "print_premium": "Premium",
 
         # Quick-add wizard, bulk edit, columns, markdown & auto-save
-        "demo_badge": "Demo sample data",
         "add_asset": "Add Asset",
         "quick_add_title": "Add Asset",
         "quick_add_search_placeholder": "Search asset types…",
         "quick_add_no_results": "No matching asset types",
+        "quick_add_select_type": "Please select an asset type first",
         "quick_add_back": "Back",
         "quick_add_next": "Next",
         "quick_add_done": "Add Asset",
@@ -193,7 +193,6 @@ UI_TRANSLATIONS = {
         "kanban_drag_hint": "Drag cards to change status",
         "kanban_status_updated": "Status updated",
         "columns": "Columns",
-        "column_apply": "Apply",
         "column_saved": "Columns updated",
         "markdown_hint": "Markdown supported: **bold**, *italic*, [links](url), lists",
         "autosave": "Auto-save",
@@ -205,6 +204,7 @@ UI_TRANSLATIONS = {
 
         # Export filenames & CSV header
         "locale": "en-CA",
+        "currency_symbol": "$",
         "export_md_filename": "asset-inventory.md",
         "export_csv_filename": "asset-inventory.csv",
         "export_html_filename": "asset-inventory-dashboard.html",
@@ -399,6 +399,7 @@ UI_TRANSLATIONS = {
         "summary_owner_breakdown": "Owner Breakdown",
         "summary_metric": "Metric",
         "summary_value": "Value",
+        "summary_active_assets": "Active Assets",
     },
     "zh": {
         # Meta / brand
@@ -565,11 +566,11 @@ UI_TRANSLATIONS = {
         "print_premium": "保费",
 
         # Quick-add wizard, bulk edit, columns, markdown & auto-save
-        "demo_badge": "演示示例数据",
         "add_asset": "添加资产",
         "quick_add_title": "添加资产",
         "quick_add_search_placeholder": "搜索资产类型…",
         "quick_add_no_results": "未找到匹配的资产类型",
+        "quick_add_select_type": "请先选择资产类型",
         "quick_add_back": "上一步",
         "quick_add_next": "下一步",
         "quick_add_done": "添加资产",
@@ -588,7 +589,6 @@ UI_TRANSLATIONS = {
         "kanban_drag_hint": "拖动卡片以更改状态",
         "kanban_status_updated": "状态已更新",
         "columns": "列",
-        "column_apply": "应用",
         "column_saved": "列已更新",
         "markdown_hint": "支持 Markdown：**粗体**、*斜体*、[链接](url)、列表",
         "autosave": "自动保存",
@@ -600,6 +600,7 @@ UI_TRANSLATIONS = {
 
         # Export filenames & CSV header
         "locale": "zh-CN",
+        "currency_symbol": "$",
         "export_md_filename": "asset-inventory-zh.md",
         "export_csv_filename": "asset-inventory-zh.csv",
         "export_html_filename": "asset-inventory-dashboard-zh.html",
@@ -794,6 +795,7 @@ UI_TRANSLATIONS = {
         "summary_owner_breakdown": "持有人分布",
         "summary_metric": "指标",
         "summary_value": "数值",
+        "summary_active_assets": "活跃资产数",
     }
 }
 

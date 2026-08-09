@@ -5,18 +5,16 @@ Generates Markdown, Excel, and HTML Dashboard outputs.
 """
 
 import json
-import os
 import argparse
 from datetime import datetime, date
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from translations import (
     _,
     CATEGORY_TRANSLATIONS,
     UI_TRANSLATIONS,
     translate_assets,
-    translate_categories,
     translate_field_definitions,
 )
 
@@ -737,7 +735,7 @@ ASSET_CATEGORIES = {
 }
 
 # =============================================================================
-# FIELD DEFINITIONS (109 fields)
+# FIELD DEFINITIONS (108 fields)
 # =============================================================================
 
 FIELD_DEFINITIONS = {
@@ -881,7 +879,7 @@ FIELD_DEFINITIONS = {
 # =============================================================================
 
 def generate_all_assets() -> list[dict]:
-    """Generate all 515+ assets with default values."""
+    """Generate all 517 assets with default values."""
     assets = []
     asset_id = 1
     
@@ -1043,7 +1041,7 @@ def populate_demo_data(assets: list[dict]) -> list[dict]:
     Two adults (James & Mei Chen), two children (RESP beneficiaries), a family
     home with mortgage equity, TFSAs/RRSPs/RESP, a dormant crypto wallet, and a
     mixed set of complete/blank assets so charts, audit, and search have
-    meaningful data. Only fields present in the 109-field schema are set.
+    meaningful data. Only fields present in the 108-field schema are set.
     """
     def fill(subcategory, **values):
         asset = _demo_find(assets, subcategory)
@@ -1209,7 +1207,6 @@ def generate_markdown(assets: list[dict], output_path: str, lang: str = "en"):
     total_assets = len(assets)
     total_fmv = sum(a.get("fmv", 0) or 0 for a in assets)
     total_income = sum(a.get("annual_income", 0) or 0 for a in assets)
-    active_count = sum(1 for a in assets if a.get("status") == "Active")
     
     md = []
     md.append(f"# {_('md_title', lang)} — Canadian Family in Ontario")
@@ -1292,7 +1289,6 @@ def generate_excel(assets: list[dict], output_path: str, lang: str = "en"):
     header_font = Font(bold=True, color="FFFFFF", size=11)
     header_fill = PatternFill(start_color="6C5CE7", end_color="6C5CE7", fill_type="solid")
     currency_format = '#,##0.00'
-    percent_format = '0.0%'
     thin_border = Border(
         left=Side(style='thin'),
         right=Side(style='thin'),
@@ -1372,7 +1368,7 @@ def generate_excel(assets: list[dict], output_path: str, lang: str = "en"):
     
     # Sheet 3: Summary
     ws3 = wb.create_sheet(_("sheet_summary", lang))
-    ws3.append([_("summary_metric", lang) if lang == "en" else "指标", _("summary_value", lang) if lang == "en" else "数值"])
+    ws3.append([_("summary_metric", lang), _("summary_value", lang)])
     style_header(ws3)
     
     total_fmv = sum(a.get("fmv", 0) or 0 for a in assets)
@@ -1380,7 +1376,7 @@ def generate_excel(assets: list[dict], output_path: str, lang: str = "en"):
     active_count = sum(1 for a in assets if a.get("status") == "Active")
     
     ws3.append([_("summary_total_assets", lang), len(assets)])
-    ws3.append([_("active", lang) + " " + _("total_assets", lang).lower() if lang == "en" else "活跃资产数", active_count])
+    ws3.append([_("summary_active_assets", lang), active_count])
     ws3.append([_("summary_total_fmv", lang), total_fmv])
     ws3.append([_("summary_total_income", lang), total_income])
     ws3.append([_("summary_total_categories", lang), len(categories)])
@@ -1647,10 +1643,6 @@ def main():
     if args.output in ["html", "all"]:
         html_path = output_dir / f"asset-inventory-dashboard{lang_suffix}.html"
         generate_html(translated_assets, str(html_path), lang=lang)
-    
-    # Summary
-    total_fmv = sum(a.get("fmv", 0) or 0 for a in assets)
-    total_income = sum(a.get("annual_income", 0) or 0 for a in assets)
     
     print("\n" + "="*60)
     print("GENERATION COMPLETE")

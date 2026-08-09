@@ -1,6 +1,6 @@
 # Asset Inventory — Data Fields & Structure
 
-> **Last updated:** 2026-07-31 23:08:58
+> **Last updated:** 2026-08-09 13:47:49
 
 This document defines the fields for each asset entry in the inventory. Each asset record includes these fields.
 
@@ -134,6 +134,10 @@ This document defines the fields for each asset entry in the inventory. Each ass
 
 ## Beneficiary Designation Fields
 
+> **Note:** `beneficiary` (in Ownership) and `primary_beneficiary` (below) are
+> separate fields. The Excel **Beneficiaries** sheet and the audit view use
+> `primary_beneficiary` falling back to `beneficiary` when the former is empty.
+
 | Field | Description | Example |
 |-------|-------------|---------|
 | `primary_beneficiary` | Primary beneficiary | Jane Smith |
@@ -230,18 +234,18 @@ Source: Opened online
 |-------------|-------|
 | Core Identity | 5 |
 | Ownership | 8 |
-| Institution & Access | 8 |
+| Institution & Access | 9 |
 | Financial Value | 16 |
-| Date Fields | 11 |
-| Registration & Tax | 14 |
+| Date Fields | 10 |
+| Registration & Tax | 12 |
 | Location & Access | 8 |
 | Insurance & Protection | 6 |
 | Status & Control | 7 |
 | Beneficiary Designation | 8 |
 | Estate Planning | 7 |
 | Documentation | 7 |
-| Notes & Comments | 4 |
-| **TOTAL** | **109** |
+| Notes & Comments | 5 |
+| **TOTAL** | **108** |
 
 ---
 

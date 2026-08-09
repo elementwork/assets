@@ -375,6 +375,8 @@ def e2e_en(browser):
     enc = page.evaluate("assets.find(a => a.id === 'A-0001').login_password")
     check("en: credential encrypted at rest",
           isinstance(enc, dict) and enc.get("enc") is True, str(enc)[:60])
+    check("en: vault set cleared undo/redo history",
+          page.evaluate("undoStack.length === 0 && redoStack.length === 0"))
     page.click("#vaultLockBtn")
     page.wait_for_timeout(200)
     status = page.text_content("#vaultStatusText")
@@ -567,6 +569,82 @@ def e2e_en(browser):
     page.wait_for_timeout(2000)
     check("en: autosave: on clears dot",
           page.locator("#unsavedIndicator.visible").count() == 0)
+
+    # ---- Regression checks (code-review fixes) ----
+    # CSV formula-injection guard rejects leading-whitespace formulas
+    guard_ok = page.evaluate("""(() => {
+        const bad = [' =cmd|xyz', '+SUM(1,2)', '@link', '-123'];
+        return bad.every(v => !/^[=+\-@]/.test(csvEscape(v).replace(/^"/, ''))) &&
+               !/^[=+\-@]/.test(csvEscape('normal'));
+    })()""")
+    check("en: csvEscape guards leading-space formula", guard_ok,
+          page.evaluate("csvEscape(' =cmd|xyz')"))
+
+    # saveHTML must not bake decrypted plaintext from an open edit modal
+    _open_modal(page, "A-0001")
+    page.wait_for_timeout(300)
+    with page.expect_download() as dl:
+        page.evaluate("saveHTML()")  # modal is open, so trigger via JS
+    leak_html = Path(dl.value.path()).read_text(encoding="utf-8") if dl.value.path() else ""
+    check("en: saveHTML excludes modal plaintext password",
+          "s3cret-pw!" not in leak_html)
+    page.keyboard.press("Escape")
+    page.wait_for_timeout(200)
+
+    # Audit view follows the active search/filter
+    _layout(page, "audit")
+    n_all_audit = page.locator(".audit-item").count()
+    page.fill("#searchInput", "Chequing")
+    page.wait_for_timeout(600)
+    n_filt_audit = page.locator(".audit-item").count()
+    check("en: audit follows search filter", 0 < n_filt_audit < n_all_audit,
+          f"n={n_filt_audit}/{n_all_audit}")
+    page.fill("#searchInput", "")
+    page.wait_for_timeout(600)
+
+    # Compact category collapse hides its assets
+    _layout(page, "compact")
+    page.locator(".compact-category-header").first.click()
+    page.wait_for_timeout(250)
+    check("en: compact category collapse toggles body",
+          page.locator(".compact-category-body.collapsed").count() >= 1)
+    page.locator(".compact-category-header").first.click()  # restore
+    page.wait_for_timeout(250)
+
+    # Numeric-id JSON import is normalized to strings and rendered safely
+    with tempfile.TemporaryDirectory() as tmp2:
+        num_assets = json.loads(json_content)
+        for i, a in enumerate(num_assets):
+            a["id"] = i + 1  # numeric ids, as some exports/imports may produce
+        num_path = Path(tmp2) / "numeric-ids.json"
+        num_path.write_text(json.dumps(num_assets), encoding="utf-8")
+        page.set_input_files("#importJSONFile", str(num_path))
+        page.wait_for_timeout(500)
+        ok_types = page.evaluate("assets.every(a => typeof a.id === 'string')")
+        check("en: numeric-id import normalized to strings", ok_types,
+              page.evaluate("assets.slice(0,3).map(a => a.id).join(',')"))
+        _layout(page, "dashboard")
+        check("en: numeric-id import renders without crash",
+              page.locator("#dashboardView .asset-item").count() == len(num_assets))
+        # duplicate ids are rejected, keeping the previous set
+        errs_before_dup = list(js_errors)  # the reject logs an expected console.error
+        dup_assets = json.loads(json_content)
+        dup_assets[1]["id"] = dup_assets[0]["id"]
+        dup_path = Path(tmp2) / "duplicate-ids.json"
+        dup_path.write_text(json.dumps(dup_assets), encoding="utf-8")
+        page.set_input_files("#importJSONFile", str(dup_path))
+        page.wait_for_timeout(500)
+        check("en: duplicate-id import rejected (state preserved)",
+              page.evaluate("assets.length") == len(num_assets),
+              page.evaluate("String(assets.length)"))
+        # drop the expected duplicate-rejection console.error from the list
+        js_errors[:] = errs_before_dup
+        restore_path = Path(tmp2) / "restore.json"
+        restore_path.write_text(json_content, encoding="utf-8")
+        page.set_input_files("#importJSONFile", str(restore_path))
+        page.wait_for_timeout(500)
+        check("en: original export re-imported to restore state",
+              page.locator("#dashboardView .asset-item").count() == 517)
 
     # No JS errors across the whole session
     check("en: zero JS errors on page", not js_errors, f"{js_errors[:5]}")
