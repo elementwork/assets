@@ -1,30 +1,38 @@
-# Versioning Plan: Free / Plus / Pro
+# Versioning Plan: Free / Family / Planning / Advisor
 
-> **Status:** Living document · Last updated 2026-08-09 17:31:28
+> **Status:** Living document · Last updated 2026-08-10 01:10:36
 > **Product:** Self-contained, offline-first asset inventory for Canadian families in Ontario
 > (single-file HTML dashboard, en/zh). Generator is **closed-source**; artifacts are the product.
 > **Companion docs:** `feature_list.md` (what exists), `future_plan.md` (what's next),
-> `promotion_plan.md` (go-to-market). This document defines how features split into paid tiers.
+> `promotion_plan.md` (go-to-market). This document defines tiers, data storage, save model,
+> copy protection, and engineering.
 
 ---
 
 ## 1. Decisions (locked)
 
-1. **Buy-out = perpetual, no forced expiry.** A one-time purchase stays usable forever;
-   only policy figures (CPP/OAS/TFSA limits, tax rates, etc.) change yearly and are refreshed
-   via an **optional annual update pack ($19/yr)**.
+1. **Buy-out = perpetual, no forced expiry.** A one-time purchase stays usable forever; only
+   policy figures (CPP/OAS/TFSA limits, tax rates, etc.) change yearly and are refreshed via an
+   **optional annual update pack ($19/yr, Planning tier)**. Update-pack licenses carry an
+   expiry; expiry stops updates only, never disables features.
 2. **Generator is closed-source.** Users cannot produce paid files themselves. Free files are
    downloaded from a landing page; paid files are delivered by email with an embedded license.
-3. **Plus price anchor: $49 one-time.**
-4. **Export is paid.** The in-dashboard Export MD/CSV/JSON buttons AND the generator's
-   Markdown/Excel artifacts are paid-tier only. **Save HTML and Print stay free** (they preserve
-   the "file = database" promise and browser-native printing).
-5. **Free catalog: cut whole categories** (15 / 256 items); kept categories remain complete.
-6. **Free gets all core dashboard features** (except Export). Differentiation = catalog size +
-   paid intelligence modules.
-7. **Copy protection = family binding + signed license + watermark.** Honest boundary: an
-   offline HTML file cannot be made truly uncopyable; the goal is "copies are unusable and
-   traceable", not "cannot be copied".
+3. **Pricing:** Free $0 · Family $29 one-time · Planning $99 one-time (optional $19/yr update
+   pack) · Advisor $149/yr (white-label $299, Estate-pro $499).
+4. **Four tiers; Advisor deferred.** Advisor ($149/yr) + insurance-broker lead-gen is a
+   **next-round topic**, not implemented now.
+5. **Export is Planning-tier only** (in-dashboard MD/CSV/JSON buttons + generator Markdown/Excel
+   artifacts). **Save (data persistence) and Print stay in all tiers.**
+6. **Catalog size differentiates tiers** by cutting whole categories:
+   Free 15/256 → Family 20/324 → Planning 32/517.
+7. **Save model (the core UX fix):** the browser cannot write back to a `file://` document, so
+   "Save" = **stage data into the DOM data script, then let the user use native Ctrl+S** to
+   choose where to save. Safari gets a download fallback.
+8. **Data-block encryption (not whole-file):** only the `assets` payload inside the embedded
+   `INVENTORY_DATA` is AES-GCM encrypted (key = family word). Templates/catalog stay plaintext.
+   Replaces the whole-file bootloader approach.
+9. **Copy protection = family binding + signed license + watermark.** Honest boundary: an
+   offline HTML cannot be made truly uncopyable; goal is "copies are unusable and traceable".
 
 ---
 
@@ -35,115 +43,159 @@
   Registered Accounts (15), Pension (17), Insurance (28), Real Estate (15), Vehicles (13),
   Valuables (15), Household (15), Loyalty (31), Deposits (14), Joint (9), Gov Benefits (25),
   Gov Programs (19).
-- **Features:** all core dashboard — 8 layouts, full editing, undo/redo, quick-add, bulk,
-  inline, kanban, column config, markdown notes, search/filters, stats, 4 SVG charts, basic
-  audit, print estate binder, **Save HTML** (carries edits), localStorage, en/zh.
-- **Excluded:** Export MD/CSV/JSON buttons (upgrade prompt instead), generator MD/Excel
-  artifacts (HTML only), File Lock, Ontario calculators, PDF/iCal/QR, any advisor features.
+- **Layouts:** Dashboard, Compact, Detail, Kanban.
+- **Features:** full editing, undo/redo, quick-add, search/filters, stats, markdown notes,
+  **Save** (stage + Ctrl+S; Safari download fallback), **File Lock** (family-word encryption),
+  localStorage, en/zh, beforeunload flush.
+- **Excluded:** Table/Timeline layouts, Print/PDF binder, charts, Export buttons, generator
+  MD/Excel, Ontario modules, advisor features.
 - **Distribution:** free HTML download from landing page.
-- **Support:** FAQ, in-app help, community form.
 
-### 🟡 Plus ($49 one-time; optional $19/yr update pack)
-- **Catalog:** 32 categories / 517 items (adds crypto ecosystem, digital assets, business,
-  trusts, foreign, etc.).
-- **Security:** File Lock (whole-file encryption, family binding), session auto-lock,
-  secure clipboard, panic/privacy toggle, tamper evidence, password health audit.
-- **Ontario intelligence (moat):** EAT (probate) exposure calculator, deemed-disposition
-  death-tax estimator, registered-account rules engine (TFSA/RRSP/RRIF/RESP/FHSA),
-  Estate Readiness Score 0–100, advanced audit (beneficiary %/minors/stale designations).
-- **Planning:** annual review generator, subscription & recurring-cost radar, net worth trend.
-- **Output:** in-dashboard Export MD/CSV/JSON, generator Markdown + Excel artifacts,
-  professional PDF estate binder, iCal export, QR emergency card.
-- **Support:** email support (48h), annual update pack (policy figures), backup guidance.
+### 🟡 Family ($29 one-time)
+- **Catalog:** 20 categories / ~324 items (Free 15 + Employment (11) + Digital Online (17) +
+  Digital Business (14) + Digital Content (13) + Digital Accounts (13)).
+- **Adds:** Table (big grid) + Timeline layouts, 5 templates + dark mode (UI enhancement),
+  **Print/PDF estate binder** (code-generated print view), **basic 2 charts**
+  (category donut + top-institutions h-bar).
+- **Still excluded:** Export buttons, generator MD/Excel, full charts, Ontario modules.
+- **Support:** email 48h.
 
-### 🔴 Pro ($149/yr per seat; white-label $299/yr; Estate-pro $499/yr)
-- **Everything in Plus, plus:**
-- **Advisor workflows:** redacted sharing profiles (SEC-7), advisor handoff pack (IO-6),
-  bulk client generation, CSV import from Canadian institutions + merge (IO-1).
-- **Family & scenarios:** family profiles (PL-1), death simulator (PL-2), scenario sandbox
-  (PL-3), Executor Mode (PL-7), POA Mode (PL-8), estate equalization (PL-9).
-- **Net-worth core:** liabilities & true net worth (NW-1), computed-field engine (NW-2),
-  ownership/tenancy model (NW-3), asset relationships (NW-4), multi-currency (NW-5),
-  attachment vault (NW-6).
-- **Deep analytics:** risk dashboard (PA-1), income streams (PA-2), tax-loss harvesting (PA-3),
-  asset-location optimizer (PA-4), rebalancing alerts (PA-5), dividend tracker (PA-6),
-  mortgage/rental/property-tax/HELOC/renovation (PA-7…11).
-- **Compliance:** T1135 (ON-5), CRA audit-readiness (UX-16), compliance deadlines calendar
-  (UX-17), legal registry (UX-15).
-- **Platform:** white-label/logo, API/CLI automation, SLA, multi-client workspace.
-- **Support:** priority support (24h), onboarding, client template customization, annual
-  compliance update.
+### 🟠 Planning ($99 one-time; optional $19/yr update pack)
+- **Catalog:** 32 categories / 517 items (adds crypto ecosystem, IP, business, trusts,
+  foreign, etc.).
+- **Adds:** Charts + Audit layouts, all 4 charts + audit + net-worth trend, **Export**
+  (in-dashboard MD/CSV/JSON + generator MD/Excel), **Ontario intelligence**
+  (EAT, death-tax estimator, registered-account rules, readiness score, advanced audit),
+  **deep analysis framework** (net worth/liabilities, computed fields, subscription radar,
+  annual review).
+- **Support:** email support, annual update pack (policy figures), backup guidance.
+
+### 🔴 Advisor ($149/yr) — **deferred to next round**
+- Advisor workflows, family/scenario modules, net-worth core, compliance, white-label/API/SLA,
+  insurance-broker lead-gen. Not implemented now; research framework in `future_plan.md`.
 
 ---
 
-## 3. Copy-protection architecture
+## 3. Data storage (`INVENTORY_DATA`)
+
+Single authoritative data block embedded in the file:
+
+```js
+const INVENTORY_DATA = {
+  "format": "asset-inventory",
+  "version": 2,            // data-format version
+  "schema_version": 1,     // 108-field schema version
+  "tier": "free",          // free | family | planning | advisor
+  "key_version": 1,        // decryption key chain version
+  "generated": "2026-08-09",
+  "assets": <encrypted or plaintext asset array>
+};
+```
+
+- File is the single source of truth; localStorage is a session cache only (defaults to
+  file-first to avoid origin-overwrite bugs).
+- **Data-block encryption:** when a family word is set, `assets` is AES-GCM encrypted with the
+  family-word-derived key (PBKDF2 100k). Template/catalog stay plaintext. Real encryption
+  (key never in file), not hardcoded obfuscation.
+- **Key chain:** `KEY_REGISTRY = {1: <v1>, 2: <v2>, ...}` — new files use the latest key;
+  historical keys stay read-only so any version can import older files. Upgrade-safe.
+- **Upgrade = swap renderer file, reuse data:** a Family/Planning file opens with the same
+  `INVENTORY_DATA` (import by reading the old HTML's data block). Zero migration.
+
+---
+
+## 4. Save model (the core UX)
+
+**Principle:** browsers cannot write back to the open `file://` document. The user's most
+familiar save is native **Ctrl+S / Cmd+S** (dialog lets them choose location/name). So:
+
+1. Every edit / auto-save updates the DOM data script to the latest payload
+   (plaintext or ciphertext depending on family word) — data is always "staged" in the file.
+2. The **Save button is always visible**, with per-browser behavior:
+   | Browser | Click "Save" → |
+   |---------|----------------|
+   | Chrome / Edge / Firefox | Stage data → show guidance: **"✅ 已暂存 — 按 Ctrl+S / Cmd+S 选择位置保存"** with a secondary "直接下载到下载文件夹" button |
+   | Safari | Stage data → direct download + toast "已保存到下载文件夹" (Safari can't native-save HTML) |
+3. Auto-save: debounced 1.5s → localStorage (fallback) + update DOM data script. `beforeunload`
+   flushes pending edits to localStorage.
+4. **File Lock (Free):** family-word encryption of the `assets` block. Unlock = in-page overlay
+   (birth date + family word), not a bootloader file. Enabling encryption requires one save
+   action to produce the encrypted file (accepted).
+
+---
+
+## 5. Copy-protection architecture
 
 | Layer | Mechanism |
 |-------|-----------|
 | Closed generator | Users cannot regenerate paid files themselves. |
-| Signed license | license = RSA/HMAC-signed JSON `{tier, order_id, buyer, issued}`; public key embedded in dashboard; validated on load → anti-tamper / anti-forgery. |
-| Family binding | Paid modules require *valid license + family-word session* (reuses File Lock PBKDF2/AES-GCM). A copied file without the family word is an unusable shell. |
-| Watermark | Purchaser name/email written into footer, print, and exports → traceability. |
-| Estate continuity | Family/executor opening a paid file (with the family word) never pays again — paid capability travels with the file. |
+| Signed license | license = RSA/HMAC-signed JSON `{tier, order_id, buyer, issued, expires?}`; public key embedded; validated on load. Buy-out licenses have no expiry; update-pack licenses expire (updates only). |
+| Family binding | Paid modules require *valid license + family-word session*. A copied file without the family word is unusable. |
+| Watermark | Purchaser name/email written into footer, print, exports. |
+| Estate continuity | Family/executor opening a paid file (with family word) never pays again. |
 
-**Honest boundary:** code-level bypass cannot be 100 % prevented on an offline artifact; the
-goal is "copies are unusable and traceable", not "cannot be copied".
-
----
-
-## 4. Engineering implementation
-
-- Generator: `--tier free|plus|pro --license <token> --buyer "Name <email>"`; `FREE_CATEGORIES`
-  constant filters the 517-item catalog to 15/256.
-- Dashboard: `APP_TIER` constant + feature-gate table; paid modules gated by license check +
-  family-word session.
-- Export buttons hidden per tier with upgrade prompt; Save HTML / Print always available.
-- Generator artifacts: Free = HTML only; Plus/Pro = HTML + Markdown + Excel.
-- E2E parametrized for both tiers: free/paid counts, license valid/invalid/expired, watermark,
-  export-button visibility.
-- **108-field schema is identical across tiers** → upgrading Free→Plus is "open the paid file",
-  no migration; JSON import interoperable.
-- Docs fully updated with timestamps (incl. rewriting promotion_plan's "open-source marketing
-  engine" premise).
+**Honest boundary:** code-level bypass cannot be 100 % prevented on an offline artifact; goal
+is "copies are unusable and traceable".
 
 ---
 
-## 5. Go-to-market
+## 6. Engineering implementation
+
+- **Generator:** `--tier free|family|planning --license <token> --buyer "Name <email>"`;
+  `FREE_CATEGORIES` / `FAMILY_CATEGORIES` constants filter the 517 catalog; build-time tier
+  stripping so lower tiers contain **no** higher-tier code/content (conditional-compile style).
+  Artifacts: Free/Family = HTML only; Planning = HTML + Markdown + Excel.
+- **Dashboard:** `APP_TIER` + feature-gate table; page-internal unlock overlay (family word);
+  Save button with browser detection (native-save guidance vs Safari download); data-script
+  sync on every edit/auto-save; `INVENTORY_DATA` + key chain + data-block encryption.
+- **E2E parametrized per tier:** catalog counts (15/20/32), layout/export/chart/print
+  visibility, license valid/invalid/expired, watermark, ciphertext-block present + decrypted
+  count, browser-branch save logic.
+- **108-field schema identical across tiers** → upgrading is "open the paid file", no migration.
+- Docs fully updated with timestamps.
+
+---
+
+## 7. Go-to-market
 
 | Tier | Channel | Core action |
 |------|---------|-------------|
-| Free | Landing page, Reddit, Xiaohongshu, YouTube, SEO | 3 checklist lead magnets, comparison page, `--demo` demo file, email list |
-| Plus | In-dashboard upgrade prompts, referrals | "Unlock full catalog / Export / Readiness Score" prompts; gift-to-parents; broker/lawyer referrals |
-| Pro | B2B direct, partners | 20 lawyers + 20 planners free pilots, white-label co-branding, 20–30 % affiliate, CPA tax-season partnership, case studies |
+| Free | Landing page, Reddit, Xiaohongshu, YouTube, SEO | 3 checklist lead magnets, comparison page, demo file, email list |
+| Family | In-dashboard upgrade prompts, referrals | "Unlock Table/Print/Charts" prompts; gift-to-parents; broker/lawyer referrals |
+| Planning | Upsell from Family; organic | "Unlock full catalog / Export / Ontario intelligence"; annual update pack |
+| Advisor | B2B direct (deferred) | Next round |
 
 ---
 
-## 6. Post-sales service
+## 8. Post-sales service
 
 | Tier | Support | Updates |
 |------|---------|---------|
-| Free | FAQ / in-app help / community form | Generator updates (internal) |
-| Plus | Email 48h | Optional $19/yr update pack (policy figures); backup guidance |
-| Pro | Priority 24h, SLA, onboarding | Annual compliance update, white-label assets, client template customization |
+| Free | FAQ / in-app help / community form | — |
+| Family | Email 48h | — |
+| Planning | Email 48h | Optional $19/yr update pack (policy figures); backup guidance |
 
 ---
 
-## 7. Risks & mitigations
+## 9. Risks & mitigations
 
 | Risk | Mitigation |
 |------|-----------|
-| License bypassed by skilled user | Accepted boundary; family binding + watermark raise cost; Pro revenue rests on service/white-label |
-| Free too complete → nobody pays | Catalog size + Export + intelligence modules stay clearly paid |
-| Family blocked by paywall | Iron rule: paid capability travels with the file; family never pays |
-| Offline expiry unenforceable | Plus is perpetual by design; Pro annual fee is a service/subscription (updates + support), not a feature lock |
-| Closed generator reduces marketing surface | Replace GitHub-star funnel with landing-page downloads + content + B2B |
+| License bypassed by skilled user | Accepted boundary; family binding + watermark raise cost |
+| Free too complete → nobody pays | Catalog + Table/Print/Charts (Family) + Export/Ontario (Planning) stay clearly paid |
+| Family blocked by paywall | Paid capability travels with the file; family never pays |
+| Ctrl+S not understood by users | Save button guidance text + "直接下载" fallback button |
+| Safari can't native-save HTML | Auto-detect Safari → direct download fallback |
+| Offline expiry unenforceable | Buy-out perpetual; update-pack expiry = updates only |
+| Data split between file & localStorage | localStorage is session cache only; data script is source of truth |
 
 ---
 
-## 8. Execution order
+## 10. Execution order
 
-1. Write this plan + rewrite promotion_plan.md premise (closed source, 3 tiers).
-2. Implement generator `--tier` + license/watermark + catalog filter.
-3. Implement dashboard tier gating + Export visibility + family-binding on paid modules.
-4. E2E dual-tier parametrization.
-5. Docs + timestamps; commit & push (docs-update-before-commit enforced).
+1. Generator `--tier` + catalog filter + `INVENTORY_DATA` + data-block encryption + key chain.
+2. Dashboard: tier gating, in-page unlock overlay, Save button (stage + Ctrl+S guidance /
+   Safari download), data-script sync, beforeunload flush.
+3. License + watermark (paid tiers).
+4. E2E per-tier parametrization.
+5. Docs + timestamps + commit & push (docs-update-before-commit enforced).

@@ -1,6 +1,6 @@
 # Asset Inventory Sample List — Canadian Family in Ontario
 
-> **Last updated:** 2026-08-09 16:46:21
+> **Last updated:** 2026-08-10 01:10:36
 
 This is a sample list of all possible assets a Canadian family living in Ontario may have. Review and let me know if you want additions, removals, or reorganization before I generate the code.
 

@@ -6,6 +6,10 @@ Generates Markdown, Excel, and HTML Dashboard outputs.
 
 import json
 import argparse
+import base64
+import hashlib
+import hmac
+import re
 from datetime import datetime, date
 from pathlib import Path
 from typing import Optional
@@ -17,6 +21,23 @@ from translations import (
     translate_assets,
     translate_field_definitions,
 )
+
+
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def sign_license(payload: dict, secret: str) -> str:
+    """Produce a signed license: base64url(json).hmac-sha256(base64url(json), secret).
+
+    The HMAC is computed over the base64url body string so the browser can verify
+    it without decoding (avoids padding/url-safe mismatches).
+    """
+    body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+    body_b64 = _b64url(body)
+    sig = hmac.new(secret.encode("utf-8"), body_b64.encode("ascii"), hashlib.sha256).digest()
+    return body_b64 + "." + _b64url(sig)
+
 
 # =============================================================================
 # ASSET CATEGORIES AND DEFINITIONS
@@ -735,6 +756,37 @@ ASSET_CATEGORIES = {
 }
 
 # =============================================================================
+# TIER CONFIGURATION (versioning_plan.md)
+# =============================================================================
+
+# Tiers: free | family | planning | advisor (advisor deferred)
+FREE_CATEGORIES = [
+    "Cash & Cash Equivalents", "Fixed Income Investments",
+    "Equities & Investment Funds", "Registered Accounts — Canada",
+    "Pension Benefits", "Insurance Products", "Real Estate",
+    "Vehicles & Transportation", "Personal Property — Valuables",
+    "Household & Electronics", "Loyalty Programs & Rewards",
+    "Deposits & Security", "Joint & Shared Assets",
+    "Government Benefits & Tax Credits", "Government Programs & Entitlements",
+]
+
+# Family adds 5 categories (Employment + Digital Online/Business/Content/Accounts)
+FAMILY_CATEGORIES = FREE_CATEGORIES + [
+    "Employment & Compensation Assets",
+    "Digital Assets — Online Presence",
+    "Digital Assets — Online Businesses & Income",
+    "Digital Assets — Content & IP",
+    "Digital Assets — Accounts & Subscriptions",
+]
+
+TIER_CATEGORIES = {
+    "free": FREE_CATEGORIES,
+    "family": FAMILY_CATEGORIES,
+    "planning": list(ASSET_CATEGORIES.keys()),  # full 32-category catalog
+    "advisor": list(ASSET_CATEGORIES.keys()),
+}
+
+# =============================================================================
 # FIELD DEFINITIONS (108 fields)
 # =============================================================================
 
@@ -878,12 +930,15 @@ FIELD_DEFINITIONS = {
 # GENERATE ASSET DATA
 # =============================================================================
 
-def generate_all_assets() -> list[dict]:
-    """Generate all 517 assets with default values."""
+def generate_all_assets(tier: str = "planning") -> list[dict]:
+    """Generate all assets for the given tier with default values."""
+    allowed = TIER_CATEGORIES.get(tier, TIER_CATEGORIES["planning"])
     assets = []
     asset_id = 1
     
     for category_name, category_data in ASSET_CATEGORIES.items():
+        if category_name not in allowed:
+            continue
         icon = category_data["icon"]
         color = category_data["color"]
         
@@ -1494,7 +1549,9 @@ def generate_excel(assets: list[dict], output_path: str, lang: str = "en"):
 # HTML DASHBOARD GENERATOR
 # =============================================================================
 
-def generate_html(assets: list[dict], output_path: str, lang: str = "en"):
+def generate_html(assets: list[dict], output_path: str, lang: str = "en",
+                  tier: str = "free", license_token: str = "", buyer: str = "",
+                  key_version: int = 1, license_secret: str = ""):
     """Generate self-contained HTML dashboard with Modern Financial Institution design."""
 
     # Translate field definitions (labels and group names) for the modal/detail view
@@ -1515,22 +1572,58 @@ def generate_html(assets: list[dict], output_path: str, lang: str = "en"):
             }
         categories[cat]["count"] += 1
 
-    # Serialize data to JSON for embedding
-    assets_json = json.dumps(assets, indent=2, default=str)
+    # Serialize data to JSON for embedding.
+    inventory = {
+        "format": "asset-inventory",
+        "version": 2,
+        "schema_version": 1,
+        "tier": tier,
+        "key_version": key_version,
+        "generated": datetime.now().strftime("%Y-%m-%d"),
+        "assets": assets,
+    }
+    inventory_json = json.dumps(inventory, indent=2, default=str)
     categories_json = json.dumps(categories, indent=2)
     fields_json = json.dumps(translated_field_defs, indent=2)
 
     template_path = Path(__file__).parent.parent / "templates" / "dashboard.html"
     template = template_path.read_text(encoding="utf-8")
 
+    # Build-time tier stripping: lower tiers physically remove higher-tier code.
+    # Markers in the template:
+    #   <!--__TIER_GE:family--> ... <!--__/TIER_GE:family-->
+    #   <!--__TIER_GE:planning--> ... <!--__/TIER_GE:planning-->
+    tier_rank = {"free": 0, "family": 1, "planning": 2, "advisor": 3}
+    cur = tier_rank.get(tier, 0)
+    html = template
+    for name in ("family", "planning", "advisor"):
+        if cur < tier_rank[name]:
+            open_m, close_m = f"<!--__TIER_GE:{name}-->", f"<!--__/TIER_GE:{name}-->"
+            while True:
+                s = html.find(open_m)
+                if s < 0:
+                    break
+                e = html.find(close_m, s)
+                if e < 0:
+                    break
+                e += len(close_m)
+                html = html[:s] + html[e:]
+    # Strip any leftover marker comment tokens.
+    html = re.sub(r"<!--__/?TIER_GE:[a-z]+-->", "", html)
+
     # Substitute UI translation placeholders first so they cannot be clobbered
     # by JSON content.
-    html = template
     for key, value in UI_TRANSLATIONS.get(lang, UI_TRANSLATIONS["en"]).items():
         html = html.replace(f"{{{{TR_{key}}}}}", str(value))
 
     html = (html
-        .replace("{{ASSETS_JSON}}", assets_json)
+        .replace("{{INVENTORY_JSON}}", inventory_json)
+        .replace("{{TIER}}", tier)
+        .replace("{{LICENSE_TOKEN}}", license_token)
+        .replace("{{LICENSE_JSON}}", license_token)
+        .replace("{{LICENSE_SECRET}}", license_secret)
+        .replace("{{BUYER}}", buyer)
+        .replace("{{KEY_VERSION}}", str(key_version))
         .replace("{{CATEGORIES_JSON}}", categories_json)
         .replace("{{FIELDS_JSON}}", fields_json))
 
@@ -1585,6 +1678,38 @@ def main():
         help="Overlay a realistic Ontario family demo fixture (James & Mei Chen, "
              "house + mortgage, TFSAs/RRSPs/RESP, dormant crypto wallet)"
     )
+    parser.add_argument(
+        "--tier",
+        choices=["free", "family", "planning", "advisor"],
+        default="free",
+        help="Edition tier (default: free). Free/Family = HTML only; Planning = HTML+MD+Excel"
+    )
+    parser.add_argument(
+        "--license",
+        default="",
+        help="Signed license token for paid tiers (embedded in the file)"
+    )
+    parser.add_argument(
+        "--buyer",
+        default="",
+        help='Purchaser identity for watermark, e.g. "Name <email>" (paid tiers)'
+    )
+    parser.add_argument(
+        "--key-version",
+        type=int,
+        default=1,
+        help="Data-block decryption key chain version (default: 1)"
+    )
+    parser.add_argument(
+        "--license-secret",
+        default="",
+        help="Secret used to sign the embedded license (paid tiers; keep private)"
+    )
+    parser.add_argument(
+        "--expires",
+        default="",
+        help="Optional license expiry (ISO date) for update packs; empty = perpetual"
+    )
     
     args = parser.parse_args()
     
@@ -1598,9 +1723,10 @@ def main():
     print("Canadian Family in Ontario")
     print("="*60 + "\n")
     
-    print("Generating 515+ assets...")
-    assets = generate_all_assets()
-    print(f"Generated {len(assets)} assets across {len(ASSET_CATEGORIES)} categories")
+    print(f"Generating assets (tier: {args.tier})...")
+    assets = generate_all_assets(tier=args.tier)
+    tier_cat_count = len(TIER_CATEGORIES.get(args.tier, TIER_CATEGORIES["planning"]))
+    print(f"Generated {len(assets)} assets across {tier_cat_count} categories")
     
     # Demo fixture: realistic family data overlays the blank template
     if args.demo:
@@ -1628,27 +1754,47 @@ def main():
     
     # Build language suffix for output filenames
     lang_suffix = "-zh" if lang == "zh" else ""
+    tier_suffix = f"-{args.tier}" if args.tier != "free" else ""
+    
+    # Export (Markdown/Excel) is Planning-tier only per versioning_plan.
+    export_enabled = args.tier in ("planning", "advisor")
     
     # Generate outputs
     print("\nGenerating outputs...")
     
-    if args.output in ["md", "all"]:
-        md_path = output_dir / f"asset-inventory{lang_suffix}.md"
+    if export_enabled and args.output in ["md", "all"]:
+        md_path = output_dir / f"asset-inventory{lang_suffix}{tier_suffix}.md"
         generate_markdown(translated_assets, str(md_path), lang=lang)
     
-    if args.output in ["excel", "all"]:
-        excel_path = output_dir / f"asset-inventory{lang_suffix}.xlsx"
+    if export_enabled and args.output in ["excel", "all"]:
+        excel_path = output_dir / f"asset-inventory{lang_suffix}{tier_suffix}.xlsx"
         generate_excel(translated_assets, str(excel_path), lang=lang)
     
     if args.output in ["html", "all"]:
-        html_path = output_dir / f"asset-inventory-dashboard{lang_suffix}.html"
-        generate_html(translated_assets, str(html_path), lang=lang)
+        html_path = output_dir / f"asset-inventory-dashboard{lang_suffix}{tier_suffix}.html"
+        # Build the signed license for paid tiers.
+        license_secret = args.license_secret or "dev-secret"
+        license_token = args.license
+        if args.tier in ("family", "planning", "advisor") and not license_token:
+            license_payload = {
+                "tier": args.tier,
+                "order_id": "",
+                "buyer": args.buyer or "",
+                "issued": datetime.now().strftime("%Y-%m-%d"),
+            }
+            if args.expires:
+                license_payload["expires"] = args.expires
+            license_token = sign_license(license_payload, license_secret)
+            print(f"[LICENSE] Signed {args.tier} license embedded")
+        generate_html(translated_assets, str(html_path), lang=lang, tier=args.tier,
+                      license_token=license_token, buyer=args.buyer,
+                      key_version=args.key_version, license_secret=license_secret)
     
     print("\n" + "="*60)
     print("GENERATION COMPLETE")
     print("="*60)
     print(f"Total Assets: {len(assets)}")
-    print(f"Categories: {len(ASSET_CATEGORIES)}")
+    print(f"Categories: {tier_cat_count}")
     print(f"Fields per asset: {len(FIELD_DEFINITIONS)}")
     print(f"\nOutputs saved to: {output_dir.absolute()}")
     print("="*60 + "\n")

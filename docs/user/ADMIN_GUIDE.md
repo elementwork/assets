@@ -1,6 +1,6 @@
 # Asset Inventory Generator — Administrator Guide
 
-> **Last updated:** 2026-08-09 17:31:28
+> **Last updated:** 2026-08-10 01:10:36
 > **Audience:** Administrators / maintainers who install, generate, customize, or
 > troubleshoot the tool. End users should read the in-dashboard help (the **?** button)
 > instead — it covers everyday usage in English and Chinese.
@@ -163,13 +163,15 @@ file's embedded data (unless the browser serves all copies from the same origin/
 python3 tests/e2e_visual_test.py
 ```
 
-Covers: regeneration (en/zh), static artifact checks (placeholders, sheet structure,
-asset counts), `--demo` fixture validation, and headless-Chromium interaction on both
-dashboards (search, filters, themes, 5 templates, 8 layouts, editing, validation,
-undo/redo, duplicate, delete, file lock, charts, exports, import, print,
-quick-add, bulk edit, inline edit, kanban, columns, markdown, auto-save, plus regression
-coverage for CSV injection, numeric-id import, audit filters, compact collapse).
-**125 checks**; exit code 0 = pass. Screenshots land in
+Covers: planning-tier regeneration (en/zh), static artifact checks (placeholders, sheet
+structure, asset counts), `--demo` fixture validation, headless-Chromium interaction on both
+dashboards (search, filters, themes, templates, layouts, editing, validation, undo/redo,
+duplicate, delete, data-block file lock (encrypt/unlock), Ctrl+S save guide + direct
+download, charts, exports, import, print, quick-add, bulk edit, inline edit, kanban,
+columns, markdown, auto-save, plus regression coverage for CSV injection, numeric-id
+import, audit filters, compact collapse), and per-tier gating assertions (free/family/
+planning catalog counts, stripped higher-tier code, layout/template/export visibility,
+license valid/invalid, watermark). **162 checks**; exit code 0 = pass. Screenshots land in
 `tests/screenshots/` (gitignored).
 
 ### Pre-push checklist (see `docs/agents/pre-push.md`)
@@ -187,17 +189,19 @@ coverage for CSV injection, numeric-id import, audit filters, compact collapse).
 
 ## 7. Security model
 
-- **File Lock (whole-file encryption, default off):** the entire dashboard HTML is
-  encrypted with AES-256-GCM via Web Crypto; the key is derived with PBKDF2
-  (100,000 iterations, random 16-byte salt + 12-byte IV per file). The passphrase is
-  derived from the owner's birth date (YYYYMMDD) plus a family word and is never stored —
-  **no passphrase = no recovery**.
-- Enabling the lock downloads a **bootloader copy**: a small plaintext gate that holds the
-  ciphertext. Opening it in a browser shows an unlock prompt; a text editor only sees
-  ciphertext. After a few wrong attempts, an exponential waiting period is enforced.
-- **Save HTML in a locked session** re-encrypts the whole file with the in-memory
-  passphrase, so the downloaded file stays encrypted. Disabling the lock downloads a plain
-  copy.
+- **File Lock (data-block encryption, default off):** the `assets` payload inside the
+  embedded `INVENTORY_DATA` block is encrypted with AES-256-GCM via Web Crypto; the key is
+  derived with PBKDF2 (100,000 iterations, random 16-byte salt + 12-byte IV). The passphrase
+  is derived from the owner's birth date (YYYYMMDD) plus a family word and is never stored —
+  **no passphrase = no recovery**. Templates/catalog stay plaintext.
+- Enabling the lock stages encrypted data into the file; the file reopens to an **in-page
+  unlock gate**. A text editor sees ciphertext only in the data block. The unlock gate has
+  no backoff (data-block decryption); wrong passphrases are rejected without exposing data.
+- **Save model:** browsers cannot write back to the open `file://` document. The Save button
+  stages the latest data into the DOM data script, then either shows native **Ctrl+S**
+  guidance (Chromium/Firefox — the user chooses location/name) or triggers a **direct
+  download** (Safari auto-detected, which cannot native-save HTML). Auto-save writes to
+  localStorage (session cache) and `beforeunload` flushes pending edits.
 - **XSS hardening:** user-supplied values (names, categories, dates) are HTML-escaped;
   `status` is validated against a whitelist before use in CSS class names.
 - **CSV export:** RFC-4180 escaping plus a formula-injection guard
@@ -207,11 +211,10 @@ coverage for CSV injection, numeric-id import, audit filters, compact collapse).
 
 ### Security limitations to document for users
 
-- The file lock protects the file at rest (text editor / scanning / casual viewing). It is
-  not a substitute for strong-key protection: the passphrase space is small
+- The file lock protects the data block at rest (text editor / scanning / casual viewing). It
+  is not a substitute for strong-key protection: the passphrase space is small
   (birth date + family word), so someone who knows the birth date — or can guess the word —
-  can attempt an offline brute force. The in-browser backoff only slows repeated attempts
-  through the UI; it cannot stop offline cracking of a copied file.
+  can attempt an offline brute force.
 - Exported **JSON** contains the full asset array in **plaintext** when the file is not
   locked (the lock only guards the HTML artifact).
 - localStorage persistence is per browser origin; clearing browser storage loses edits

@@ -22,16 +22,22 @@ import sys
 import tempfile
 from pathlib import Path
 
+from playwright.sync_api import sync_playwright
+
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "output"
 SHOTS = ROOT / "tests" / "screenshots"
+TMP = Path(tempfile.mkdtemp(prefix="e2e-tiers-"))
 
-EN_HTML = OUT / "asset-inventory-dashboard.html"
-ZH_HTML = OUT / "asset-inventory-dashboard-zh.html"
-EN_MD = OUT / "asset-inventory.md"
-ZH_MD = OUT / "asset-inventory-zh.md"
-EN_XLSX = OUT / "asset-inventory.xlsx"
-ZH_XLSX = OUT / "asset-inventory-zh.xlsx"
+# Main E2E runs against the Planning tier (full feature set: table/charts/export/
+# print + MD/Excel artifacts). Tier-gating differences are asserted separately
+# in tier_gating_check().
+EN_HTML = OUT / "asset-inventory-dashboard-planning.html"
+ZH_HTML = OUT / "asset-inventory-dashboard-zh-planning.html"
+EN_MD = OUT / "asset-inventory-planning.md"
+ZH_MD = OUT / "asset-inventory-zh-planning.md"
+EN_XLSX = OUT / "asset-inventory-planning.xlsx"
+ZH_XLSX = OUT / "asset-inventory-zh-planning.xlsx"
 
 PASSED = []
 FAILED = []
@@ -52,9 +58,10 @@ def check(name, cond, detail=""):
 # =============================================================================
 
 def run_generation():
-    print("\n== Step 1: regenerate outputs (en + zh) ==")
+    print("\n== Step 1: regenerate outputs (en + zh, planning tier) ==")
     for lang in ("en", "zh"):
-        cmd = [sys.executable, str(ROOT / "src" / "generate_asset_inventory.py")]
+        cmd = [sys.executable, str(ROOT / "src" / "generate_asset_inventory.py"),
+               "--tier", "planning"]
         if lang == "zh":
             cmd += ["--lang", "zh"]
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=300)
@@ -65,6 +72,71 @@ def run_generation():
         )
     for p in (EN_MD, ZH_MD, EN_XLSX, ZH_XLSX, EN_HTML, ZH_HTML):
         check(f"output exists: {p.name}", p.exists() and p.stat().st_size > 0)
+
+
+# =============================================================================
+# STEP 1b — Tier gating (Free/Family/Planning)
+# =============================================================================
+
+def tier_gating_check():
+    print("\n== Step 1b: tier gating ==")
+    cases = {
+        "free":    {"assets": 256, "tpl": 1, "table": False, "timeline": False,
+                    "charts": False, "audit": False, "print": False, "export": False},
+        "family":  {"assets": 324, "tpl": 5, "table": True, "timeline": True,
+                    "charts": True, "audit": False, "print": True, "export": False},
+        "planning": {"assets": 517, "tpl": 5, "table": True, "timeline": True,
+                     "charts": True, "audit": True, "print": True, "export": True},
+    }
+    for tier, cfg in cases.items():
+        cmd = [sys.executable, str(ROOT / "src" / "generate_asset_inventory.py"),
+               "--tier", tier, "-o", "html", "-d", str(TMP)]
+        r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=300)
+        check(f"tier {tier}: generator exits 0", r.returncode == 0, r.stderr[-400:])
+        fname = "asset-inventory-dashboard.html" if tier == "free" \
+            else f"asset-inventory-dashboard-{tier}.html"
+        html = (TMP / fname).read_text(encoding="utf-8")
+        check(f"tier {tier}: asset count embedded", f'"id": "A-' in html)
+        # Lower tiers must NOT contain higher-tier code (split build).
+        if tier == "free":
+            check("free: no higher-tier export code",
+                  all(t not in html for t in ["function exportMarkdown",
+                                               "function exportExcel", "function exportJSON"]))
+            check("free: no print/charts/audit code",
+                  all(t not in html for t in ["function renderPrintView",
+                                               "function renderCharts", "function renderAudit",
+                                               "function renderTable", "function renderTimeline"]))
+        if tier == "family":
+            check("family: no planning-only export code",
+                  all(t not in html for t in ["function exportMarkdown",
+                                               "function exportExcel", "function exportJSON"]))
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            ctx = browser.new_context()
+            page = ctx.new_page()
+            errs = []
+            page.on("pageerror", lambda e: errs.append(str(e)))
+            page.goto((TMP / fname).as_uri(), wait_until="load")
+            page.wait_for_timeout(600)
+            check(f"tier {tier}: totalAssets={cfg['assets']}",
+                  page.text_content("#totalAssets") == str(cfg["assets"]),
+                  page.text_content("#totalAssets"))
+            check(f"tier {tier}: template count={cfg['tpl']}",
+                  page.locator("#templateSelect option").count() == cfg["tpl"])
+            for feat, on in cfg.items():
+                if feat in ("assets", "tpl"):
+                    continue
+                selector = {"print": "#printBtn", "export": "#exportMD"}.get(feat)
+                if selector:
+                    vis = page.locator(selector).count() > 0 and page.locator(selector).first.is_visible()
+                    check(f"tier {tier}: {feat} visible={on}", vis == on, f"got {vis}")
+                else:
+                    vis = page.locator(f'.layout-btn[data-layout="{feat}"]').count() > 0 \
+                        and page.locator(f'.layout-btn[data-layout="{feat}"]').first.is_visible()
+                    check(f"tier {tier}: layout {feat} visible={on}", vis == on, f"got {vis}")
+            check(f"tier {tier}: no JS errors", not errs, f"{errs[:3]}")
+            ctx.close()
+            browser.close()
 
 
 # =============================================================================
@@ -111,9 +183,9 @@ def static_checks():
     # HTML: no leftover placeholders, data blocks present
     for label, path in (("en", EN_HTML), ("zh", ZH_HTML)):
         html = path.read_text(encoding="utf-8")
-        leftovers = re.findall(r"\{\{(?:TR_|ASSETS_JSON|CATEGORIES_JSON|FIELDS_JSON)", html)
+        leftovers = re.findall(r"\{\{(?:TR_|INVENTORY_JSON|CATEGORIES_JSON|FIELDS_JSON)", html)
         check(f"{label} html: no leftover placeholders", not leftovers, f"found {leftovers[:5]}")
-        check(f"{label} html: ASSETS_DATA embedded", "const ASSETS_DATA = [" in html)
+        check(f"{label} html: INVENTORY_DATA embedded", "const INVENTORY_DATA = {" in html)
         check(f"{label} html: CATEGORIES_DATA embedded", "const CATEGORIES_DATA =" in html)
         check(f"{label} html: FIELDS_DATA embedded", "const FIELDS_DATA =" in html)
         check(f"{label} html: 517 assets in JSON", html.count('"id": "A-') == 517)
@@ -125,16 +197,28 @@ def static_checks():
 # =============================================================================
 
 def demo_fixture_check():
-    print("\n== Step 2b: --demo fixture (1.7) ==")
+    print("\n== Step 2b: --demo fixture (1.7, planning tier) ==")
     with tempfile.TemporaryDirectory() as tmp:
         cmd = [sys.executable, str(ROOT / "src" / "generate_asset_inventory.py"),
-               "--demo", "-d", tmp]
+               "--tier", "planning", "--demo", "-d", tmp]
         r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=300)
         check("demo: generator --demo exits 0", r.returncode == 0, r.stderr[-500:])
-        html = (Path(tmp) / "asset-inventory-dashboard.html").read_text(encoding="utf-8")
-        i = html.find("const ASSETS_DATA = ")
-        j = html.find(";\nconst CATEGORIES_DATA", i)
-        data = json.loads(html[i + len("const ASSETS_DATA = "):j])
+        html = (Path(tmp) / "asset-inventory-dashboard-planning.html").read_text(encoding="utf-8")
+        i = html.find('"assets": [')
+        if i < 0:
+            check("demo: INVENTORY_DATA assets found", False, "no assets array")
+            return
+        depth, pos = 0, i
+        while pos < len(html):
+            if html[pos] == '[':
+                depth += 1
+            elif html[pos] == ']':
+                depth -= 1
+                if depth == 0:
+                    break
+            pos += 1
+        # Include the opening '[' so the slice is a balanced array.
+        data = json.loads(html[i + len('"assets": '):pos + 1])
         demo = [a for a in data if a.get("source") == "demo"]
         check("demo: 27 populated assets", len(demo) == 27, f"n={len(demo)}")
         total_fmv = sum(float(a.get("fmv") or 0) for a in demo)
@@ -360,8 +444,9 @@ def e2e_en(browser):
     check("en: deleted asset removed (517)",
           page.locator("#dashboardView .asset-item").count() == 517)
 
-    # File lock: enable whole-file encryption (birth date + family word) and
-    # download the encrypted bootloader copy.
+    # File lock: encrypt the data block (birth date + family word). Enabling
+    # stages encrypted data into the DOM script; native Ctrl+S (or the direct
+    # download fallback) persists it. Reopening shows an in-page unlock gate.
     _open_modal(page, "A-0001")
     page.fill('#modalContent [data-field="login_password"]', "s3cret-pw!")
     _save_modal(page)
@@ -372,27 +457,22 @@ def e2e_en(browser):
     page.fill("#lockBirth", "19750108")
     page.fill("#lockWord1", "chen")
     page.fill("#lockWord2", "chen")
+    page.click("#lockEnableBtn")
+    page.wait_for_timeout(1200)
+    check("en: lock session enabled", page.evaluate("!!lockPassphrase"))
+    check("en: save guide shown after lock",
+          page.locator("#saveGuideOverlay.active").count() == 1)
+    # Direct-download fallback persists the encrypted data block.
     with page.expect_download() as dl:
-        page.click("#lockEnableBtn")
+        page.click("#saveGuideDirect")
     locked_path = Path(dl.value.path())
     locked_html = locked_path.read_text(encoding="utf-8") if locked_path else ""
-    check("en: lock downloads encrypted file",
-          "id=\"gateBtn\"" in locked_html, f"size={len(locked_html)}")
-    check("en: locked file hides plaintext data",
-          "const ASSETS_DATA" not in locked_html and "s3cret-pw!" not in locked_html)
-    check("en: locked session sets passphrase flag",
-          page.evaluate("!!window.__LOCK_PASS__"))
-    page.keyboard.press("Escape")
-    page.wait_for_timeout(200)
-    # Save HTML in a locked session produces another encrypted file
-    with page.expect_download() as dl:
-        page.evaluate("saveHTML()")
-    re_locked = Path(dl.value.path()).read_text(encoding="utf-8") if dl.value.path() else ""
-    check("en: locked-session saveHTML stays encrypted",
-          "id=\"gateBtn\"" in re_locked and "const ASSETS_DATA" not in re_locked)
+    check("en: locked download carries encrypted data block",
+          '"enc":true' in locked_html, f"size={len(locked_html)}")
+    check("en: locked download hides plaintext data",
+          "s3cret-pw!" not in locked_html)
 
-    # Open the locked file in a fresh context: gate shows, wrong passphrase
-    # rejected with backoff, correct passphrase unlocks to the full dashboard.
+    # Reopen the saved (encrypted) file: in-page unlock gate appears.
     lock_tmp = Path(tempfile.mkdtemp()) / "e2e-locked.html"
     lock_tmp.write_text(locked_html, encoding="utf-8")
     lock_ctx = browser.new_context()
@@ -400,19 +480,19 @@ def e2e_en(browser):
     lock_err = []
     lock_page.on("pageerror", lambda e: lock_err.append(str(e)))
     lock_page.goto(lock_tmp.as_uri(), wait_until="load")
-    lock_page.wait_for_timeout(400)
-    check("en: locked file shows unlock gate", lock_page.locator("#gateBtn").count() == 1)
-    lock_page.fill("#gateBirth", "19991231")
-    lock_page.fill("#gateWord", "wrong")
-    lock_page.click("#gateBtn")
+    lock_page.wait_for_timeout(500)
+    check("en: locked file shows unlock gate",
+          lock_page.locator("#lockOverlay.active").count() == 1)
+    lock_page.fill("#lockUnlockBirth", "19991231")
+    lock_page.fill("#lockUnlockWord", "wrong")
+    lock_page.click("#lockUnlockBtn")
     lock_page.wait_for_timeout(1200)
-    check("en: wrong passphrase rejected",
-          "Incorrect" in (lock_page.text_content("#gateErr") or "") or "不正确" in (lock_page.text_content("#gateErr") or ""),
-          lock_page.text_content("#gateErr").strip())
-    lock_page.fill("#gateBirth", "19750108")
-    lock_page.fill("#gateWord", "chen")
-    lock_page.click("#gateBtn")
-    lock_page.wait_for_timeout(1800)
+    check("en: wrong passphrase rejected (still gated)",
+          lock_page.locator("#lockOverlay.active").count() == 1)
+    lock_page.fill("#lockUnlockBirth", "19750108")
+    lock_page.fill("#lockUnlockWord", "chen")
+    lock_page.click("#lockUnlockBtn")
+    lock_page.wait_for_timeout(1500)
     check("en: correct passphrase unlocks dashboard",
           lock_page.text_content("#totalAssets") == "517", lock_page.text_content("#totalAssets"))
     check("en: unlocked locked-file carries credentials",
@@ -421,7 +501,7 @@ def e2e_en(browser):
     lock_ctx.close()
     # Reset the main session to plaintext so the remaining export/save tests
     # exercise the normal (unlocked) path.
-    page.evaluate("lockPassphrase = null; window.__LOCK_PASS__ = null;")
+    page.evaluate("lockPassphrase = null; window.__LOCK_PASS__ = null; dataLocked = false;")
 
     # Exports (downloads)
     with page.expect_download() as dl:
@@ -450,13 +530,21 @@ def e2e_en(browser):
         json_content = str(e)
     check("en: export JSON round-trips 517 assets with edits", json_ok)
 
+    # Save button stages data + shows Ctrl+S guide; direct-download fallback
+    # persists a fresh copy with the latest edits.
+    page.click("#saveHTML")
+    page.wait_for_selector("#saveGuideOverlay.active", timeout=5000)
+    check("en: save shows staged/Ctrl+S guide",
+          page.locator("#saveGuideOverlay.active").count() == 1)
     with page.expect_download() as dl:
-        page.click("#saveHTML")
+        page.click("#saveGuideDirect")
     html_dl = dl.value
     html_path = html_dl.path()
     saved_html = Path(html_path).read_text(encoding="utf-8") if html_path else ""
     check("en: save-HTML carries edits",
-          "const ASSETS_DATA = [" in saved_html and "Test Chequing Account" in saved_html)
+          "const INVENTORY_DATA = {" in saved_html and "Test Chequing Account" in saved_html)
+    page.click("#saveGuideClose")
+    page.wait_for_timeout(200)
 
     # Import JSON (replaces assets)
     page.set_input_files("#importJSONFile", str(json_dl.path()))
@@ -707,7 +795,10 @@ def main():
     run_generation()
     static_checks()
     demo_fixture_check()
+    tier_gating_check()
     browser_e2e()
+    import shutil
+    shutil.rmtree(TMP, ignore_errors=True)
 
     print("\n" + "=" * 60)
     print(f"RESULT: {len(PASSED)} passed, {len(FAILED)} failed")

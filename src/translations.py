@@ -92,6 +92,9 @@ UI_TRANSLATIONS = {
         "excel_exported": "Excel (CSV) exported",
         "html_saved": "HTML saved",
         "saved_to_storage": "Saved to browser storage",
+        "save_guide_title": "Data staged — save the file",
+        "save_guide_text": "✅ Your data is staged in this file. Press **Ctrl+S** (Mac: **Cmd+S**) to choose where to save it — it will stay with this file. Or download a fresh copy below.",
+        "save_guide_direct": "Download copy to Downloads folder",
 
         # Audit, charts, vault, print & data-entry features
         "layout_audit": "Audit",
@@ -140,7 +143,6 @@ UI_TRANSLATIONS = {
         "lock_enabled_toast": "File lock enabled — encrypted copy downloaded",
         "lock_disabled_toast": "File lock disabled — plain copy downloaded",
         "lock_unlocked_toast": "File unlocked for this session",
-        "lock_saved_locked_toast": "Encrypted file saved",
         "lock_no_crypto": "Web Crypto is not available in this browser context",
         "lock_bad_blob": "Encrypted payload is missing or corrupt",
         "audit_ok": "OK",
@@ -217,7 +219,6 @@ UI_TRANSLATIONS = {
         "export_md_filename": "asset-inventory.md",
         "export_csv_filename": "asset-inventory.csv",
         "export_html_filename": "asset-inventory-dashboard.html",
-        "export_html_locked_filename": "asset-inventory-dashboard-locked.html",
         "csv_header": "ID,Category,Asset Name,Owner,Institution,Account Number,Registration,Currency,ACB,FMV,Annual Income,Status",
         "uncategorized": "Uncategorized",
 
@@ -498,6 +499,9 @@ UI_TRANSLATIONS = {
         "excel_exported": "Excel (CSV) 已导出",
         "html_saved": "HTML 已保存",
         "saved_to_storage": "已保存到浏览器存储",
+        "save_guide_title": "数据已暂存 — 请保存文件",
+        "save_guide_text": "✅ 您的数据已暂存在此文件中。请按 **Ctrl+S**（Mac：**Cmd+S**）选择保存位置 —— 数据将随文件保留。也可在下方直接下载副本。",
+        "save_guide_direct": "下载副本到下载文件夹",
 
         # Audit, charts, vault, print & data-entry features
         "layout_audit": "审计",
@@ -546,7 +550,6 @@ UI_TRANSLATIONS = {
         "lock_enabled_toast": "已启用文件锁 — 加密副本已下载",
         "lock_disabled_toast": "已禁用文件锁 — 明文副本已下载",
         "lock_unlocked_toast": "文件已解锁（仅本次会话）",
-        "lock_saved_locked_toast": "已保存加密文件",
         "lock_no_crypto": "当前浏览器环境不支持 Web Crypto",
         "lock_bad_blob": "加密负载缺失或损坏",
         "audit_ok": "正常",
@@ -623,7 +626,6 @@ UI_TRANSLATIONS = {
         "export_md_filename": "asset-inventory-zh.md",
         "export_csv_filename": "asset-inventory-zh.csv",
         "export_html_filename": "asset-inventory-dashboard-zh.html",
-        "export_html_locked_filename": "asset-inventory-dashboard-locked-zh.html",
         "csv_header": "编号,类别,资产名称,持有人,机构,账号,注册类型,币种,调整成本基础,公允市场价值,年度收入,状态",
         "uncategorized": "未分类",
 

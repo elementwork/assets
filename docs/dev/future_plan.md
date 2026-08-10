@@ -1,6 +1,6 @@
 # Future Plan: Asset Inventory Generator (Merged)
 
-> **Status:** Living document · Last updated 2026-08-09 16:49:47
+> **Status:** Living document · Last updated 2026-08-10 01:10:36
 > **Sources merged (now superseded by this file):** `Improve_plans.md` (Imp-*), `Qoder-plan.md` (Q-*), `Implement_plan.md` (Impl-*)
 > **Scope:** Roadmap only — this document plans features; it does not implement them.
 > **Legend:** ✅ Done (implemented, see `feature_list.md`) · ⬜ Not started · 🟡 Partial (core exists, gaps remain)
@@ -147,7 +147,7 @@ The Audit layout exists but only covers a subset of the planned beneficiary audi
 
 ## 4. Verification
 
-- `python3 tests/e2e_visual_test.py` — all 125 checks green after every change (regenerates outputs, validates Markdown/Excel/HTML, drives both dashboards headless)
+- `python3 tests/e2e_visual_test.py` — all 162 checks green after every change (regenerates planning-tier outputs, validates Markdown/Excel/HTML, drives both dashboards headless, asserts tier gating for free/family/planning)
 - Golden path per feature: load demo fixture → act → save HTML → reopen in a fresh browser → state persists
 - Security: locked file is ciphertext in a text editor (bootloader gate); wrong birth date/family word rejected with backoff; save-HTML in a locked session stays encrypted
 - Docs: every new field documented in `docs/dev/ASSET_FIELDS.md`

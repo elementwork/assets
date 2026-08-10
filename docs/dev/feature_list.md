@@ -1,6 +1,6 @@
 # Feature List: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-09 16:49:47
+> **Status:** Living document · Last updated 2026-08-10 01:10:36
 > **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
 > **Roadmap:** Planned / in-progress features → see `future_plan.md`
 
@@ -58,11 +58,21 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 4.1 | Whole-file encryption (File Lock, default off) — AES-256-GCM via Web Crypto, PBKDF2 100k, bootloader unlock gate | ✅ |
-| 4.2 | Lock UX: birth date (YYYYMMDD) + family word, confirm, enable → downloads encrypted copy; disable → plain copy | ✅ |
-| 4.3 | Locked file: browser shows unlock gate; text editor sees only ciphertext; wrong-passphrase backoff (exponential wait) | ✅ |
+| 4.1 | Data-block encryption (File Lock, default off) — AES-256-GCM via Web Crypto, PBKDF2 100k, family-word key; only the `assets` payload is encrypted | ✅ |
+| 4.2 | Lock UX: birth date (YYYYMMDD) + family word, confirm, enable → data staged encrypted; in-page unlock gate on reopen | ✅ |
+| 4.3 | Locked file: reopen shows unlock gate; text editor sees ciphertext in the data block; wrong-passphrase rejected | ✅ |
 | 4.4 | XSS-safe rendering — event delegation, HTML-escaped ids | ✅ |
 | 4.5 | CSV formula-injection guard (`= + - @` prefix) + RFC-4180 escaping | ✅ |
+
+## 4b. Versioning & save model
+
+| # | Feature | Status |
+|---|---------|--------|
+| 4.6 | `INVENTORY_DATA` versioned data block — format/version/schema_version/tier/key_version/generated/assets; file = single source of truth | ✅ |
+| 4.7 | Tiered build (`--tier free\|family\|planning`) — lower tiers physically strip higher-tier code (export/print/charts/audit/table/timeline) | ✅ |
+| 4.8 | Signed license (`--license-secret`) + watermark (`--buyer`) for paid tiers; invalid license downgrades to free capability | ✅ |
+| 4.9 | Save model: stage data into DOM script → native Ctrl+S guidance (Chromium/Firefox) or direct-download fallback (Safari auto-detected) | ✅ |
+| 4.10 | Auto-save (1.5s debounce) to localStorage (session cache) + `beforeunload` flush; localStorage skipped when file is locked | ✅ |
 
 ## 5. Export, import & persistence
 
@@ -90,5 +100,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 125 checks: generation, static artifacts, demo fixture, headless-Chromium interaction incl. quick-add wizard, bulk edit, inline edit, kanban DnD, column config, markdown, auto-save (en/zh), plus file-lock (encrypt/unlock/backoff/re-save) and regression coverage for CSV injection, numeric-id import, audit filters, compact collapse (en/zh), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 162 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |

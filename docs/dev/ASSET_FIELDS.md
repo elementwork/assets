@@ -1,6 +1,6 @@
 # Asset Inventory — Data Fields & Structure
 
-> **Last updated:** 2026-08-09 16:46:21
+> **Last updated:** 2026-08-10 01:10:36
 
 This document defines the fields for each asset entry in the inventory. Each asset record includes these fields.
 

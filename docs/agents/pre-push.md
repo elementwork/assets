@@ -1,6 +1,6 @@
 ---
 description: Run pre-push validation sequence: update docs, type check, lint, E2E, status, diff summary, then prompt for commit and push.
-last_updated: 2026-08-09 16:52:19
+last_updated: 2026-08-10 01:10:36
 ---
 
 # Pre-Push Validation

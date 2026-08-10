@@ -1,6 +1,6 @@
 # Promotion & Sales Plan: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-09 17:31:28
+> **Status:** Living document · Last updated 2026-08-10 01:10:36
 > **Product:** Self-contained, offline-first asset inventory for Canadian families in Ontario
 > (single-file HTML dashboard, en/zh, optional whole-file encryption)
 > **Pricing model:** 3 tiers — Free / Plus ($49) / Pro ($149/yr) — see `versioning_plan.md`
