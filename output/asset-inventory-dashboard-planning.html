@@ -2718,7 +2718,6 @@ td[data-edit-field] {
 // ===== DATA =====
 // Tier metadata (set at generation time, see versioning_plan.md).
 const APP_TIER = 'planning';
-const LICENSE_TOKEN = 'eyJ0aWVyIjoicGxhbm5pbmciLCJvcmRlcl9pZCI6IiIsImJ1eWVyIjoiIiwiaXNzdWVkIjoiMjAyNi0wOC0xMCJ9.GFcFVXaTpDyZB1QpCkInAReJT151Wj5Dim3tzQ35r2g';
 const BUYER = '';
 const DATA_KEY_VERSION = 1;
 
@@ -60448,8 +60447,9 @@ const FIELDS_DATA = {
   }
 };
 
-// ASSETS_DATA kept as the template catalog (for quick-add / wizard type picker).
-const ASSETS_DATA = INVENTORY_DATA.assets;
+// ASSETS_DATA kept as the template catalog (for quick-add / wizard type
+// picker). Reassigned to the decrypted array once a locked file is unlocked.
+let ASSETS_DATA = INVENTORY_DATA.assets;
 
 // Runtime asset set. If the data block is encrypted (family-word lock), assets
 // is populated by lockUnlockData() before rendering (see FILE LOCK section).
@@ -60532,6 +60532,10 @@ function applyTierGating() {
         [...tpl.options].forEach(opt => {
             if (!tierCfg.templatesList.includes(opt.value)) opt.remove();
         });
+        if (!tierCfg.templatesList.includes(tpl.value)) {
+            tpl.value = tierCfg.templatesList[0] || '';
+            document.documentElement.setAttribute('data-template', tpl.value);
+        }
     }
     // Watermark for paid tiers
     const wm = document.getElementById('watermark');
@@ -60618,6 +60622,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (tierHas('table')) initSort();
     initKeyboardShortcuts();
     await verifyLicense();
+    // Hide higher-tier UI when the effective tier is lower than the build
+    // tier (e.g. an invalid license downgraded a paid file to free).
+    applyTierGating();
     if (dataLocked) {
         // Gate rendering until the file is unlocked.
         gateForUnlock();
@@ -60629,7 +60636,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===== TEMPLATE =====
 function initTemplate() {
-    const savedTemplate = localStorage.getItem('assetTemplate') || 'estateon';
+    // Some templates exist only on higher tiers; if a saved value was stripped
+    // from this build, fall back to the first available template.
+    let savedTemplate = localStorage.getItem('assetTemplate');
+    if (!savedTemplate || !tierCfg.templatesList.includes(savedTemplate)) {
+        savedTemplate = tierCfg.templatesList[0] || 'estateon';
+    }
     document.documentElement.setAttribute('data-template', savedTemplate);
     document.getElementById('templateSelect').value = savedTemplate;
 
@@ -60855,7 +60867,6 @@ function renderTable() {
     renderPagination(totalPages);
 }
 
-
 function sortAssets(list, key, dir) {
     const meta = (FIELDS_DATA && FIELDS_DATA[key]) || {};
     const type = meta.type || 'text';
@@ -60900,7 +60911,6 @@ function updateSortArrows() {
             : '';
     });
 }
-
 
 function renderPagination(totalPages) {
     const container = document.getElementById('tablePagination');
@@ -61337,7 +61347,7 @@ function initDelegation() {
         const pwToggle = e.target.closest('[data-pw-toggle]');
         if (pwToggle) { togglePwVisibility(pwToggle); return; }
         const pageBtn = e.target.closest('[data-page]');
-        if (pageBtn) { goToPage(parseInt(pageBtn.dataset.page, 10)); return; }
+        if (pageBtn && tierHas('table')) { goToPage(parseInt(pageBtn.dataset.page, 10)); return; }
         const assetEl = e.target.closest('[data-asset-id]');
         // Table cells are inline-editable (dblclick) and the checkbox column
         // drives bulk selection — neither should open the edit modal on click.
@@ -61940,6 +61950,13 @@ function exportJSON() {
 
 
 function importJSON(file) {
+    if (dataLocked || lockPassphrase) {
+        // Importing into a locked file would replace encrypted assets with
+        // plaintext (and saveToLocalStorage/buildInventoryJSON would drop the
+        // encryption). Block it; the user must disable the lock first.
+        showToast('Import is disabled while the file is locked — disable the lock first');
+        return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
         try {
@@ -62010,11 +62027,6 @@ async function stageDataToScript() {
         scriptEl.textContent = scriptEl.textContent.slice(0, start + marker.length)
             + json + scriptEl.textContent.slice(end);
     }
-}
-
-async function serializeCurrentHTML() {
-    await stageDataToScript();
-    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
 }
 
 // Save button: stage data, then branch by browser.
@@ -62137,11 +62149,17 @@ function loadFromLocalStorage() {
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
         const inFormControl = e.target.matches('input, textarea, select') || e.target.isContentEditable;
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            saveToLocalStorage();
-            clearDirty();
-            showToast('Saved to browser storage');
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            // Close any transient overlay so the browser's native save
+            // serializes a clean document (staged data lives in the
+            // INVENTORY_DATA script element). Do NOT preventDefault: the
+            // native Save dialog must still open to persist the file.
+            closeSaveGuide();
+            closeModal();
+            closeHelp();
+            closeWizard();
+            saveToLocalStorage(); // safety-net flush; localStorage is a cache
+            return;
         }
         if (e.ctrlKey && e.key === 'e' && tierHas('export')) {
             e.preventDefault();
@@ -62189,9 +62207,9 @@ function initKeyboardShortcuts() {
         document.getElementById('saveGuideClose').addEventListener('click', closeSaveGuide);
         document.getElementById('saveGuideClose2').addEventListener('click', closeSaveGuide);
         document.getElementById('saveGuideDirect').addEventListener('click', () => {
+            closeSaveGuide(); // never bake an open overlay into the saved file
             const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
             downloadFile(html, 'asset-inventory-dashboard.html', 'text/html');
-            closeSaveGuide();
             showToast('HTML saved');
         });
     }
@@ -62275,6 +62293,13 @@ function showToast(message, action) {
  }
 
  function closeLock() {
+     // A locked file's data is ciphertext until unlocked; the gate must not be
+     // dismissible, otherwise the dashboard renders empties and imports would
+     // silently drop the encryption.
+     if (dataLocked) {
+         showToast('This file is locked — unlock it before closing this dialog');
+         return;
+     }
      document.getElementById('lockOverlay').classList.remove('active');
      document.getElementById('lockBirth').value = '';
      document.getElementById('lockWord1').value = '';
@@ -62299,7 +62324,7 @@ function showToast(message, action) {
      const unlockBtn = document.getElementById('lockUnlockBtn');
      const enableBtn = document.getElementById('lockEnableBtn');
      const disableBtn = document.getElementById('lockDisableBtn');
-     const hasLockedData = dataIsEncrypted(INVENTORY_DATA.assets) || dataIsEncrypted(window.__STAGED_ENC__ || null);
+     const hasLockedData = dataIsEncrypted(INVENTORY_DATA.assets);
      const isUnlocked = !!lockPassphrase;
 
      if (isUnlocked) {
@@ -62410,7 +62435,6 @@ function b64ToBytes(b64) {
      if (!v.ok) { showToast(v.msg); return; }
      const pass = lockBuildPassphrase(birth, w1);
      lockPassphrase = pass;
-     window.__LOCK_PASS__ = pass;
      try {
          await encryptAssetsBlock(assets, pass); // validate crypto works
          updateLockUI();
@@ -62420,7 +62444,6 @@ function b64ToBytes(b64) {
          showToast('File lock enabled — encrypted copy downloaded');
      } catch (e) {
          lockPassphrase = null;
-         window.__LOCK_PASS__ = null;
          showToast('Encrypted payload is missing or corrupt');
      }
  }
@@ -62435,12 +62458,13 @@ function b64ToBytes(b64) {
      try {
          const arr = await decryptAssetsBlock(blob, pass);
          lockPassphrase = pass;
-         window.__LOCK_PASS__ = pass;
          assets = arr;
+         ASSETS_DATA = arr; // rebuild quick-add catalog from decrypted data
          dataLocked = false;
          saveToLocalStorage();
          document.getElementById('lockOverlay').classList.remove('active');
          updateLockUI();
+         refreshOwnerFilter();
          renderCurrentLayout();
          updateStats();
          showToast('File unlocked for this session');
@@ -62449,14 +62473,13 @@ function b64ToBytes(b64) {
      }
  }
 
- function lockDisable() {
+ async function lockDisable() {
      if (!lockPassphrase) return;
      // Unlock: stage plaintext data, then guide a save (Ctrl+S or Safari download).
      lockPassphrase = null;
-     window.__LOCK_PASS__ = null;
      updateLockUI();
      renderCurrentLayout();
-     saveCurrentData();
+     await saveCurrentData();
      showToast('File lock disabled — plain copy downloaded');
  }
 
@@ -62591,6 +62614,8 @@ function renderAudit() {
     }
     container.innerHTML = html;
 }
+
+
 
 // ===== CHARTS VIEW (pure SVG, no library) =====
 const CHART_COLORS = ['#C5A55A', '#1A2744', '#059669', '#2563EB', '#D97706', '#DC2626', '#7C3AED', '#0D9488', '#DB2777', '#65A30D', '#7A8A9E'];

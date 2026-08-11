@@ -1593,6 +1593,32 @@ def generate_html(assets: list[dict], output_path: str, lang: str = "en",
     # Markers in the template:
     #   <!--__TIER_GE:family--> ... <!--__/TIER_GE:family-->
     #   <!--__TIER_GE:planning--> ... <!--__/TIER_GE:planning-->
+    # Validate marker balance/nesting strictly first so a malformed template
+    # fails the build instead of silently shipping broken code.
+    def _validate_tier_markers(source, label):
+        stack = []
+        for i, line in enumerate(source.splitlines(), 1):
+            m = re.search(r"<!--__(/)?TIER_GE:([a-z]+)-->", line)
+            if not m:
+                continue
+            is_close, name = bool(m.group(1)), m.group(2)
+            if is_close:
+                if not stack:
+                    raise SystemExit(
+                        f"[ERROR] {label}:{i} unexpected close marker for tier '{name}'")
+                if stack[-1][0] != name:
+                    raise SystemExit(
+                        f"[ERROR] {label}:{i} misnested marker: expected close of "
+                        f"'{stack[-1][0]}' (opened at line {stack[-1][1]}) but found '{name}'")
+                stack.pop()
+            else:
+                stack.append((name, i))
+        if stack:
+            for name, num in stack:
+                raise SystemExit(
+                    f"[ERROR] {label}:{num} unclosed tier marker for '{name}'")
+
+    _validate_tier_markers(template, "templates/dashboard.html")
     tier_rank = {"free": 0, "family": 1, "planning": 2, "advisor": 3}
     cur = tier_rank.get(tier, 0)
     html = template
@@ -1619,7 +1645,6 @@ def generate_html(assets: list[dict], output_path: str, lang: str = "en",
     html = (html
         .replace("{{INVENTORY_JSON}}", inventory_json)
         .replace("{{TIER}}", tier)
-        .replace("{{LICENSE_TOKEN}}", license_token)
         .replace("{{LICENSE_JSON}}", license_token)
         .replace("{{LICENSE_SECRET}}", license_secret)
         .replace("{{BUYER}}", buyer)

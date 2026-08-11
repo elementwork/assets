@@ -110,6 +110,10 @@ def tier_gating_check():
             check("family: no planning-only export code",
                   all(t not in html for t in ["function exportMarkdown",
                                                "function exportExcel", "function exportJSON"]))
+            check("family: charts/timeline/print present, audit stripped",
+                  all(t in html for t in ["function renderCharts",
+                                          "function renderTimeline", "function renderPrintView"])
+                  and "function renderAudit" not in html)
         with sync_playwright() as p:
             browser = p.chromium.launch()
             ctx = browser.new_context()
@@ -145,6 +149,28 @@ def tier_gating_check():
 
 def static_checks():
     print("\n== Step 2: static artifact checks ==")
+
+    # Tier markers in the template must be balanced and properly nested.
+    # The generator now fails hard on imbalance; this check guards the source
+    # template deterministically so drift fails CI with a clear message.
+    tpl_lines = (ROOT / "templates" / "dashboard.html").read_text(encoding="utf-8").splitlines()
+    stack = []
+    marker_ok = True
+    for i, ln in enumerate(tpl_lines, 1):
+        m = re.search(r"<!--__(/)?TIER_GE:([a-z]+)-->", ln)
+        if not m:
+            continue
+        is_close, name = bool(m.group(1)), m.group(2)
+        if is_close:
+            if not stack or stack[-1][0] != name:
+                marker_ok = False
+                print(f"  marker mismatch at line {i}: {ln.strip()}")
+                break
+            stack.pop()
+        else:
+            stack.append((name, i))
+    check("template tier markers balanced & nested", marker_ok and not stack,
+          f"unclosed={stack}")
 
     # Markdown
     en_md = EN_MD.read_text(encoding="utf-8")
@@ -449,6 +475,7 @@ def e2e_en(browser):
     # download fallback) persists it. Reopening shows an in-page unlock gate.
     _open_modal(page, "A-0001")
     page.fill('#modalContent [data-field="login_password"]', "s3cret-pw!")
+    page.fill('#modalContent [data-field="owner"]', "Chen Test")
     _save_modal(page)
     page.click("#lockToggle")
     page.wait_for_selector("#lockOverlay.active", timeout=5000)
@@ -483,6 +510,21 @@ def e2e_en(browser):
     lock_page.wait_for_timeout(500)
     check("en: locked file shows unlock gate",
           lock_page.locator("#lockOverlay.active").count() == 1)
+    # Esc/click-away must not dismiss the gate while data is still locked (M4).
+    lock_page.keyboard.press("Escape")
+    lock_page.wait_for_timeout(200)
+    check("en: Escape does not dismiss locked gate",
+          lock_page.locator("#lockOverlay.active").count() == 1)
+    # Import must be blocked while locked (M4) — otherwise it would write
+    # plaintext and silently strip the encryption.
+    import_fixture = Path(tempfile.mkdtemp()) / "import.json"
+    import_fixture.write_text(
+        json.dumps([{"id": "X-1", "asset_name": "Inject", "fmv": 1}]), encoding="utf-8")
+    lock_page.set_input_files("#importJSONFile", str(import_fixture))
+    lock_page.wait_for_timeout(400)
+    check("en: import blocked while locked keeps ciphertext",
+          lock_page.evaluate(
+              "Array.isArray(INVENTORY_DATA.assets) === false && dataLocked === true"))
     lock_page.fill("#lockUnlockBirth", "19991231")
     lock_page.fill("#lockUnlockWord", "wrong")
     lock_page.click("#lockUnlockBtn")
@@ -497,11 +539,17 @@ def e2e_en(browser):
           lock_page.text_content("#totalAssets") == "517", lock_page.text_content("#totalAssets"))
     check("en: unlocked locked-file carries credentials",
           lock_page.evaluate("assets.find(a => a.id === 'A-0001').login_password") == "s3cret-pw!")
+    check("en: owner filter rebuilt after unlock (M3)",
+          lock_page.locator("#ownerFilter option").count() > 1
+          and lock_page.evaluate(
+              "[...document.querySelectorAll('#ownerFilter option')].some(o => o.value === 'Chen Test')"))
+    check("en: wizard catalog rebuilt after unlock (M2)",
+          lock_page.evaluate("(typeof ASSETS_DATA === 'object') && Array.isArray(ASSETS_DATA) && ASSETS_DATA.length > 0"))
     check("en: locked unlock has no JS errors", not lock_err, f"{lock_err[:3]}")
     lock_ctx.close()
     # Reset the main session to plaintext so the remaining export/save tests
     # exercise the normal (unlocked) path.
-    page.evaluate("lockPassphrase = null; window.__LOCK_PASS__ = null; dataLocked = false;")
+    page.evaluate("lockPassphrase = null; dataLocked = false;")
 
     # Exports (downloads)
     with page.expect_download() as dl:
