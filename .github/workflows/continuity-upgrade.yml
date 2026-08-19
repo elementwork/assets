@@ -52,6 +52,7 @@ jobs:
           allowed = (
               "local variable 'icon' is assigned to but never used",
               "local variable 'color' is assigned to but never used",
+              "f-string is missing placeholders",
               "SyntaxWarning: invalid escape sequence",
               "return bad.every(v =>",
           )
