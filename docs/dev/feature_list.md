@@ -1,6 +1,6 @@
 # Feature List: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-10 01:10:36
+> **Status:** Living document · Last updated 2026-08-19 12:59:00
 > **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
 > **Roadmap:** Planned / in-progress features → see `future_plan.md`
 
@@ -15,7 +15,7 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | # | Feature | Status |
 |---|---------|--------|
 | 1.1 | 517 asset types across 32 categories with icons/colors | ✅ |
-| 1.2 | 108-field schema per asset (ownership, registration/tax, beneficiaries, insurance, digital, crypto, notes…) | ✅ |
+| 1.2 | 116-field schema per asset (ownership, registration/tax, beneficiaries, insurance, digital, crypto, notes…) | ✅ |
 | 1.3 | Markdown output — human-readable reference (en/zh) | ✅ |
 | 1.4 | Excel output — 8 sheets: All Assets, By Category, Summary, Access, Financial Summary, Insurance, Beneficiaries, Estate (en/zh) | ✅ |
 | 1.5 | Self-contained HTML dashboard (en/zh) | ✅ |
@@ -28,14 +28,14 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 |---|---------|--------|
 | 2.1 | 5 visual templates: EstateON, Lumina, Cardinal, Atlantic, Monarch | ✅ |
 | 2.2 | Light / dark mode toggle (persisted) | ✅ |
-| 2.3 | 8 layouts: Dashboard, Table, Kanban, Timeline, Detail, Compact, Audit, Charts | ✅ |
+| 2.3 | 9 layouts: Dashboard, Table, Kanban, Timeline, Detail, Compact, Audit, Annual Review, Charts | ✅ |
 | 2.4 | Stats cards: total assets, FMV, income, categories, status counts | ✅ |
 | 2.5 | Search across name/institution/owner/category/id (debounced) | ✅ |
 | 2.6 | Category / owner filters + status toggles (all apply to every layout) | ✅ |
 | 2.7 | Table: sortable columns (type-aware), pagination (50/page) | ✅ |
 | 2.8 | Timeline: date-ordered view with empty state | ✅ |
-| 2.9 | Detail: master-detail with all 108 fields | ✅ |
-| 2.10 | Print estate binder (`@media print`): cover, per-category sections, beneficiary/insurance summaries | ✅ |
+| 2.9 | Detail: master-detail with all 116 fields | ✅ |
+| 2.10 | Print estate binder (`@media print`): Emergency Access Guide (page 1), Master Asset Index, cover, per-category sections, beneficiary/insurance summaries | ✅ |
 
 ## 3. Data entry & editing
 
@@ -71,7 +71,7 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | 4.6 | `INVENTORY_DATA` versioned data block — format/version/schema_version/tier/key_version/generated/assets; file = single source of truth | ✅ |
 | 4.7 | Tiered build (`--tier free\|family\|planning`) — lower tiers physically strip higher-tier code (export/print/charts/audit/table/timeline) | ✅ |
 | 4.8 | Signed license (`--license-secret`) + watermark (`--buyer`) for paid tiers; invalid license downgrades to free capability | ✅ |
-| 4.9 | Save model: stage data into DOM script → native Ctrl+S guidance (Chromium/Firefox) or direct-download fallback (Safari auto-detected) | ✅ |
+| 4.9 | Direct Save: Chromium File System Access API writes back to a bound file; authorized handle persists in IndexedDB across reopen; Inventory ID prevents cross-inventory overwrite; staged Ctrl+S/download remains the fallback | ✅ |
 | 4.10 | Auto-save (1.5s debounce) to localStorage (session cache) + `beforeunload` flush; localStorage skipped when file is locked | ✅ |
 
 ## 5. Export, import & persistence
@@ -94,11 +94,14 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 7.1 | Audit view — traffic-light validation: missing beneficiary (red), missing FMV/ACB/institution/owner (yellow), bad selects, TFSA over-contribution, stale >12 months | ✅ |
+| 7.1 | Audit view — traffic-light validation incl. beneficiary/value/data quality plus Access Readiness and blocked incapacity/death paths | ✅ |
+| 7.2 | Access Readiness score (0–100) from locator, recovery contact, handoff instructions, incapacity/death readiness and annual access test | ✅ |
+| 7.3 | Annual Family Review layout — overall score, due/overdue reviews, critical handoff assets and access gaps | ✅ |
+| 7.4 | Emergency & Handoff schema — priority, recovery location/contact, incapacity/death paths, instructions, last test/next review | ✅ |
 
 ## 8. Platform & engineering
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 162 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 190 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |

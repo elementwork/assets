@@ -145,3 +145,11 @@ Exit code `0` means all checks pass; any failure exits `1`.
 ## License
 
 Proprietary — EstateON Advisors.
+
+
+## Direct Save & Estate Continuity (2026-08-19)
+
+- Chromium Direct Save uses the File System Access API and persists the authorized file handle in IndexedDB; **Inventory ID binding blocks accidental overwrite of another family's inventory**. Save As explicitly selects a new target. Firefox/Safari retain the staged Ctrl/Cmd+S/download fallback.
+- Schema v2 has 116 fields, adding Emergency Priority, recovery location/contact, incapacity/death readiness, handoff instructions, last access test, and next access review.
+- Family/Planning print binders start with an **Emergency Access Guide** and **Master Asset Index**. Passwords and secret recovery phrases are intentionally excluded from print.
+- Planning adds Access Readiness scoring and an Annual Family Review layout.

@@ -917,6 +917,16 @@ FIELD_DEFINITIONS = {
     "tax_slip_type": {"group": "Documentation", "type": "select", "label": "Tax Slip Type", "options": ["", "T5", "T3", "T5008", "T4A", "T4RIF", "T4RSP", "T101", "Other"]},
     "tax_slip_received": {"group": "Documentation", "type": "select", "label": "Tax Slip Received", "options": ["Yes", "No", "N/A"]},
     "annual_report": {"group": "Documentation", "type": "select", "label": "Annual Report", "options": ["Yes", "No", "N/A"]},
+
+    # Emergency & Handoff
+    "emergency_priority": {"group": "Emergency & Handoff", "type": "select", "label": "Emergency Priority", "options": ["", "Critical", "Important", "Routine"]},
+    "access_location": {"group": "Emergency & Handoff", "type": "text", "label": "Access / Recovery Location"},
+    "access_recovery_contact": {"group": "Emergency & Handoff", "type": "text", "label": "Recovery Contact"},
+    "incapacity_access": {"group": "Emergency & Handoff", "type": "select", "label": "Incapacity Access", "options": ["", "Ready", "Partial", "Blocked", "Not applicable"]},
+    "death_access": {"group": "Emergency & Handoff", "type": "select", "label": "Death Access", "options": ["", "Ready", "Partial", "Blocked", "Not applicable"]},
+    "handoff_instructions": {"group": "Emergency & Handoff", "type": "textarea", "label": "Handoff Instructions"},
+    "last_access_test": {"group": "Emergency & Handoff", "type": "date", "label": "Last Access Test"},
+    "next_access_review": {"group": "Emergency & Handoff", "type": "date", "label": "Next Access Review"},
     
     # Notes
     "notes": {"group": "Notes", "type": "textarea", "label": "Notes"},
@@ -1067,6 +1077,14 @@ def generate_all_assets(tier: str = "planning") -> list[dict]:
                 "tax_slip_type": "",
                 "tax_slip_received": "",
                 "annual_report": "",
+                "emergency_priority": "",
+                "access_location": "",
+                "access_recovery_contact": "",
+                "incapacity_access": "",
+                "death_access": "",
+                "handoff_instructions": "",
+                "last_access_test": "",
+                "next_access_review": "",
                 "notes": "",
                 "alert": "",
                 "todo": "",
@@ -1573,10 +1591,16 @@ def generate_html(assets: list[dict], output_path: str, lang: str = "en",
         categories[cat]["count"] += 1
 
     # Serialize data to JSON for embedding.
+    identity_prefix = "INV-" if buyer else "INV-TEMPLATE-"
+    identity_seed = f"{tier}|{lang}|{buyer or 'distribution-template'}"
+    inventory_id = identity_prefix + hashlib.sha256(
+        identity_seed.encode("utf-8")
+    ).hexdigest()[:12].upper()
     inventory = {
         "format": "asset-inventory",
         "version": 2,
-        "schema_version": 1,
+        "schema_version": 2,
+        "inventory_id": inventory_id,
         "tier": tier,
         "key_version": key_version,
         "generated": datetime.now().strftime("%Y-%m-%d"),

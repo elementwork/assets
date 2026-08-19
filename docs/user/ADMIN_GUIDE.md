@@ -248,3 +248,14 @@ license valid/invalid, watermark). **162 checks**; exit code 0 = pass. Screensho
   (`A-0001` …).
 - **Roadmap / status:** completed features live in `docs/dev/feature_list.md`; planned
   work is tracked in `docs/dev/future_plan.md` by ID (SEC-/ON-/PL-/NW-/PA-/IO-/UX-/EN-).
+
+
+## Direct Save, Emergency Access & Annual Review
+
+**Direct Save (Chrome/Edge).** Click **Save**. The first save asks you to select the HTML inventory file; subsequent saves write directly to the same bound file; Chrome/Edge stores the authorized file handle in IndexedDB so the binding can be restored after reopening the inventory. The browser may ask you to approve write access again. **Save As** selects a different file. An existing target with a different or missing Inventory ID is blocked to prevent cross-family overwrite. Firefox/Safari continue to use the staged Ctrl/Cmd+S or download fallback.
+
+**Emergency & Handoff fields.** For important assets, set Emergency Priority, Access/Recovery Location, Recovery Contact, Incapacity Access, Death Access, Handoff Instructions, Last Access Test and Next Access Review. Store only references to credential/recovery storage in these fields; keep passwords, seed phrases and secret recovery material in the designated secure system.
+
+**Print binder.** Family and Planning print output begins with the Emergency Access Guide, followed by the Master Asset Index. Confirm these pages are current before placing a copy with the executor/attorney/POA.
+
+**Planning Annual Review.** Use the Annual Review layout at least yearly. Resolve low Access Readiness scores, blocked incapacity/death paths, overdue reviews and stale access tests.
