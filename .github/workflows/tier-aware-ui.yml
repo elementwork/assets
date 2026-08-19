@@ -38,7 +38,9 @@ jobs:
           python -m pip install openpyxl pyflakes playwright
 
       - name: Apply tier-aware UI migration
-        run: python tools/apply_tier_aware_ui.py
+        run: |
+          python tools/apply_tier_aware_ui.py
+          python tools/refine_value_scope.py
 
       - name: Python compile check
         run: python -m py_compile src/*.py tests/*.py tools/*.py
@@ -103,7 +105,7 @@ jobs:
                   page.wait_for_timeout(400)
                   assert page.locator('#featureMenuToggle').is_visible(), name
                   assert page.locator('#saveHTML').is_visible(), name
-                  assert page.locator('.scope-filter-btn').count() == 3, name
+                  assert page.locator('.scope-filter-btn').count() == 2, name
                   page.click('#featureMenuToggle')
                   assert page.locator('#featureMenu.open').count() == 1, name
                   assert page.locator('.upgrade-preview.visible').count() == teasers, (name, teasers)
@@ -129,7 +131,7 @@ jobs:
 
       - name: Remove one-shot migration plumbing
         run: |
-          rm -f tools/apply_tier_aware_ui.py .github/workflows/tier-aware-ui.yml
+          rm -f tools/apply_tier_aware_ui.py tools/refine_value_scope.py .github/workflows/tier-aware-ui.yml
           rmdir tools 2>/dev/null || true
           rmdir .github/workflows 2>/dev/null || true
           rmdir .github 2>/dev/null || true
