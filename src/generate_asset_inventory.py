@@ -1676,6 +1676,13 @@ def generate_html(assets: list[dict], output_path: str, lang: str = "en",
         .replace("{{CATEGORIES_JSON}}", categories_json)
         .replace("{{FIELDS_JSON}}", fields_json))
 
+    # Normalize generated whitespace so tier-marker stripping never leaves
+    # indentation-only lines that produce noisy diffs on regeneration.
+    had_final_newline = html.endswith("\n")
+    html = "\n".join(line.rstrip() for line in html.splitlines())
+    if had_final_newline:
+        html += "\n"
+
     # Write file
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)

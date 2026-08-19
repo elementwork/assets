@@ -132,12 +132,15 @@ def tier_gating_check():
                     continue
                 selector = {"print": "#printBtn", "export": "#exportMD"}.get(feat)
                 if selector:
-                    vis = page.locator(selector).count() > 0 and page.locator(selector).first.is_visible()
-                    check(f"tier {tier}: {feat} visible={on}", vis == on, f"got {vis}")
+                    available = page.locator(selector).count() > 0
+                    check(f"tier {tier}: {feat} available={on}", available == on, f"got {available}")
                 else:
-                    vis = page.locator(f'.layout-btn[data-layout="{feat}"]').count() > 0 \
-                        and page.locator(f'.layout-btn[data-layout="{feat}"]').first.is_visible()
-                    check(f"tier {tier}: layout {feat} visible={on}", vis == on, f"got {vis}")
+                    available = page.locator(f'.menu-layout-item[data-layout="{feat}"]').count() > 0
+                    check(f"tier {tier}: layout {feat} available={on}", available == on, f"got {available}")
+            check(f"tier {tier}: edition badge", bool(page.text_content("#editionBadge")))
+            teaser_count = page.locator('.upgrade-preview.visible').count()
+            expected_teasers = 2 if tier == 'free' else (1 if tier == 'family' else 0)
+            check(f"tier {tier}: upgrade preview count={expected_teasers}", teaser_count == expected_teasers, f"got {teaser_count}")
             check(f"tier {tier}: no JS errors", not errs, f"{errs[:3]}")
             ctx.close()
             browser.close()
@@ -179,6 +182,8 @@ def static_checks():
     check("persistent file-handle binding compiled",
           all(t in en_html for t in ["indexedDB.open", "persistSaveFileHandle", "loadPersistedSaveFileHandle", "restoreSaveFileHandle", "ensureWritePermission"]))
     check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
+    check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
+    check("professional terminology retained", all(t in en_html for t in [">Audit<", ">Annual Review<", "Export MD", "Export JSON"]))
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
     check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
 
@@ -296,8 +301,26 @@ def _new_page(browser, html_path, viewport=(1440, 1000)):
     return context, page, js_errors
 
 
+def _open_feature_menu(page):
+    menu = page.locator("#featureMenu")
+    if not menu.evaluate("el => el.classList.contains('open')"):
+        page.click("#featureMenuToggle")
+        page.wait_for_timeout(100)
+
+
+def _menu_click(page, selector):
+    _open_feature_menu(page)
+    page.click(selector)
+    page.wait_for_timeout(120)
+
+
 def _layout(page, name):
-    page.click(f'.layout-btn[data-layout="{name}"]')
+    primary = page.locator(f'.layout-btn[data-layout="{name}"]:visible')
+    if primary.count():
+        primary.first.click()
+    else:
+        _open_feature_menu(page)
+        page.locator(f'.menu-layout-item[data-layout="{name}"]:visible').first.click()
     page.wait_for_timeout(150)
 
 
@@ -322,6 +345,9 @@ def e2e_en(browser):
           page.text_content("#totalAssets"))
     check("en: stat totalCategories = 32", page.text_content("#totalCategories") == "32",
           page.text_content("#totalCategories"))
+    check("en: professional edition badge", "Professional" in page.text_content("#editionBadge"))
+    check("en: blank catalog has zero assets with value", page.text_content("#withValueCount") == "0", page.text_content("#withValueCount"))
+    check("en: quick scope filters render", page.locator(".scope-filter-btn").count() == 2)
     check("en: dashboard view renders 517 items",
           page.locator("#dashboardView .asset-item").count() == 517)
 
@@ -354,13 +380,14 @@ def e2e_en(browser):
 
     # Theme toggle
     theme_before = page.evaluate("document.documentElement.getAttribute('data-theme')")
-    page.click("#themeToggle")
+    _menu_click(page, "#themeToggle")
     theme_after = page.evaluate("document.documentElement.getAttribute('data-theme')")
     check("en: theme toggle flips light/dark", theme_before != theme_after,
           f"{theme_before} -> {theme_after}")
-    page.click("#themeToggle")  # back to light
+    _menu_click(page, "#themeToggle")  # back to light
 
-    # Template select (5 templates)
+    # Template select (5 templates) — now organized under Features > Appearance.
+    _open_feature_menu(page)
     templates = page.locator("#templateSelect option").count()
     check("en: 5 template options", templates == 5, f"n={templates}")
     for i in range(1, 5):  # indexes 1..4 cover all 5 templates (0..4)
@@ -445,6 +472,14 @@ def e2e_en(browser):
           page.locator("#dashboardView .asset-item").first.text_content().__contains__("Test Chequing Account") or
           page.locator("#dashboardView").text_content().__contains__("Test Chequing Account"))
 
+    check("en: with-value count updates after FMV edit", int(page.text_content("#withValueCount")) >= 1)
+    page.click('.scope-filter-btn[data-asset-scope="value"]')
+    page.wait_for_timeout(200)
+    check("en: With Value quick filter narrows to valued assets",
+          page.locator("#dashboardView .asset-item").count() == page.evaluate("assets.filter(hasFinancialValue).length"))
+    page.click('.scope-filter-btn[data-asset-scope="all"]')
+    page.wait_for_timeout(150)
+
     # Undo / redo via keyboard shortcuts
     page.keyboard.press("Control+z")
     page.wait_for_timeout(200)
@@ -490,7 +525,7 @@ def e2e_en(browser):
     # This legacy File Lock regression validates the universal staged/download
     # fallback. Direct Save has separate Inventory ID/API assertions below.
     page.evaluate("Object.defineProperty(window, 'showSaveFilePicker', {value: undefined, configurable: true})")
-    page.click("#lockToggle")
+    _menu_click(page, "#lockToggle")
     page.wait_for_selector("#lockOverlay.active", timeout=5000)
     status = page.text_content("#lockStatusText")
     check("en: lock not-set status", "plain text" in status.lower() or "明文" in status, status)
@@ -566,20 +601,20 @@ def e2e_en(browser):
 
     # Exports (downloads)
     with page.expect_download() as dl:
-        page.click("#exportMD")
+        _menu_click(page, "#exportMD")
     md_dl = dl.value
     md_content = Path(md_dl.path()).read_text(encoding="utf-8") if md_dl.path() else ""
     check("en: export Markdown downloads", "# Asset Inventory" in md_content)
     check("en: exported MD carries edits", "Test Chequing Account" in md_content)
 
     with page.expect_download() as dl:
-        page.click("#exportExcel")
+        _menu_click(page, "#exportExcel")
     csv_dl = dl.value
     csv_content = Path(csv_dl.path()).read_text(encoding="utf-8") if csv_dl.path() else ""
     check("en: export CSV downloads", "ID,Category" in csv_content)
 
     with page.expect_download() as dl:
-        page.click("#exportJSON")
+        _menu_click(page, "#exportJSON")
     json_dl = dl.value
     json_content = Path(json_dl.path()).read_text(encoding="utf-8") if json_dl.path() else ""
     try:
@@ -760,7 +795,7 @@ def e2e_en(browser):
     page.wait_for_timeout(2500)  # 1.5s debounce + margin
     check("en: autosave: dirty dot clears automatically",
           page.locator("#unsavedIndicator.visible").count() == 0)
-    page.click("#autoSaveToggle")  # toggle off
+    _menu_click(page, "#autoSaveToggle")  # toggle off
     page.wait_for_timeout(250)
     check("en: autosave: toggle-off persisted",
           page.evaluate("localStorage.getItem('autoSaveEnabled')") == "0")
@@ -770,7 +805,7 @@ def e2e_en(browser):
     page.wait_for_timeout(2500)
     check("en: autosave: off keeps dirty dot",
           page.locator("#unsavedIndicator.visible").count() == 1)
-    page.click("#autoSaveToggle")  # toggle back on
+    _menu_click(page, "#autoSaveToggle")  # toggle back on
     page.wait_for_timeout(2000)
     check("en: autosave: on clears dot",
           page.locator("#unsavedIndicator.visible").count() == 0)
@@ -867,7 +902,7 @@ def e2e_zh(browser):
     n = page.locator("#dashboardView .asset-item").count()
     check("zh: Chinese search works", 0 < n < 517, f"n={n}")
     page.fill("#searchInput", "")
-    page.click("#themeToggle")
+    _menu_click(page, "#themeToggle")
     theme = page.evaluate("document.documentElement.getAttribute('data-theme')")
     check("zh: theme toggle works", theme == "dark", theme)
     _layout(page, "audit")

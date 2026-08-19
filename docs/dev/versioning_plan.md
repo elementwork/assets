@@ -36,6 +36,15 @@
 
 ## 2. Feature → tier map
 
+### User-facing edition names and UI hierarchy
+
+- User-facing editions are **Free / Family / Professional** (免费版 / 家庭版 / 专业版). The implementation key `planning` remains unchanged for backward compatibility with licenses, build markers and tests.
+- Free intentionally shows locked Family and Professional capability previews to communicate product depth without shipping paid implementation code.
+- Family removes the Family upsell and previews only Professional analysis/export capability.
+- Professional removes upsell UI entirely and retains professional terminology such as Audit, Access Readiness, Annual Review, Export Markdown and Export JSON.
+- Save and Print remain first-class actions when available; low-frequency file/security/export/appearance controls live in a grouped Features menu.
+
+
 ### 🟢 Free ($0)
 - **Catalog:** 15 categories / 256 items — Cash (10), Fixed Income (15), Equities (15),
   Registered Accounts (15), Pension (17), Insurance (28), Real Estate (15), Vehicles (13),
