@@ -1,0 +1,142 @@
+name: Tier-aware UI Upgrade
+
+on:
+  push:
+    branches:
+      - agent/tier-aware-ui
+
+permissions:
+  contents: write
+
+jobs:
+  migrate-test-commit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/tier-aware-ui
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install openpyxl pyflakes playwright
+
+      - name: Apply tier-aware UI migration
+        run: python tools/apply_tier_aware_ui.py
+
+      - name: Python compile check
+        run: python -m py_compile src/*.py tests/*.py tools/*.py
+
+      - name: Lint with repository baseline
+        run: |
+          set +e
+          python -m pyflakes src/*.py tests/*.py tools/*.py 2>&1 | tee /tmp/pyflakes.log
+          set -e
+          python - <<'PY'
+          from pathlib import Path
+          allowed = (
+              "local variable 'icon' is assigned to but never used",
+              "local variable 'color' is assigned to but never used",
+              "f-string is missing placeholders",
+              "SyntaxWarning: invalid escape sequence",
+              "return bad.every(v =>",
+          )
+          bad = [line for line in Path('/tmp/pyflakes.log').read_text(encoding='utf-8').splitlines()
+                 if line.strip() and not any(token in line for token in allowed)]
+          if bad:
+              raise SystemExit('New lint findings:\n' + '\n'.join(bad))
+          print('Only repository baseline lint findings remain')
+          PY
+
+      - name: Install Chromium
+        run: python -m playwright install --with-deps chromium
+
+      - name: Regenerate all checked-in editions
+        run: |
+          python src/generate_asset_inventory.py --tier free -o html
+          python src/generate_asset_inventory.py --tier free -o html --lang zh
+          python src/generate_asset_inventory.py --tier family -o html
+          python src/generate_asset_inventory.py --tier family -o html --lang zh
+          python src/generate_asset_inventory.py --tier planning
+          python src/generate_asset_inventory.py --tier planning --lang zh
+
+      - name: Full E2E
+        run: |
+          set -o pipefail
+          python tests/e2e_visual_test.py 2>&1 | tee /tmp/e2e.log
+
+      - name: Mobile responsive smoke
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          root = Path.cwd()
+          cases = [
+              ('free', root/'output/asset-inventory-dashboard.html', 2),
+              ('family', root/'output/asset-inventory-dashboard-family.html', 1),
+              ('professional', root/'output/asset-inventory-dashboard-planning.html', 0),
+          ]
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              for name, path, teasers in cases:
+                  ctx = browser.new_context(viewport={'width':390,'height':844})
+                  page = ctx.new_page()
+                  errors = []
+                  page.on('pageerror', lambda e: errors.append(str(e)))
+                  page.goto(path.as_uri(), wait_until='load')
+                  page.wait_for_timeout(400)
+                  assert page.locator('#featureMenuToggle').is_visible(), name
+                  assert page.locator('#saveHTML').is_visible(), name
+                  assert page.locator('.scope-filter-btn').count() == 3, name
+                  page.click('#featureMenuToggle')
+                  assert page.locator('#featureMenu.open').count() == 1, name
+                  assert page.locator('.upgrade-preview.visible').count() == teasers, (name, teasers)
+                  assert not errors, (name, errors)
+                  page.screenshot(path=str(root/'tests'/'screenshots'/f'{name}-mobile-tier-ui.png'), full_page=True)
+                  ctx.close()
+              browser.close()
+          print('mobile responsive smoke passed')
+          PY
+
+      - name: Refresh E2E count in feature list
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('docs/dev/feature_list.md')
+          s = p.read_text(encoding='utf-8')
+          count = sum(1 for line in Path('/tmp/e2e.log').read_text(encoding='utf-8').splitlines() if '  PASS  ' in line)
+          s = re.sub(r'End-to-end visual test — \d+ checks:', f'End-to-end visual test — {count} checks:', s, count=1)
+          p.write_text(s, encoding='utf-8')
+          print(f'Verified E2E checks: {count}')
+          PY
+
+      - name: Remove one-shot migration plumbing
+        run: |
+          rm -f tools/apply_tier_aware_ui.py .github/workflows/tier-aware-ui.yml
+          rmdir tools 2>/dev/null || true
+          rmdir .github/workflows 2>/dev/null || true
+          rmdir .github 2>/dev/null || true
+
+      - name: Review final diff
+        run: |
+          git diff --check
+          git status --short
+          git diff --stat
+
+      - name: Commit verified UI changes
+        run: |
+          git config user.name "elementwork"
+          git config user.email "elementworkinc@gmail.com"
+          git add -A
+          git commit -m "Refine tier-aware dashboard navigation"
+          git push origin HEAD:agent/tier-aware-ui
