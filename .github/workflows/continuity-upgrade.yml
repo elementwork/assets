@@ -37,6 +37,7 @@ jobs:
         run: |
           python tools/apply_continuity_upgrade.py
           python tools/harden_continuity_upgrade.py
+          python tools/e2e_direct_save_compat.py
 
       - name: Type check
         run: python -m py_compile src/*.py tests/*.py
@@ -51,7 +52,6 @@ jobs:
           allowed = (
               "local variable 'icon' is assigned to but never used",
               "local variable 'color' is assigned to but never used",
-              "f-string is missing placeholders",
               "SyntaxWarning: invalid escape sequence",
               "return bad.every(v =>",
           )
@@ -94,7 +94,7 @@ jobs:
 
       - name: Remove one-shot migration plumbing
         run: |
-          rm -f tools/apply_continuity_upgrade.py tools/harden_continuity_upgrade.py
+          rm -f tools/apply_continuity_upgrade.py tools/harden_continuity_upgrade.py tools/e2e_direct_save_compat.py
           rm -f .github/workflows/continuity-upgrade.yml .continuity-trigger
           rmdir tools 2>/dev/null || true
           rmdir .github/workflows 2>/dev/null || true
