@@ -146,6 +146,42 @@ def tier_gating_check():
             browser.close()
 
 
+def license_downgrade_ui_check():
+    print("\n== Step 1c: invalid-license effective-tier UI ==")
+    path = TMP / "asset-inventory-dashboard-planning.html"
+    if not path.exists():
+        check("invalid license fixture exists", False, str(path))
+        return
+    html = path.read_text(encoding="utf-8")
+    tampered = re.sub(r"const LICENSE_JSON = '[^']*';",
+                      "const LICENSE_JSON = 'invalid.invalid';", html, count=1)
+    invalid = TMP / "asset-inventory-dashboard-planning-invalid-license.html"
+    invalid.write_text(tampered, encoding="utf-8")
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        ctx = browser.new_context()
+        ctx.add_init_script("localStorage.setItem('assetLayout', 'audit')")
+        page = ctx.new_page()
+        errors = []
+        page.on("pageerror", lambda exc: errors.append(str(exc)))
+        page.goto(invalid.as_uri(), wait_until="load")
+        page.wait_for_timeout(800)
+        check("invalid license: effective edition is Free",
+              page.get_attribute("html", "data-edition") == "free",
+              page.get_attribute("html", "data-edition"))
+        check("invalid license: Free badge shown", "Free" in page.text_content("#editionBadge"), page.text_content("#editionBadge"))
+        check("invalid license: stale Audit layout normalized",
+              page.evaluate("currentLayout") == "dashboard" and page.locator("#dashboardView.active").count() == 1,
+              page.evaluate("currentLayout"))
+        check("invalid license: print hidden", page.locator("#printBtn").count() == 1 and not page.locator("#printBtn").is_visible())
+        check("invalid license: exports hidden", page.locator("#exportMD").count() == 1 and not page.locator("#exportMD").is_visible())
+        check("invalid license: Family tools hidden", page.locator('[data-min-tier="family"]:visible').count() == 0)
+        check("invalid license: template reduced to one", page.locator("#templateSelect option").count() == 1)
+        check("invalid license: no JS errors", not errors, str(errors[:3]))
+        ctx.close()
+        browser.close()
+
+
 # =============================================================================
 # STEP 2 — Static validation of generated artifacts
 # =============================================================================
@@ -182,7 +218,9 @@ def static_checks():
     check("persistent file-handle binding compiled",
           all(t in en_html for t in ["indexedDB.open", "persistSaveFileHandle", "loadPersistedSaveFileHandle", "restoreSaveFileHandle", "ensureWritePermission"]))
     check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
-    check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
+    check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "featureMenuClose", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
+    check("effective-tier normalization compiled", all(t in en_html for t in ["effectiveTier", "normalizeLayoutForTier", "cloneTierConfig", "downgradeToFree"]))
+    check("dynamic header geometry compiled", "ResizeObserver" in en_html and "--app-header-height" in en_html)
     check("professional terminology retained", all(t in en_html for t in [">Audit<", ">Annual Review<", "Export MD", "Export JSON"]))
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
     check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
@@ -278,6 +316,40 @@ def demo_fixture_check():
 # STEP 3 — Browser E2E
 # =============================================================================
 
+def responsive_ui_check():
+    print("\n== Step 2c: responsive tier UI geometry ==")
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        for width, height in ((390, 844), (768, 900)):
+            ctx = browser.new_context(viewport={"width": width, "height": height})
+            page = ctx.new_page()
+            errors = []
+            page.on("pageerror", lambda exc: errors.append(str(exc)))
+            page.goto(EN_HTML.as_uri(), wait_until="load")
+            page.wait_for_timeout(500)
+            page.evaluate("window.scrollTo(0, 500)")
+            page.wait_for_timeout(150)
+            header_box = page.locator(".tier-header").bounding_box()
+            workspace_box = page.locator(".workspace-bar").bounding_box()
+            if width <= 680:
+                check(f"responsive {width}: workspace is non-sticky on mobile",
+                      page.evaluate("getComputedStyle(document.querySelector('.workspace-bar')).position") == "relative")
+            else:
+                check(f"responsive {width}: sticky workspace clears header",
+                      bool(header_box and workspace_box and workspace_box['y'] + 1 >= header_box['y'] + header_box['height']),
+                      f"header={header_box} workspace={workspace_box}")
+            page.click("#featureMenuToggle")
+            check(f"responsive {width}: feature menu opens", page.locator("#featureMenu.open").count() == 1)
+            check(f"responsive {width}: close control visible", page.locator("#featureMenuClose").is_visible())
+            if width <= 680:
+                min_h = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#featureMenuClose')).height)")
+                check(f"responsive {width}: close touch target >=44", min_h >= 44, str(min_h))
+            page.click("#featureMenuClose")
+            check(f"responsive {width}: no JS errors", not errors, str(errors[:3]))
+            ctx.close()
+        browser.close()
+
+
 def browser_e2e():
     print("\n== Step 3: browser E2E (en + zh) ==")
     from playwright.sync_api import sync_playwright
@@ -347,7 +419,10 @@ def e2e_en(browser):
           page.text_content("#totalCategories"))
     check("en: professional edition badge", "Professional" in page.text_content("#editionBadge"))
     check("en: blank catalog has zero assets with value", page.text_content("#withValueCount") == "0", page.text_content("#withValueCount"))
+    check("en: Asset Catalog label", "Asset Catalog" in page.locator(".stat-card").first.text_content())
+    check("en: Showing starts at 517", page.text_content("#showingCount") == "517", page.text_content("#showingCount"))
     check("en: quick scope filters render", page.locator(".scope-filter-btn").count() == 2)
+    check("en: USD FMV counts as With Value", page.evaluate("hasFinancialValue({fmv_usd: 100})"))
     check("en: dashboard view renders 517 items",
           page.locator("#dashboardView .asset-item").count() == 517)
 
@@ -356,6 +431,7 @@ def e2e_en(browser):
     page.wait_for_timeout(600)
     n = page.locator("#dashboardView .asset-item").count()
     check("en: search 'Chequing' narrows results", 0 < n < 517, f"n={n}")
+    check("en: Showing count follows search", int(page.text_content("#showingCount")) == n, page.text_content("#showingCount"))
     page.fill("#searchInput", "")
     page.wait_for_timeout(600)
     check("en: clearing search restores 517",
@@ -377,6 +453,13 @@ def e2e_en(browser):
           f"dom={actual} js={expected}")
     page.select_option("#categoryFilter", index=0)
     page.wait_for_timeout(150)
+
+    # Feature menu close affordance + focus return
+    _open_feature_menu(page)
+    page.locator("#featureMenuClose").focus()
+    page.click("#featureMenuClose")
+    check("en: feature menu close button works", page.locator("#featureMenu.open").count() == 0)
+    check("en: feature menu returns focus to toggle", page.evaluate("document.activeElement && document.activeElement.id") == "featureMenuToggle")
 
     # Theme toggle
     theme_before = page.evaluate("document.documentElement.getAttribute('data-theme')")
@@ -658,6 +741,11 @@ def e2e_en(browser):
           and page.locator("#printView").inner_text().find("Emergency Access Guide") < page.locator("#printView").inner_text().find("Master Asset Index"))
     check("en: master asset index printed", "Master Asset Index" in page.locator("#printView").inner_text())
     check("en: print includes inventory id", "INV-" in page.locator("#printView").inner_text())
+    page.emulate_media(media="print")
+    check("en: print media hides workspace chrome", page.evaluate("getComputedStyle(document.querySelector('.workspace-bar')).display") == "none")
+    check("en: print media hides feature menu", page.evaluate("getComputedStyle(document.querySelector('#featureMenu')).display") == "none")
+    check("en: print media shows binder", page.locator("#printView").is_visible())
+    page.emulate_media(media="screen")
 
     # ---- Continuity / access readiness ----
     current_inv_id = page.evaluate("INVENTORY_DATA.inventory_id")
@@ -891,6 +979,12 @@ def e2e_zh(browser):
     check("zh: stat totalAssets = 517", page.text_content("#totalAssets") == "517")
     check("zh: search placeholder translated",
           "搜索" in page.get_attribute("#searchInput", "placeholder"))
+    check("zh: Professional workspace uses bilingual terminology",
+          "Audit 财产审计" in page.locator('[data-workspace-tier="planning"]').text_content() and
+          "Annual Review 年度复核" in page.locator('[data-workspace-tier="planning"]').text_content())
+    _open_feature_menu(page)
+    check("zh: Professional export section localized", "Export 导出" in page.locator("#featureMenu").text_content())
+    page.click("#featureMenuClose")
     check("zh: dashboard view renders 517 items",
           page.locator("#dashboardView .asset-item").count() == 517)
     check("zh: no leftover TR_ placeholders in body",
@@ -922,6 +1016,8 @@ def main():
     static_checks()
     demo_fixture_check()
     tier_gating_check()
+    license_downgrade_ui_check()
+    responsive_ui_check()
     browser_e2e()
     import shutil
     shutil.rmtree(TMP, ignore_errors=True)

@@ -1958,6 +1958,8 @@ body {
 
 @media print {
     .header,
+    .workspace-bar,
+    .feature-menu,
     .summary-section,
     .filter-bar,
     .main-content,
@@ -2285,6 +2287,7 @@ td[data-edit-field] {
 
 
 /* ===== TIER-AWARE PRODUCT NAVIGATION ===== */
+:root { --app-header-height: 68px; }
 .tier-header {
     min-height: 68px;
     height: auto;
@@ -2333,7 +2336,7 @@ html[data-edition="planning"] .tier-badge {
     background:var(--card);
     border-bottom:1px solid var(--border);
     position:sticky;
-    top:68px;
+    top:var(--app-header-height);
     z-index:90;
 }
 .workspace-set {
@@ -2369,6 +2372,7 @@ html[data-edition="planning"] .tier-badge {
     cursor:pointer;
 }
 .workspace-upgrade:hover { border-style:solid; color:var(--accent); }
+.upgrade-short { display:none; }
 
 .feature-menu {
     display:none;
@@ -2386,6 +2390,10 @@ html[data-edition="planning"] .tier-badge {
     box-shadow:var(--shadow-lg);
 }
 .feature-menu.open { display:block; }
+.feature-menu-header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 4px 8px 7px; border-bottom:1px solid var(--border-light); }
+.feature-menu-header strong { font-size:13px; }
+.feature-menu-close { border:0; background:transparent; color:var(--text-secondary); border-radius:var(--radius-sm); font-size:22px; line-height:1; cursor:pointer; }
+.feature-menu-close:hover { background:var(--surface); color:var(--text); }
 .menu-section { padding:8px 4px 12px; border-bottom:1px solid var(--border-light); }
 .menu-section:last-child { border-bottom:0; }
 .menu-section-title {
@@ -2499,20 +2507,28 @@ html[data-edition="planning"] .tier-badge {
     .tier-header .header-left { min-width:auto; }
     .tier-header .header-search { order:3; flex-basis:100%; max-width:none; }
     .tier-header .header-right { margin-left:auto; }
-    .workspace-bar { top:116px; padding:6px 16px; }
-    .workspace-upgrade { display:none; }
+    .workspace-bar { padding:6px 16px; }
+    .workspace-upgrade { font-size:10px; padding:6px 9px; }
+    .upgrade-long { display:none; }
+    .upgrade-short { display:inline; }
     .header-primary-action .btn-label-optional { display:none; }
 }
 @media (max-width: 680px) {
     .logo-sub { display:none; }
     .tier-header .header-right { width:100%; justify-content:space-between; }
     .tier-header .header-right .btn { flex:1; justify-content:center; padding-left:8px; padding-right:8px; }
-    .workspace-bar { top:126px; overflow-x:auto; }
+    .workspace-bar { position:relative; top:auto; overflow-x:auto; }
     .filter-bar { align-items:flex-start; }
     .quick-scope-filters { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px; }
     .filter-divider { display:none; }
     .feature-menu { top:8px; right:8px; width:calc(100vw - 16px); max-height:calc(100vh - 16px); }
     .menu-grid { grid-template-columns:1fr; }
+    .tier-header .header-right .btn,
+    .workspace-btn.layout-btn,
+    .menu-action, .menu-layout-item,
+    .scope-filter-btn,
+    .status-filter-details > summary { min-height:44px; font-size:13px; }
+    .feature-menu-close { width:44px; height:44px; }
 }
 
 </style>
@@ -2551,11 +2567,15 @@ html[data-edition="planning"] .tier-badge {
     </div>
 
 
-    <button class="workspace-upgrade" data-upgrade-trigger="free">🔒 表格 · 图表 · 打印 — 家庭版</button>
-    <button class="workspace-upgrade" data-upgrade-trigger="family">🔒 Audit · Annual Review · Export — 专业版</button>
+    <button class="workspace-upgrade" data-upgrade-trigger="free">🔒 <span class="upgrade-long">表格 · 图表 · 打印 — 家庭版</span><span class="upgrade-short">家庭版</span></button>
+    <button class="workspace-upgrade" data-upgrade-trigger="family">🔒 <span class="upgrade-long">Audit · Annual Review · Export — 专业版</span><span class="upgrade-short">专业版</span></button>
 </div>
 
-<div class="feature-menu" id="featureMenu" aria-hidden="true">
+<div class="feature-menu" id="featureMenu" aria-hidden="true" tabindex="-1">
+    <div class="feature-menu-header">
+        <strong>功能</strong>
+        <button class="feature-menu-close" id="featureMenuClose" aria-label="关闭">×</button>
+    </div>
     <div class="menu-section">
         <div class="menu-section-title">查看方式</div>
         <div class="menu-grid">
@@ -2624,8 +2644,9 @@ html[data-edition="planning"] .tier-badge {
                 <div class="stat-icon">📋</div>
                 <div class="stat-content">
                     <div class="stat-value" id="totalAssets">0</div>
-                    <div class="stat-label">资产总数</div>
+                    <div class="stat-label">资产目录</div>
                     <div class="stat-subline">
+                        <span><strong id="showingCount">0</strong> 当前显示</span>
                         <button class="stat-link" data-stat-scope="value"><strong id="withValueCount">0</strong> 有金额</button>
                     </div>
                 </div>
@@ -2701,10 +2722,10 @@ html[data-edition="planning"] .tier-badge {
         <details class="status-filter-details">
             <summary>状态 ▾</summary>
             <div class="status-toggles status-filter-popover">
-                <button class="status-toggle-btn active" data-status="Active"><span class="status-dot active"></span> 活跃</button>
-                <button class="status-toggle-btn active" data-status="Dormant"><span class="status-dot dormant"></span> 休眠</button>
-                <button class="status-toggle-btn active" data-status="Pending"><span class="status-dot pending"></span> 待处理</button>
-                <button class="status-toggle-btn active" data-status="Closed"><span class="status-dot closed"></span> 已关闭</button>
+                <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> 活跃</button>
+                <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> 休眠</button>
+                <button class="status-toggle-btn active" data-status="Pending" aria-pressed="true"><span class="status-dot pending"></span> 待处理</button>
+                <button class="status-toggle-btn active" data-status="Closed" aria-pressed="true"><span class="status-dot closed"></span> 已关闭</button>
             </div>
         </details>
     </div>
@@ -34047,10 +34068,28 @@ const TIER_FEATURES = {
                export:true,  templates:5,  templatesList:['estateon','lumina','cardinal','atlantic','monarch'] },
 };
 // advisor (deferred) treated as planning for now.
-const tierCfg = TIER_FEATURES[APP_TIER] || TIER_FEATURES.planning;
+const TIER_RANK = { free: 0, family: 1, planning: 2, advisor: 3 };
+let effectiveTier = APP_TIER;
+
+function cloneTierConfig(tier) {
+    const source = TIER_FEATURES[tier] || TIER_FEATURES.planning;
+    return { ...source, templatesList: [...source.templatesList] };
+}
+
+let tierCfg = cloneTierConfig(APP_TIER);
 
 function tierHas(feature) {
     return !!tierCfg[feature];
+}
+
+function tierAtLeast(minTier) {
+    return (TIER_RANK[effectiveTier] ?? 0) >= (TIER_RANK[minTier] ?? 0);
+}
+
+function downgradeToFree() {
+    licenseValid = false;
+    effectiveTier = 'free';
+    tierCfg = cloneTierConfig('free');
 }
 
 // ===== LICENSE =====
@@ -34062,8 +34101,17 @@ const LICENSE_JSON = '';
 let licenseValid = true;
 
 async function verifyLicense() {
-    if (!LICENSE_JSON) { licenseValid = true; return; } // free tier
-    if (!window.crypto || !crypto.subtle) { licenseValid = false; return; }
+    if (!LICENSE_JSON) {
+        if (APP_TIER === 'free') {
+            licenseValid = true;
+            effectiveTier = 'free';
+            tierCfg = cloneTierConfig('free');
+        } else {
+            downgradeToFree();
+        }
+        return;
+    }
+    if (!window.crypto || !crypto.subtle) { downgradeToFree(); return; }
     try {
         const dot = LICENSE_JSON.lastIndexOf('.');
         if (dot < 0) throw new Error('bad-license');
@@ -34078,17 +34126,18 @@ async function verifyLicense() {
         if (data.tier && data.tier !== APP_TIER) throw new Error('tier-mismatch');
         if (data.expires && Date.parse(data.expires) < Date.now()) throw new Error('expired');
         licenseValid = true;
+        effectiveTier = APP_TIER;
+        tierCfg = cloneTierConfig(APP_TIER);
     } catch (e) {
-        licenseValid = false;
-    }
-    if (!licenseValid) {
-        // Downgrade to free capability: hide paid features entirely.
-        Object.assign(tierCfg, TIER_FEATURES.free);
+        downgradeToFree();
     }
 }
 
 // Hide controls that belong to higher tiers (so lower-tier files carry no trace).
 function applyTierGating() {
+    document.querySelectorAll('[data-min-tier]').forEach(el => {
+        el.hidden = !tierAtLeast(el.dataset.minTier);
+    });
     // Layout buttons
     const layoutGate = { table: tierHas('table'), timeline: tierHas('timeline'),
                          audit: tierHas('audit'), review: tierHas('review'), charts: tierHas('charts') };
@@ -34120,6 +34169,24 @@ function applyTierGating() {
     if (wm && BUYER) wm.textContent = BUYER;
 }
 let currentLayout = localStorage.getItem('assetLayout') || 'dashboard';
+
+function layoutAllowedForTier(layout) {
+    if (['dashboard', 'kanban', 'detail', 'compact'].includes(layout)) return true;
+    if (layout === 'table') return tierHas('table');
+    if (layout === 'timeline') return tierHas('timeline');
+    if (layout === 'charts') return tierHas('charts');
+    if (layout === 'audit') return tierHas('audit');
+    if (layout === 'review') return tierHas('review');
+    return false;
+}
+
+function normalizeLayoutForTier() {
+    if (!layoutAllowedForTier(currentLayout)) {
+        currentLayout = 'dashboard';
+        localStorage.setItem('assetLayout', currentLayout);
+    }
+}
+
 let currentAsset = null;
 let currentPage = 1;
 const itemsPerPage = 50;
@@ -34184,7 +34251,7 @@ function statusDotClass(status) {
 
 // ===== TIER-AWARE UI / ASSET SCOPE =====
 let assetScopeFilter = 'all';
-const VALUE_FIELDS = ['fmv','market_value','current_balance','equity'];
+const VALUE_FIELDS = ['fmv','fmv_usd','market_value','current_balance','equity'];
 
 function hasFinancialValue(asset) {
     return VALUE_FIELDS.some(k => Number(asset && asset[k]) > 0);
@@ -34201,25 +34268,41 @@ function setAssetScope(scope) {
 }
 
 function editionDisplayName() {
-    if (APP_TIER === 'planning') return '专业版';
-    if (APP_TIER === 'family') return '家庭版';
+    if (effectiveTier === 'planning') return '专业版';
+    if (effectiveTier === 'family') return '家庭版';
     return '免费版';
 }
 
 function initTierUI() {
-    document.documentElement.dataset.edition = APP_TIER;
+    document.documentElement.dataset.edition = effectiveTier;
     const badge = document.getElementById('editionBadge');
     if (badge) badge.textContent = editionDisplayName();
     document.querySelectorAll('[data-workspace-tier]').forEach(el => {
-        el.hidden = el.dataset.workspaceTier !== APP_TIER;
+        el.hidden = el.dataset.workspaceTier !== effectiveTier;
     });
     document.querySelectorAll('[data-upgrade-trigger]').forEach(el => {
-        el.hidden = el.dataset.upgradeTrigger !== APP_TIER || APP_TIER === 'planning';
+        el.hidden = el.dataset.upgradeTrigger !== effectiveTier || effectiveTier === 'planning';
     });
     document.querySelectorAll('.upgrade-preview[data-show-editions]').forEach(el => {
-        const visible = (el.dataset.showEditions || '').split(/\s+/).includes(APP_TIER);
+        const visible = (el.dataset.showEditions || '').split(/\s+/).includes(effectiveTier);
         el.classList.toggle('visible', visible);
     });
+}
+
+let headerResizeObserver = null;
+function initHeaderGeometry() {
+    const header = document.querySelector('.tier-header');
+    if (!header) return;
+    const sync = () => {
+        document.documentElement.style.setProperty('--app-header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+    };
+    sync();
+    if ('ResizeObserver' in window) {
+        headerResizeObserver = new ResizeObserver(sync);
+        headerResizeObserver.observe(header);
+    } else {
+        window.addEventListener('resize', sync);
+    }
 }
 
 function setFeatureMenuOpen(open) {
@@ -34229,20 +34312,23 @@ function setFeatureMenuOpen(open) {
     menu.classList.toggle('open', !!open);
     menu.setAttribute('aria-hidden', open ? 'false' : 'true');
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open && menu.contains(document.activeElement)) toggle.focus();
 }
 
 function initFeatureMenu() {
     const menu = document.getElementById('featureMenu');
     const toggle = document.getElementById('featureMenuToggle');
+    const close = document.getElementById('featureMenuClose');
     if (!menu || !toggle) return;
     toggle.addEventListener('click', e => {
         e.stopPropagation();
         setFeatureMenuOpen(!menu.classList.contains('open'));
     });
+    if (close) close.addEventListener('click', () => setFeatureMenuOpen(false));
     document.querySelectorAll('[data-upgrade-trigger]').forEach(btn => {
         btn.addEventListener('click', () => {
             setFeatureMenuOpen(true);
-            const target = APP_TIER === 'free' ? 'family' : 'professional';
+            const target = effectiveTier === 'free' ? 'family' : 'professional';
             const panel = menu.querySelector(`[data-upgrade-panel="${target}"]`);
             if (panel) panel.scrollIntoView({ block:'nearest', behavior:'smooth' });
         });
@@ -34261,9 +34347,13 @@ function initFeatureMenu() {
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', async () => {
     loadFromLocalStorage();
+    await verifyLicense();
     initTemplate();
     initTheme();
     initTierUI();
+    initHeaderGeometry();
+    applyTierGating();
+    normalizeLayoutForTier();
     initFeatureMenu();
     initFilters();
     initLayout();
@@ -34279,10 +34369,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initDelegation();
     if (tierHas('table')) initSort();
     initKeyboardShortcuts();
-    await verifyLicense();
-    // Hide higher-tier UI when the effective tier is lower than the build
-    // tier (e.g. an invalid license downgraded a paid file to free).
-    applyTierGating();
     if (dataLocked) {
         // Gate rendering until the file is unlocked.
         gateForUnlock();
@@ -34403,6 +34489,7 @@ function initFilters() {
     document.querySelectorAll('.status-toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             btn.classList.toggle('active');
+            btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
             renderCurrentLayout();
         });
     });
@@ -34636,9 +34723,11 @@ function updateStats() {
     filtered.forEach(a => { statusCounts[a.status || 'Active'] = (statusCounts[a.status || 'Active'] || 0) + 1; });
 
     document.getElementById('totalAssets').textContent = assets.length.toLocaleString(LOCALE);
+    const showingEl = document.getElementById('showingCount');
     const valEl = document.getElementById('withValueCount');
     const allChip = document.getElementById('scopeAllCount');
     const valChip = document.getElementById('scopeValueCount');
+    if (showingEl) showingEl.textContent = filtered.length.toLocaleString(LOCALE);
     if (valEl) valEl.textContent = withValue.toLocaleString(LOCALE);
     if (allChip) allChip.textContent = assets.length.toLocaleString(LOCALE);
     if (valChip) valChip.textContent = withValue.toLocaleString(LOCALE);
