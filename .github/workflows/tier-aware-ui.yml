@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: tier-aware-ui-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -61,7 +65,7 @@ jobs:
           PY
 
       - name: Install Chromium
-        run: python -m playwright install --with-deps chromium
+        run: python -m playwright install chromium
 
       - name: Regenerate all checked-in editions
         run: |
