@@ -30,8 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install openpyxl pyflakes playwright
 
-      - name: Apply product migration
-        run: python tools/apply_continuity_upgrade.py
+      - name: Apply product migration and hardening
+        run: |
+          python tools/apply_continuity_upgrade.py
+          python tools/harden_continuity_upgrade.py
 
       - name: Type check
         run: python -m py_compile src/*.py tests/*.py
@@ -60,7 +62,6 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
           p = Path('docs/dev/feature_list.md')
           s = p.read_text(encoding='utf-8')
           count = sum(1 for line in Path('/tmp/e2e.log').read_text(encoding='utf-8').splitlines() if '  PASS  ' in line)
@@ -72,8 +73,9 @@ jobs:
 
       - name: Remove one-shot migration plumbing
         run: |
-          rm -f tools/apply_continuity_upgrade.py
+          rm -f tools/apply_continuity_upgrade.py tools/harden_continuity_upgrade.py
           rm -f .github/workflows/continuity-upgrade.yml
+          rmdir tools 2>/dev/null || true
           rmdir .github/workflows 2>/dev/null || true
           rmdir .github 2>/dev/null || true
 
