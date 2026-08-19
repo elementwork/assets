@@ -257,6 +257,22 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* ===== CONTINUITY / REVIEW ===== */
+.review-view { display: none; }
+.review-view.active { display: block; }
+.review-hero { display:flex; gap:20px; align-items:center; padding:22px; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:18px; }
+.readiness-score { width:92px; height:92px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; border:8px solid var(--accent-light); font-weight:700; font-size:24px; }
+.readiness-score small { font-size:10px; color:var(--muted); font-weight:500; }
+.review-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-bottom:18px; }
+.review-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; }
+.review-card .metric { font-size:28px; font-weight:700; margin-top:6px; }
+.review-list { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.review-row { display:grid; grid-template-columns:minmax(180px,1.5fr) 90px 1fr 1fr; gap:12px; padding:11px 14px; border-top:1px solid var(--border-light); align-items:center; font-size:13px; }
+.review-row:first-child { border-top:0; }
+.review-pill { display:inline-flex; align-items:center; justify-content:center; padding:3px 8px; border-radius:999px; background:var(--surface); font-size:11px; font-weight:600; }
+.inventory-id-chip { font-size:10px; color:var(--muted); white-space:nowrap; }
+@media (max-width:760px) { .review-row { grid-template-columns:1fr 72px; } .review-row .review-path { grid-column:1 / -1; } .inventory-id-chip { display:none; } }
+
 /* ===== HEADER ===== */
 .header {
     background: var(--card);
@@ -2308,6 +2324,11 @@ td[data-edit-field] {
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h7v12H3V4z"/><path d="M5.5 8l2 2 3.5-4"/></svg>
             </button>
             <!--__/TIER_GE:planning-->
+            <!--__TIER_GE:planning-->
+            <button class="layout-btn" data-layout="review" title="{{TR_layout_review}}" aria-label="{{TR_layout_review}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 3h10v10H3z"/><path d="M5 6h6M5 9h4"/></svg>
+            </button>
+            <!--__/TIER_GE:planning-->
             <!--__TIER_GE:family-->
             <button class="layout-btn" data-layout="charts" title="{{TR_layout_charts}}" aria-label="{{TR_layout_charts}}">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14h12"/><path d="M4 14V9M8 14V5M12 14V8"/></svg>
@@ -2335,6 +2356,8 @@ td[data-edit-field] {
         <button class="btn btn-icon" id="lockToggle" title="{{TR_lock_title}}" aria-label="{{TR_lock_title}}">🔒</button>
         <button class="btn btn-icon" id="autoSaveToggle" title="{{TR_autosave}}">💾</button>
         <span class="unsaved-dot" id="unsavedIndicator" title="{{TR_unsaved_changes}}">●</span>
+        <span class="inventory-id-chip" id="inventoryIdChip" title="{{TR_inventory_id_label}}"></span>
+        <button class="btn" id="saveAsHTML" title="{{TR_save_as}}">{{TR_save_as}}</button>
         <button class="btn btn-primary" id="saveHTML">{{TR_save_html}}</button>
     </div>
 </header>
@@ -2511,6 +2534,11 @@ td[data-edit-field] {
         
         <!-- Audit View -->
         <div class="audit-view" id="auditView"></div>
+
+        <!--__TIER_GE:planning-->
+        <!-- Annual Review View -->
+        <div class="review-view" id="reviewView"></div>
+        <!--__/TIER_GE:planning-->
         
         <!-- Charts View -->
         <div class="charts-view" id="chartsView"></div>
@@ -2740,11 +2768,11 @@ let assets = dataLocked ? [] : JSON.parse(JSON.stringify(ASSETS_DATA));
 // supersets. Paid-feature UI is hidden entirely at lower tiers so those files
 // contain no trace of higher-tier capability.
 const TIER_FEATURES = {
-    free:    { table:false, timeline:false, charts:false, audit:false, print:false,
+    free:    { table:false, timeline:false, charts:false, audit:false, review:false, print:false,
                export:false, templates:1,  templatesList:['estateon'] },
-    family:  { table:true,  timeline:true,  charts:true,  audit:false, print:true,
+    family:  { table:true,  timeline:true,  charts:true,  audit:false, review:false, print:true,
                export:false, templates:5,  templatesList:['estateon','lumina','cardinal','atlantic','monarch'] },
-    planning:{ table:true,  timeline:true,  charts:true,  audit:true,  print:true,
+    planning:{ table:true,  timeline:true,  charts:true,  audit:true,  review:true, print:true,
                export:true,  templates:5,  templatesList:['estateon','lumina','cardinal','atlantic','monarch'] },
 };
 // advisor (deferred) treated as planning for now.
@@ -2792,7 +2820,7 @@ async function verifyLicense() {
 function applyTierGating() {
     // Layout buttons
     const layoutGate = { table: tierHas('table'), timeline: tierHas('timeline'),
-                         audit: tierHas('audit'), charts: tierHas('charts') };
+                         audit: tierHas('audit'), review: tierHas('review'), charts: tierHas('charts') };
     document.querySelectorAll('.layout-btn[data-layout]').forEach(btn => {
         const key = btn.dataset.layout;
         if (key in layoutGate && !layoutGate[key]) btn.style.display = 'none';
@@ -2858,6 +2886,7 @@ const FIELD_SECTIONS = {
     "{{TR_beneficiary_designation}}": ["primary_beneficiary", "contingent_beneficiary", "beneficiary_pct_primary", "beneficiary_pct_contingent", "pod", "tod", "poa", "mandate"],
     "{{TR_estate_planning}}": ["probate_excluded", "will_clause", "trust_clause", "estate_duty", "capital_gains_exemption", "succession_plan", "power_of_appointment"],
     "{{TR_documentation}}": ["document_path", "document_reference", "last_statement", "statement_frequency", "tax_slip_type", "tax_slip_received", "annual_report"],
+    "{{TR_emergency_handoff}}": ["emergency_priority", "access_location", "access_recovery_contact", "incapacity_access", "death_access", "handoff_instructions", "last_access_test", "next_access_review"],
     "{{TR_notes}}": ["notes", "alert", "todo", "last_modified_by", "source"]
 };
 
@@ -2977,6 +3006,9 @@ function switchLayout(layout) {
         detail: 'detailView',
         compact: 'compactView',
         audit: 'auditView',
+        <!--__TIER_GE:planning-->
+        review: 'reviewView',
+        <!--__/TIER_GE:planning-->
         charts: 'chartsView'
     };
     
@@ -3054,6 +3086,9 @@ function renderCurrentLayout() {
         case 'detail': renderDetail(); break;
         case 'compact': renderCompact(); break;
         case 'audit': if (tierHas('audit')) renderAudit(); else renderDashboard(); break;
+        <!--__TIER_GE:planning-->
+        case 'review': if (tierHas('review')) renderAnnualReview(); else renderDashboard(); break;
+        <!--__/TIER_GE:planning-->
         case 'charts': if (tierHas('charts')) renderCharts(); else renderDashboard(); break;
     }
 }
@@ -4308,20 +4343,90 @@ async function stageDataToScript() {
     }
 }
 
-// Save button: stage data, then branch by browser.
-async function saveCurrentData() {
+// Save button: prefer File System Access direct-save in Chromium; preserve
+// the staged Ctrl+S/download model as a complete fallback.  A selected existing
+// target must carry the same inventory_id, preventing accidental cross-family overwrite.
+let saveFileHandle = null;
+const SOURCE_INVENTORY_ID = INVENTORY_DATA.inventory_id || '';
+
+function ensureInventoryId() {
+    const current = INVENTORY_DATA.inventory_id || '';
+    if (current && !current.startsWith('INV-TEMPLATE-')) return current;
+    const bytes = new Uint8Array(6);
+    if (globalThis.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    const next = 'INV-' + [...bytes].map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    INVENTORY_DATA.inventory_id = next;
+    const scriptEl = [...document.scripts].find(s => s.textContent.includes('const INVENTORY_DATA ='));
+    if (scriptEl && current) {
+        scriptEl.textContent = scriptEl.textContent.replace(`"inventory_id": "${current}"`, `"inventory_id": "${next}"`);
+    }
+    return next;
+}
+
+function supportsDirectFileSave() {
+    return typeof window.showSaveFilePicker === 'function' && !isSafari();
+}
+
+function extractInventoryId(html) {
+    const m = String(html || '').match(/"inventory_id"\s*:\s*"([^"]+)"/);
+    return m ? m[1] : '';
+}
+
+async function buildSavedHTML() {
+    await stageDataToScript();
+    return '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+}
+
+async function directSaveCurrentFile(forcePicker = false) {
+    const html = await buildSavedHTML();
+    let handle = saveFileHandle;
+    if (!handle || forcePicker) {
+        handle = await window.showSaveFilePicker({
+            suggestedName: '{{TR_export_html_filename}}',
+            types: [{ description: 'HTML', accept: { 'text/html': ['.html', '.htm'] } }]
+        });
+        let existing = '';
+        try { existing = await (await handle.getFile()).text(); } catch (_) {}
+        if (existing.trim()) {
+            const targetId = extractInventoryId(existing);
+            const currentId = INVENTORY_DATA.inventory_id || '';
+            const adoptingSourceTemplate = SOURCE_INVENTORY_ID.startsWith('INV-TEMPLATE-') && targetId === SOURCE_INVENTORY_ID;
+            if (!targetId || !currentId || (targetId !== currentId && !adoptingSourceTemplate)) {
+                showToast('{{TR_direct_save_mismatch}}');
+                return false;
+            }
+        }
+        saveFileHandle = handle;
+    }
+    const writable = await handle.createWritable();
+    await writable.write(html);
+    await writable.close();
+    saveToLocalStorage();
+    clearDirty();
+    showToast('{{TR_direct_save_success}}');
+    return true;
+}
+
+async function saveCurrentData(forcePicker = false) {
     await stageDataToScript();
     saveToLocalStorage();
+    if (supportsDirectFileSave()) {
+        try {
+            await directSaveCurrentFile(forcePicker);
+            return;
+        } catch (e) {
+            if (e && e.name === 'AbortError') return;
+            console.warn('Direct Save unavailable; using staged fallback', e);
+        }
+    }
     if (isSafari()) {
-        // Safari can't native-save HTML: download a fresh copy directly.
         const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
         downloadFile(html, '{{TR_export_html_filename}}', 'text/html');
         clearDirty();
         showToast('{{TR_html_saved}}');
         return;
     }
-    // Chromium/Firefox: data is staged in the document — guide native save.
-    clearDirty();
     showSaveGuide();
 }
 
@@ -4478,7 +4583,11 @@ function initKeyboardShortcuts() {
         });
     }
     if (tierHas('print')) window.addEventListener('beforeprint', renderPrintView);
-    document.getElementById('saveHTML').addEventListener('click', saveCurrentData);
+    ensureInventoryId();
+    document.getElementById('saveHTML').addEventListener('click', () => saveCurrentData(false));
+    document.getElementById('saveAsHTML').addEventListener('click', () => saveCurrentData(true));
+    const invChip = document.getElementById('inventoryIdChip');
+    if (invChip) invChip.textContent = (INVENTORY_DATA.inventory_id || '').replace('INV-', '#');
     // Save guide overlay actions
     const saveGuide = document.getElementById('saveGuideOverlay');
     if (saveGuide) {
@@ -4853,6 +4962,11 @@ function validateAsset(a) {
             findings.push({ level: 'yellow', message: '{{TR_audit_stale}}' });
         }
     }
+    const readiness = accessReadiness(a);
+    if (readiness.score < 40) findings.push({ level: 'red', message: '{{TR_audit_access_critical}}' + ` (${readiness.score}/100)` });
+    else if (readiness.score < 70) findings.push({ level: 'yellow', message: '{{TR_audit_access_attention}}' + ` (${readiness.score}/100)` });
+    if (a.incapacity_access === 'Blocked') findings.push({ level: 'red', message: '{{TR_audit_incapacity_missing}}' });
+    if (a.death_access === 'Blocked') findings.push({ level: 'red', message: '{{TR_audit_death_missing}}' });
     return findings;
 }
 
@@ -4892,6 +5006,43 @@ function renderAudit() {
         }).join('');
     }
     container.innerHTML = html;
+}
+
+function renderAnnualReview() {
+    const container = document.getElementById('reviewView');
+    if (!container) return;
+    const rows = assets.map(a => ({ asset: a, ready: accessReadiness(a) }));
+    const avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.ready.score, 0) / rows.length) : 0;
+    const now = Date.now();
+    const due = rows.filter(r => {
+        const raw = r.asset.next_access_review || r.asset.next_review || r.asset.last_update;
+        const t = Date.parse(raw || '');
+        return !raw || (!isNaN(t) && t <= now);
+    });
+    const critical = rows.filter(r => r.asset.emergency_priority === 'Critical' || r.ready.score < 40);
+    const gaps = rows.filter(r => r.ready.gaps.length > 0);
+    const sorted = [...rows].sort((a,b) => a.ready.score - b.ready.score).slice(0, 30);
+    container.innerHTML = `
+        <div class="review-hero">
+            <div class="readiness-score"><span>${avg}</span><small>/ 100</small></div>
+            <div><h2>{{TR_review_title}}</h2><p class="text-muted">{{TR_review_subtitle}}</p>
+            <p class="text-muted">{{TR_inventory_id_label}}: ${escapeHtml(INVENTORY_DATA.inventory_id || '')}</p></div>
+        </div>
+        <div class="review-grid">
+            <div class="review-card"><div>{{TR_review_overall_readiness}}</div><div class="metric">${avg}/100</div></div>
+            <div class="review-card"><div>{{TR_review_due}}</div><div class="metric">${due.length}</div></div>
+            <div class="review-card"><div>{{TR_review_critical_assets}}</div><div class="metric">${critical.length}</div></div>
+            <div class="review-card"><div>{{TR_review_access_gaps}}</div><div class="metric">${gaps.length}</div></div>
+        </div>
+        <div class="review-list">
+            ${sorted.length ? sorted.map(r => `
+                <div class="review-row" data-review-id="${escapeHtml(r.asset.id)}">
+                    <div><strong>${escapeHtml(r.asset.asset_name || r.asset.id)}</strong><br><span class="text-muted">${escapeHtml(r.asset.owner || '')}</span></div>
+                    <div><span class="review-pill">${r.ready.score}/100</span></div>
+                    <div class="review-path">{{TR_review_incapacity}}: ${escapeHtml(r.asset.incapacity_access || '—')}</div>
+                    <div class="review-path">{{TR_review_death}}: ${escapeHtml(r.asset.death_access || '—')}</div>
+                </div>`).join('') : emptyStateHTML('{{TR_review_no_gaps}}', '')}
+        </div>`;
 }
 <!--__/TIER_GE:planning-->
 
@@ -5050,6 +5201,32 @@ function truncate(s, max) {
 <!--__/TIER_GE:family-->
 
 <!--__TIER_GE:family-->
+// ===== ACCESS READINESS (Family print + Planning intelligence) =====
+function accessReadiness(a) {
+    let score = 0;
+    const gaps = [];
+    const hasLocator = !!(a.access_location || a.login_url || a.online_access_url || a.physical_location ||
+        a.safe_deposit_box || a.digital_wallet || a.account_number);
+    const hasContact = !!(a.access_recovery_contact || a.support_contact || a.advisor_contact || a.poa);
+    const hasInstructions = !!(a.handoff_instructions || a.document_path || a.document_reference);
+    if (a.institution || a.physical_location || a.exchange) score += 15; else gaps.push('{{TR_audit_missing_institution}}');
+    if (hasLocator) score += 20; else gaps.push('{{TR_print_access_location}}');
+    if (hasContact) score += 15; else gaps.push('{{TR_print_recovery_contact}}');
+    if (hasInstructions) score += 15; else gaps.push('{{TR_col_handoff_instructions}}');
+    if (a.incapacity_access === 'Ready' || a.incapacity_access === 'Not applicable') score += 15; else gaps.push('{{TR_audit_incapacity_missing}}');
+    if (a.death_access === 'Ready' || a.death_access === 'Not applicable') score += 15; else gaps.push('{{TR_audit_death_missing}}');
+    if (a.last_access_test) {
+        const t = Date.parse(a.last_access_test);
+        if (!isNaN(t) && (Date.now() - t) <= 365 * 24 * 3600 * 1000) score += 5;
+        else gaps.push('{{TR_audit_access_test_stale}}');
+    } else {
+        gaps.push('{{TR_audit_access_test_stale}}');
+    }
+    return { score: Math.min(100, score), gaps };
+}
+
+function accessScoreClass(score) { return score < 40 ? 'red' : (score < 70 ? 'yellow' : 'green'); }
+
 // ===== PRINT VIEW (ESTATE BINDER) =====
 function renderPrintView() {
     const el = document.getElementById('printView');
@@ -5058,6 +5235,29 @@ function renderPrintView() {
     const categories = Object.keys(grouped);
     const totalFMV = assets.reduce((sum, a) => sum + (parseFloat(a.fmv) || 0), 0);
     const dateStr = new Date().toLocaleDateString('{{TR_locale}}');
+    const continuityRows = assets.map(a => ({ asset: a, ready: accessReadiness(a) }));
+    const criticalRows = continuityRows.filter(r => r.asset.emergency_priority === 'Critical' || r.ready.score < 40).slice(0, 20);
+    const recoveryContacts = [...new Set(assets.map(a => a.access_recovery_contact).filter(Boolean))].slice(0, 8);
+    const emergencyPage = `
+        <div class="print-cover print-emergency-guide">
+            <h1>{{TR_print_emergency_guide}}</h1>
+            <div class="print-cover-meta">{{TR_print_inventory_id}}: ${escapeHtml(INVENTORY_DATA.inventory_id || '')}<br>${dateStr}</div>
+            <h3>{{TR_print_incapacity_path}}</h3>
+            <ol><li>{{TR_print_incapacity_step1}}</li><li>{{TR_print_incapacity_step2}}</li><li>{{TR_print_incapacity_step3}}</li></ol>
+            <h3>{{TR_print_death_path}}</h3>
+            <ol><li>{{TR_print_death_step1}}</li><li>{{TR_print_death_step2}}</li><li>{{TR_print_death_step3}}</li></ol>
+            <p><strong>{{TR_print_recovery_contact}}:</strong> ${recoveryContacts.map(escapeHtml).join('; ') || '—'}</p>
+            <p class="print-warning">{{TR_print_no_passwords}}</p>
+            ${criticalRows.length ? `<h3>{{TR_review_critical_assets}}</h3><ul>${criticalRows.map(r => `<li>${escapeHtml(r.asset.asset_name || '')} — ${r.ready.score}/100 — ${escapeHtml(r.asset.access_location || r.asset.document_path || '—')}</li>`).join('')}</ul>` : ''}
+        </div>`;
+    const masterIndex = `
+        <div class="print-section print-master-index">
+            <h2>{{TR_print_master_index}}</h2>
+            <div>{{TR_print_inventory_id}}: ${escapeHtml(INVENTORY_DATA.inventory_id || '')}</div>
+            <table class="print-table"><tr><th>{{TR_id}}</th><th>{{TR_asset_name}}</th><th>{{TR_owner}}</th><th>{{TR_institution}}</th><th>{{TR_col_account_number}}</th><th>{{TR_print_access_score}}</th></tr>
+            ${continuityRows.map(r => `<tr><td>${escapeHtml(r.asset.id || '')}</td><td>${escapeHtml(r.asset.asset_name || '')}</td><td>${escapeHtml(r.asset.owner || '')}</td><td>${escapeHtml(r.asset.institution || r.asset.physical_location || '')}</td><td>${escapeHtml(maskAccount(r.asset.account_number || r.asset.insurance_policy || ''))}</td><td>${r.ready.score}/100</td></tr>`).join('')}
+            </table>
+        </div>`;
     
     const cover = `
         <div class="print-cover">
@@ -5141,7 +5341,7 @@ function renderPrintView() {
         </div>
     `;
     
-    el.innerHTML = cover + toc + sections + beneficiarySection + insuranceSection;
+    el.innerHTML = emergencyPage + masterIndex + cover + toc + sections + beneficiarySection + insuranceSection;
 }
 <!--__/TIER_GE:family-->
 

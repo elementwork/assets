@@ -1,6 +1,6 @@
 # Versioning Plan: Free / Family / Planning / Advisor
 
-> **Status:** Living document · Last updated 2026-08-10 01:10:36
+> **Status:** Living document · Last updated 2026-08-19 12:59:00
 > **Product:** Self-contained, offline-first asset inventory for Canadian families in Ontario
 > (single-file HTML dashboard, en/zh). Generator is **closed-source**; artifacts are the product.
 > **Companion docs:** `feature_list.md` (what exists), `future_plan.md` (what's next),
@@ -25,9 +25,7 @@
    artifacts). **Save (data persistence) and Print stay in all tiers.**
 6. **Catalog size differentiates tiers** by cutting whole categories:
    Free 15/256 → Family 20/324 → Planning 32/517.
-7. **Save model (the core UX fix):** the browser cannot write back to a `file://` document, so
-   "Save" = **stage data into the DOM data script, then let the user use native Ctrl+S** to
-   choose where to save. Safari gets a download fallback.
+7. **Save model:** Chrome/Edge use the File System Access API for explicit user-selected Direct Save when available. Every selected existing target is verified against the embedded `inventory_id` before overwrite. Firefox/Safari and denied API contexts retain the staged Ctrl+S / direct-download fallback.
 8. **Data-block encryption (not whole-file):** only the `assets` payload inside the embedded
    `INVENTORY_DATA` is AES-GCM encrypted (key = family word). Templates/catalog stay plaintext.
    Replaces the whole-file bootloader approach.
@@ -84,7 +82,8 @@ Single authoritative data block embedded in the file:
 const INVENTORY_DATA = {
   "format": "asset-inventory",
   "version": 2,            // data-format version
-  "schema_version": 1,     // 108-field schema version
+  "schema_version": 2,     // 116-field schema incl. Emergency & Handoff
+  "inventory_id": "INV-…", // stable file/family binding identity
   "tier": "free",          // free | family | planning | advisor
   "key_version": 1,        // decryption key chain version
   "generated": "2026-08-09",
@@ -106,8 +105,7 @@ const INVENTORY_DATA = {
 
 ## 4. Save model (the core UX)
 
-**Principle:** browsers cannot write back to the open `file://` document. The user's most
-familiar save is native **Ctrl+S / Cmd+S** (dialog lets them choose location/name). So:
+**Principle:** use the strongest browser-supported persistence path while keeping a complete offline fallback. Chromium Direct Save is preferred; staged native save/download remains universal.
 
 1. Every edit / auto-save updates the DOM data script to the latest payload
    (plaintext or ciphertext depending on family word) — data is always "staged" in the file.
@@ -151,7 +149,7 @@ is "copies are unusable and traceable".
 - **E2E parametrized per tier:** catalog counts (15/20/32), layout/export/chart/print
   visibility, license valid/invalid/expired, watermark, ciphertext-block present + decrypted
   count, browser-branch save logic.
-- **108-field schema identical across tiers** → upgrading is "open the paid file", no migration.
+- **116-field schema identical across tiers** → upgrading is "open the paid file", no migration.
 - Docs fully updated with timestamps.
 
 ---
@@ -199,3 +197,12 @@ is "copies are unusable and traceable".
 3. License + watermark (paid tiers).
 4. E2E per-tier parametrization.
 5. Docs + timestamps + commit & push (docs-update-before-commit enforced).
+
+
+## 4a. Direct Save + inventory binding (shipped 2026-08-19 12:59:00)
+
+- Chrome/Edge: Save opens a File System Access picker on first use, then reuses that in-session handle for direct writes. **Save As** always asks for a target.
+- Before overwriting an existing target, the dashboard extracts its `inventory_id`; a mismatch or missing ID is blocked. This prevents accidentally saving Family A into Family B's inventory file.
+- Firefox/Safari/API-denied contexts retain stage-to-DOM + Ctrl/Cmd+S and direct-download fallbacks.
+- `inventory_id` is embedded in the versioned data block and printed on the Emergency Access Guide / Master Asset Index.
+- Schema v2 adds eight Emergency & Handoff fields while remaining identical across Free/Family/Planning tiers.

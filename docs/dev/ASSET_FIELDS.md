@@ -683,3 +683,19 @@ Users can switch between 6 different layout presentations via a layout selector 
 - Keyboard navigation
 - Focus indicators
 - Screen reader friendly
+
+
+## Emergency & Handoff (8 fields) — schema v2
+
+| Field | Type | Purpose |
+|---|---|---|
+| `emergency_priority` | select | Critical / Important / Routine handoff priority |
+| `access_location` | text | Location/reference for credential or recovery instructions |
+| `access_recovery_contact` | text | Person/professional who can assist recovery |
+| `incapacity_access` | select | Ready / Partial / Blocked / Not applicable |
+| `death_access` | select | Ready / Partial / Blocked / Not applicable |
+| `handoff_instructions` | textarea | Operational handoff steps without embedding secrets |
+| `last_access_test` | date | Last verified recovery/access test |
+| `next_access_review` | date | Next scheduled continuity review |
+
+These fields are present in every tier so data files upgrade without schema migration. The Planning tier uses them for Access Readiness and Annual Review; Family/Planning print uses them for emergency handoff front matter.

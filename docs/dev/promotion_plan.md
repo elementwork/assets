@@ -1,6 +1,6 @@
 # Promotion & Sales Plan: Asset Inventory Generator
 
-> **Status:** Living document · Last updated 2026-08-10 01:10:36
+> **Status:** Living document · Last updated 2026-08-19 12:59:00
 > **Product:** Self-contained, offline-first asset inventory for Canadian families in Ontario
 > (single-file HTML dashboard, en/zh, optional whole-file encryption)
 > **Pricing model:** 3 tiers — Free / Plus ($49) / Pro ($149/yr) — see `versioning_plan.md`
@@ -211,3 +211,7 @@ it, re-save."
 5. List 20 Ontario estate lawyers + 20 fee-only planners as pilot prospects; draft outreach email.
 6. Prepare the Mandarin landing page copy for the zh build.
 7. Open a pricing feedback thread with the first 50 free users.
+
+
+### Continuity value proposition (shipped 2026-08-19)
+Direct Save + Inventory ID binding reduces file-loss/overwrite risk; Emergency Access Guide, Master Asset Index, Access Readiness and Annual Review make the product useful for POA/executor/family handoff rather than inventorying assets only.

@@ -82,11 +82,11 @@ def tier_gating_check():
     print("\n== Step 1b: tier gating ==")
     cases = {
         "free":    {"assets": 256, "tpl": 1, "table": False, "timeline": False,
-                    "charts": False, "audit": False, "print": False, "export": False},
+                    "charts": False, "audit": False, "review": False, "print": False, "export": False},
         "family":  {"assets": 324, "tpl": 5, "table": True, "timeline": True,
-                    "charts": True, "audit": False, "print": True, "export": False},
+                    "charts": True, "audit": False, "review": False, "print": True, "export": False},
         "planning": {"assets": 517, "tpl": 5, "table": True, "timeline": True,
-                     "charts": True, "audit": True, "print": True, "export": True},
+                     "charts": True, "audit": True, "review": True, "print": True, "export": True},
     }
     for tier, cfg in cases.items():
         cmd = [sys.executable, str(ROOT / "src" / "generate_asset_inventory.py"),
@@ -171,6 +171,14 @@ def static_checks():
             stack.append((name, i))
     check("template tier markers balanced & nested", marker_ok and not stack,
           f"unclosed={stack}")
+
+    en_html = EN_HTML.read_text(encoding="utf-8")
+    zh_html = ZH_HTML.read_text(encoding="utf-8")
+    check("inventory identity embedded", '"inventory_id": "INV-' in en_html)
+    check("direct-save API path compiled", "showSaveFilePicker" in en_html and "directSaveCurrentFile" in en_html)
+    check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
+    check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
+    check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
 
     # Markdown
     en_md = EN_MD.read_text(encoding="utf-8")
@@ -477,6 +485,9 @@ def e2e_en(browser):
     page.fill('#modalContent [data-field="login_password"]', "s3cret-pw!")
     page.fill('#modalContent [data-field="owner"]', "Chen Test")
     _save_modal(page)
+    # This legacy File Lock regression validates the universal staged/download
+    # fallback. Direct Save has separate Inventory ID/API assertions below.
+    page.evaluate("Object.defineProperty(window, 'showSaveFilePicker', {value: undefined, configurable: true})")
     page.click("#lockToggle")
     page.wait_for_selector("#lockOverlay.active", timeout=5000)
     status = page.text_content("#lockStatusText")
@@ -605,6 +616,34 @@ def e2e_en(browser):
     page.wait_for_timeout(400)
     print_html = page.text_content("#printView")
     check("en: print view populated", print_html is not None and len(print_html) > 500)
+    check("en: emergency access guide is first print section",
+          page.locator("#printView").inner_text().find("Emergency Access Guide") >= 0
+          and page.locator("#printView").inner_text().find("Emergency Access Guide") < page.locator("#printView").inner_text().find("Master Asset Index"))
+    check("en: master asset index printed", "Master Asset Index" in page.locator("#printView").inner_text())
+    check("en: print includes inventory id", "INV-" in page.locator("#printView").inner_text())
+
+    # ---- Continuity / access readiness ----
+    current_inv_id = page.evaluate("INVENTORY_DATA.inventory_id")
+    check("en: inventory id format", bool(re.match(r"^INV-[A-F0-9]{12}$", current_inv_id or "")), current_inv_id)
+    check("en: distributed template adopts per-family inventory id",
+          not str(current_inv_id).startswith("INV-TEMPLATE-"))
+    check("en: inventory binding extracts same id",
+          page.evaluate("extractInventoryId(document.documentElement.outerHTML)") == current_inv_id)
+    check("en: save-as control present", page.locator("#saveAsHTML").count() == 1)
+    ready_score = page.evaluate("accessReadiness({institution:'TD',access_location:'vault',access_recovery_contact:'Jane',handoff_instructions:'call TD',incapacity_access:'Ready',death_access:'Ready',last_access_test:new Date().toISOString().slice(0,10)}).score")
+    check("en: fully prepared access path scores 100", ready_score == 100, str(ready_score))
+    weak_score = page.evaluate("accessReadiness({}).score")
+    check("en: empty access path scores critically low", weak_score < 40, str(weak_score))
+    _layout(page, "review")
+    page.wait_for_timeout(300)
+    check("en: annual review renders", page.locator("#reviewView .review-hero").count() == 1)
+    check("en: annual review lists readiness rows", page.locator("#reviewView .review-row").count() > 0)
+    _layout(page, "dashboard")
+    _open_modal(page, "A-0001")
+    check("en: handoff fields available in editor",
+          all(page.locator(f'#modalContent [data-field="{f}"]').count() == 1 for f in ["emergency_priority", "incapacity_access", "death_access", "handoff_instructions", "last_access_test"]))
+    page.click("#modalClose")
+    page.wait_for_timeout(200)
 
     # ---- Quick-add wizard (3.7) ----
     page.click("#addAssetBtn")

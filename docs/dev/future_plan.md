@@ -1,6 +1,6 @@
 # Future Plan: Asset Inventory Generator (Merged)
 
-> **Status:** Living document · Last updated 2026-08-10 01:10:36
+> **Status:** Living document · Last updated 2026-08-19 12:59:00
 > **Sources merged (now superseded by this file):** `Improve_plans.md` (Imp-*), `Qoder-plan.md` (Q-*), `Implement_plan.md` (Impl-*)
 > **Scope:** Roadmap only — this document plans features; it does not implement them.
 > **Legend:** ✅ Done (implemented, see `feature_list.md`) · ⬜ Not started · 🟡 Partial (core exists, gaps remain)
@@ -151,3 +151,11 @@ The Audit layout exists but only covers a subset of the planned beneficiary audi
 - Golden path per feature: load demo fixture → act → save HTML → reopen in a fresh browser → state persists
 - Security: locked file is ciphertext in a text editor (bootloader gate); wrong birth date/family word rejected with backoff; save-HTML in a locked session stays encrypted
 - Docs: every new field documented in `docs/dev/ASSET_FIELDS.md`
+
+
+## Shipped continuity tranche — 2026-08-19 12:59:00
+
+✅ Direct Save with File System Access API + Inventory ID binding and fallback save model.  
+✅ Emergency & Handoff schema and incapacity/death access paths.  
+✅ Family/Planning Emergency Access Guide + Master Asset Index print front matter.  
+✅ Planning Access Readiness scoring + audit integration + Annual Family Review.
