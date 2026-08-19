@@ -176,6 +176,8 @@ def static_checks():
     zh_html = ZH_HTML.read_text(encoding="utf-8")
     check("inventory identity embedded", '"inventory_id": "INV-' in en_html)
     check("direct-save API path compiled", "showSaveFilePicker" in en_html and "directSaveCurrentFile" in en_html)
+    check("persistent file-handle binding compiled",
+          all(t in en_html for t in ["indexedDB.open", "persistSaveFileHandle", "loadPersistedSaveFileHandle", "restoreSaveFileHandle", "ensureWritePermission"]))
     check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
     check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
@@ -630,6 +632,8 @@ def e2e_en(browser):
     check("en: inventory binding extracts same id",
           page.evaluate("extractInventoryId(document.documentElement.outerHTML)") == current_inv_id)
     check("en: save-as control present", page.locator("#saveAsHTML").count() == 1)
+    check("en: persistent binding helpers available",
+          page.evaluate("typeof persistSaveFileHandle === 'function' && typeof loadPersistedSaveFileHandle === 'function' && typeof restoreSaveFileHandle === 'function' && typeof ensureWritePermission === 'function'"))
     ready_score = page.evaluate("accessReadiness({institution:'TD',access_location:'vault',access_recovery_contact:'Jane',handoff_instructions:'call TD',incapacity_access:'Ready',death_access:'Ready',last_access_test:new Date().toISOString().slice(0,10)}).score")
     check("en: fully prepared access path scores 100", ready_score == 100, str(ready_score))
     weak_score = page.evaluate("accessReadiness({}).score")

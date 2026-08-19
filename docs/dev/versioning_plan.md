@@ -201,7 +201,7 @@ is "copies are unusable and traceable".
 
 ## 4a. Direct Save + inventory binding (shipped 2026-08-19 12:59:00)
 
-- Chrome/Edge: Save opens a File System Access picker on first use, then reuses that in-session handle for direct writes. **Save As** always asks for a target.
+- Chrome/Edge: Save opens a File System Access picker on first use, stores the authorized `FileSystemFileHandle` in IndexedDB under the Inventory ID, and restores that binding on later opens. The browser may request write permission again. **Save As** always asks for a target and replaces the stored binding.
 - Before overwriting an existing target, the dashboard extracts its `inventory_id`; a mismatch or missing ID is blocked. This prevents accidentally saving Family A into Family B's inventory file.
 - Firefox/Safari/API-denied contexts retain stage-to-DOM + Ctrl/Cmd+S and direct-download fallbacks.
 - `inventory_id` is embedded in the versioned data block and printed on the Emergency Access Guide / Master Asset Index.

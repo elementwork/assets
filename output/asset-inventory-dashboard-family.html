@@ -43361,6 +43361,78 @@ async function stageDataToScript() {
 // target must carry the same inventory_id, preventing accidental cross-family overwrite.
 let saveFileHandle = null;
 const SOURCE_INVENTORY_ID = INVENTORY_DATA.inventory_id || '';
+const SAVE_HANDLE_DB = 'estateon-asset-inventory';
+const SAVE_HANDLE_STORE = 'file-handles';
+
+function openSaveHandleDB() {
+    if (!('indexedDB' in window)) return Promise.resolve(null);
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(SAVE_HANDLE_DB, 1);
+        req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(SAVE_HANDLE_STORE)) db.createObjectStore(SAVE_HANDLE_STORE);
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function persistSaveFileHandle(handle) {
+    if (!handle) return;
+    let db = null;
+    try {
+        db = await openSaveHandleDB();
+        if (!db) return;
+        await new Promise((resolve, reject) => {
+            const tx = db.transaction(SAVE_HANDLE_STORE, 'readwrite');
+            tx.objectStore(SAVE_HANDLE_STORE).put(handle, INVENTORY_DATA.inventory_id || 'default');
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+            tx.onabort = () => reject(tx.error);
+        });
+    } catch (e) {
+        console.warn('Could not persist file handle; session binding remains available', e);
+    } finally {
+        if (db) db.close();
+    }
+}
+
+async function loadPersistedSaveFileHandle() {
+    let db = null;
+    try {
+        db = await openSaveHandleDB();
+        if (!db) return null;
+        return await new Promise((resolve, reject) => {
+            const tx = db.transaction(SAVE_HANDLE_STORE, 'readonly');
+            const req = tx.objectStore(SAVE_HANDLE_STORE).get(INVENTORY_DATA.inventory_id || 'default');
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+    } catch (e) {
+        console.warn('Could not restore persisted file handle', e);
+        return null;
+    } finally {
+        if (db) db.close();
+    }
+}
+
+async function restoreSaveFileHandle() {
+    if (!supportsDirectFileSave()) return null;
+    const handle = await loadPersistedSaveFileHandle();
+    if (!handle) return null;
+    saveFileHandle = handle;
+    const chip = document.getElementById('inventoryIdChip');
+    if (chip && handle.name) chip.title = `Inventory ID: ${INVENTORY_DATA.inventory_id || ''} • ${handle.name}`;
+    return handle;
+}
+
+async function ensureWritePermission(handle) {
+    if (!handle) return false;
+    if (typeof handle.queryPermission !== 'function' || typeof handle.requestPermission !== 'function') return true;
+    const opts = { mode: 'readwrite' };
+    if (await handle.queryPermission(opts) === 'granted') return true;
+    return (await handle.requestPermission(opts)) === 'granted';
+}
 
 function ensureInventoryId() {
     const current = INVENTORY_DATA.inventory_id || '';
@@ -43392,8 +43464,11 @@ async function buildSavedHTML() {
 }
 
 async function directSaveCurrentFile(forcePicker = false) {
-    const html = await buildSavedHTML();
     let handle = saveFileHandle;
+    if (handle && !forcePicker) {
+        const permitted = await ensureWritePermission(handle);
+        if (!permitted) handle = null;
+    }
     if (!handle || forcePicker) {
         handle = await window.showSaveFilePicker({
             suggestedName: 'asset-inventory-dashboard.html',
@@ -43411,7 +43486,9 @@ async function directSaveCurrentFile(forcePicker = false) {
             }
         }
         saveFileHandle = handle;
+        await persistSaveFileHandle(handle);
     }
+    const html = await buildSavedHTML();
     const writable = await handle.createWritable();
     await writable.write(html);
     await writable.close();
@@ -43601,6 +43678,7 @@ function initKeyboardShortcuts() {
     document.getElementById('saveAsHTML').addEventListener('click', () => saveCurrentData(true));
     const invChip = document.getElementById('inventoryIdChip');
     if (invChip) invChip.textContent = (INVENTORY_DATA.inventory_id || '').replace('INV-', '#');
+    restoreSaveFileHandle().catch(e => console.warn('Persisted binding restore failed', e));
     // Save guide overlay actions
     const saveGuide = document.getElementById('saveGuideOverlay');
     if (saveGuide) {

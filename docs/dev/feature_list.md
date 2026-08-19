@@ -71,7 +71,7 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | 4.6 | `INVENTORY_DATA` versioned data block — format/version/schema_version/tier/key_version/generated/assets; file = single source of truth | ✅ |
 | 4.7 | Tiered build (`--tier free\|family\|planning`) — lower tiers physically strip higher-tier code (export/print/charts/audit/table/timeline) | ✅ |
 | 4.8 | Signed license (`--license-secret`) + watermark (`--buyer`) for paid tiers; invalid license downgrades to free capability | ✅ |
-| 4.9 | Direct Save: Chromium File System Access API writes back to a user-selected bound file; Inventory ID prevents cross-inventory overwrite; staged Ctrl+S/download remains the fallback | ✅ |
+| 4.9 | Direct Save: Chromium File System Access API writes back to a bound file; authorized handle persists in IndexedDB across reopen; Inventory ID prevents cross-inventory overwrite; staged Ctrl+S/download remains the fallback | ✅ |
 | 4.10 | Auto-save (1.5s debounce) to localStorage (session cache) + `beforeunload` flush; localStorage skipped when file is locked | ✅ |
 
 ## 5. Export, import & persistence
@@ -103,5 +103,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 188 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 190 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |
