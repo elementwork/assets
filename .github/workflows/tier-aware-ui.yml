@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/tier-aware-ui
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
