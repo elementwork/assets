@@ -6,6 +6,7 @@ TPL = ROOT / 'templates' / 'dashboard.html'
 TR = ROOT / 'src' / 'translations.py'
 TEST = ROOT / 'tests' / 'e2e_visual_test.py'
 FEATURE = ROOT / 'docs' / 'dev' / 'feature_list.md'
+GEN = ROOT / 'src' / 'generate_asset_inventory.py'
 
 
 def replace1(text, old, new, label):
@@ -114,4 +115,26 @@ f = f.replace('Total Assets card includes Recorded and With Value counts; one-cl
               'Total Assets card includes a With Value count; one-click All / With Value scope filters apply across layouts')
 FEATURE.write_text(f, encoding='utf-8')
 
-print('value scope refined: All / With Value only')
+# Tier-marker stripping can leave indentation-only lines in generated artifacts.
+# Normalize trailing whitespace in the generator itself so checked-in outputs remain
+# byte-stable after future regeneration rather than cleaning artifacts post hoc.
+g = GEN.read_text(encoding='utf-8')
+g = replace1(g,
+'''    # Write file
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html)
+''',
+'''    # Normalize generated whitespace so tier-marker stripping never leaves
+    # indentation-only lines that produce noisy diffs on regeneration.
+    had_final_newline = html.endswith("\\n")
+    html = "\\n".join(line.rstrip() for line in html.splitlines())
+    if had_final_newline:
+        html += "\\n"
+
+    # Write file
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html)
+''', 'generated HTML whitespace normalization')
+GEN.write_text(g, encoding='utf-8')
+
+print('value scope refined and generated HTML normalized')
