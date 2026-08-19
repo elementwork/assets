@@ -93,7 +93,7 @@ jobs:
 
       - name: Remove one-shot validation plumbing
         run: |
-          rm -f tools/apply_review_fixes.py .github/workflows/review-fixes.yml
+          rm -f tools/apply_review_fixes.py .github/workflows/review-fixes.yml .review-fix-trigger
           rmdir tools 2>/dev/null || true
           rmdir .github/workflows 2>/dev/null || true
           rmdir .github 2>/dev/null || true
