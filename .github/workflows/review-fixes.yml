@@ -11,6 +11,7 @@ concurrency:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   fix-test-commit:
@@ -23,6 +24,16 @@ jobs:
         with:
           ref: agent/tier-aware-ui
           fetch-depth: 0
+
+      - name: Report validation start
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/2/comments \
+            -d '{"body":"Automated review-fix validation started. Run ID: ${{ github.run_id }}"}' >/dev/null
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -111,3 +122,14 @@ jobs:
           git add -A
           git commit -m "Fix tier UI review findings"
           git push origin HEAD:agent/tier-aware-ui
+
+      - name: Report validation result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/2/comments \
+            -d '{"body":"Automated review-fix validation finished with job status: ${{ job.status }}. Run ID: ${{ github.run_id }}"}' >/dev/null
