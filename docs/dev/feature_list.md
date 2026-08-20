@@ -1,5 +1,6 @@
 # Feature List: Asset Inventory Generator
 
+> **Product strategy / North Star:** See `product_strategy.md` before adding or re-packaging major features. It is the strategic source of truth for positioning, edition roles, working pricing principles, continuity lifecycle and product guardrails.
 > **Status:** Living document · Last updated 2026-08-19 12:59:00
 > **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
 > **Roadmap:** Planned / in-progress features → see `future_plan.md`
@@ -36,6 +37,18 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | 2.8 | Timeline: date-ordered view with empty state | ✅ |
 | 2.9 | Detail: master-detail with all 116 fields | ✅ |
 | 2.10 | Print estate binder (`@media print`): Emergency Access Guide (page 1), Master Asset Index, cover, per-category sections, beneficiary/insurance summaries | ✅ |
+
+## 2a. Tier-aware product navigation
+
+| # | Feature | Status |
+|---|---------|--------|
+| 2a.1 | Tier-aware product navigation — Free / Family / Professional display names while internal key remains `planning` | ✅ |
+| 2a.2 | Primary header reduced to Search + Add + Print (paid) + Save + Features; secondary controls grouped in the Features menu | ✅ |
+| 2a.3 | Free continuously previews locked Family + Professional capabilities; Family previews Professional; Professional has no upsell UI | ✅ |
+| 2a.4 | Asset Catalog card distinguishes global catalog size, current Showing count, and With Value count; one-click All / With Value scope filters apply across layouts | ✅ |
+| 2a.5 | Status controls collapsed into an accessible dropdown; workspace uses measured sticky geometry and becomes non-sticky on narrow mobile screens | ✅ |
+| 2a.6 | Effective-tier UI follows verified license state; invalid paid licenses downgrade branding, workspace, templates and persisted layouts to Free | ✅ |
+| 2a.7 | Feature menu has explicit close/focus-return behavior and Professional zh labels retain bilingual professional terminology | ✅ |
 
 ## 3. Data entry & editing
 
@@ -103,5 +116,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 190 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 233 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |
