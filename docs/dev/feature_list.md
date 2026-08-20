@@ -1,41 +1,35 @@
-# Feature List: Asset Inventory Generator
+# EstateON Asset Inventory — Feature List
 
-> **Status:** Living document · Last updated 2026-08-19 12:59:00
-> **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
-> **Roadmap:** Planned / in-progress features → see `future_plan.md`
+> **Product strategy / North Star:** See `product_strategy.md` before adding or re-packaging major features. It is the strategic source of truth for positioning, edition roles, working pricing principles, continuity lifecycle and product guardrails.
 
-A self-contained, offline-first asset inventory tool for Canadian families in Ontario —
-generates Markdown, multi-sheet Excel, and a single-file HTML dashboard in English and
-Chinese. No server, no external libraries, no data leaves the user's device.
+> **Generated product state:** This file documents implemented product capabilities. `future_plan.md` documents roadmap ideas; `versioning_plan.md` documents build/tier mechanics.
 
----
-
-## 1. Core generator (Python)
+## 1. Core platform
 
 | # | Feature | Status |
 |---|---------|--------|
-| 1.1 | 517 asset types across 32 categories with icons/colors | ✅ |
-| 1.2 | 116-field schema per asset (ownership, registration/tax, beneficiaries, insurance, digital, crypto, notes…) | ✅ |
-| 1.3 | Markdown output — human-readable reference (en/zh) | ✅ |
-| 1.4 | Excel output — 8 sheets: All Assets, By Category, Summary, Access, Financial Summary, Insurance, Beneficiaries, Estate (en/zh) | ✅ |
-| 1.5 | Self-contained HTML dashboard (en/zh) | ✅ |
-| 1.6 | CLI filters: `--owner`, `--category`, `--status`, `--lang en\|zh`, `-o md\|excel\|html\|all` | ✅ |
-| 1.7 | Demo fixture (`--demo`) — realistic Ontario family (James & Mei Chen, house, TFSAs/RRSPs/RESP, dormant crypto) | ✅ |
+| 1.1 | Self-contained offline HTML dashboard; file acts as application + database | ✅ |
+| 1.2 | English / Chinese generation | ✅ |
+| 1.3 | Asset taxonomy + category metadata generated from source schema | ✅ |
+| 1.4 | Structured asset field schema | ✅ |
+| 1.5 | Local browser cache + embedded file data model | ✅ |
+| 1.6 | Direct Save using File System Access API where supported; staged save/download fallback elsewhere | ✅ |
+| 1.7 | Inventory ID family/file binding and overwrite mismatch protection | ✅ |
+| 1.8 | Whole-file lock/encryption workflow | ✅ |
 
-## 2. Dashboard rendering
+## 2. Dashboard, views & navigation
 
 | # | Feature | Status |
 |---|---------|--------|
-| 2.1 | 5 visual templates: EstateON, Lumina, Cardinal, Atlantic, Monarch | ✅ |
-| 2.2 | Light / dark mode toggle (persisted) | ✅ |
-| 2.3 | 9 layouts: Dashboard, Table, Kanban, Timeline, Detail, Compact, Audit, Annual Review, Charts | ✅ |
-| 2.4 | Stats cards: total assets, FMV, income, categories, status counts | ✅ |
-| 2.5 | Search across name/institution/owner/category/id (debounced) | ✅ |
-| 2.6 | Category / owner filters + status toggles (all apply to every layout) | ✅ |
-| 2.7 | Table: sortable columns (type-aware), pagination (50/page) | ✅ |
-| 2.8 | Timeline: date-ordered view with empty state | ✅ |
-| 2.9 | Detail: master-detail with all 116 fields | ✅ |
-| 2.10 | Print estate binder (`@media print`): Emergency Access Guide (page 1), Master Asset Index, cover, per-category sections, beneficiary/insurance summaries | ✅ |
+| 2.1 | Dashboard/category view | ✅ |
+| 2.2 | Compact view | ✅ |
+| 2.3 | Kanban view | ✅ |
+| 2.4 | Detail view | ✅ |
+| 2.5 | Table view | ✅ Family+ |
+| 2.6 | Timeline view | ✅ Family+ |
+| 2.7 | Charts view | ✅ Family+ |
+| 2.8 | Audit view | ✅ Professional |
+| 2.9 | Annual Review view | ✅ Professional |
 
 ## 2a. Tier-aware product navigation
 
@@ -53,67 +47,103 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 3.1 | Schema-driven edit modal — currency/percent → number, date → date-picker, select → dropdown, url, password with eye-toggle, textarea | ✅ |
-| 3.2 | Form validation: required id/name, numeric currency/percent, valid dates, in-option selects — inline errors, save blocked | ✅ |
-| 3.3 | Duplicate asset — new id, credentials cleared | ✅ |
-| 3.4 | Delete asset (confirm dialog) | ✅ |
-| 3.5 | Undo / redo — 50-entry snapshot stack, Ctrl+Z / Ctrl+Shift+Z, toast actions | ✅ |
-| 3.6 | Unsaved-changes indicator (●) + **auto-save** to browser storage (debounced 1.5s, toggleable, throttled toast) | ✅ |
-| 3.7 | Quick-add wizard — type → institution → owner → value, auto-fill defaults | ✅ |
-| 3.8 | Bulk edit — set shared field across selected rows | ✅ |
-| 3.9 | Inline table editing (dbl-click cell) | ✅ |
-| 3.10 | Kanban drag-and-drop between status columns | ✅ |
-| 3.11 | Column configuration for table view | ✅ |
-| 3.12 | Markdown rendering for notes/alert/todo fields | ✅ |
+| 3.1 | Quick-add asset wizard | ✅ |
+| 3.2 | Search asset types in quick-add | ✅ |
+| 3.3 | Full asset edit modal with schema-driven fields | ✅ |
+| 3.4 | Required/type validation | ✅ |
+| 3.5 | Duplicate asset | ✅ |
+| 3.6 | Delete asset | ✅ |
+| 3.7 | Undo / redo | ✅ |
+| 3.8 | Bulk selection / bulk edit | ✅ Family+ table |
+| 3.9 | Inline table editing | ✅ Family+ |
+| 3.10 | Kanban drag-and-drop status updates | ✅ |
+| 3.11 | Configurable table columns | ✅ Family+ |
+| 3.12 | Markdown rendering for notes/alerts/todos | ✅ |
 
-## 4. Security & privacy
-
-| # | Feature | Status |
-|---|---------|--------|
-| 4.1 | Data-block encryption (File Lock, default off) — AES-256-GCM via Web Crypto, PBKDF2 100k, family-word key; only the `assets` payload is encrypted | ✅ |
-| 4.2 | Lock UX: birth date (YYYYMMDD) + family word, confirm, enable → data staged encrypted; in-page unlock gate on reopen | ✅ |
-| 4.3 | Locked file: reopen shows unlock gate; text editor sees ciphertext in the data block; wrong-passphrase rejected | ✅ |
-| 4.4 | XSS-safe rendering — event delegation, HTML-escaped ids | ✅ |
-| 4.5 | CSV formula-injection guard (`= + - @` prefix) + RFC-4180 escaping | ✅ |
-
-## 4b. Versioning & save model
+## 4. Filtering & analysis
 
 | # | Feature | Status |
 |---|---------|--------|
-| 4.6 | `INVENTORY_DATA` versioned data block — format/version/schema_version/tier/key_version/generated/assets; file = single source of truth | ✅ |
-| 4.7 | Tiered build (`--tier free\|family\|planning`) — lower tiers physically strip higher-tier code (export/print/charts/audit/table/timeline) | ✅ |
-| 4.8 | Signed license (`--license-secret`) + watermark (`--buyer`) for paid tiers; invalid license downgrades to free capability | ✅ |
-| 4.9 | Direct Save: Chromium File System Access API writes back to a bound file; authorized handle persists in IndexedDB across reopen; Inventory ID prevents cross-inventory overwrite; staged Ctrl+S/download remains the fallback | ✅ |
-| 4.10 | Auto-save (1.5s debounce) to localStorage (session cache) + `beforeunload` flush; localStorage skipped when file is locked | ✅ |
+| 4.1 | Search across asset name/institution/owner/category/id | ✅ |
+| 4.2 | Category filter | ✅ |
+| 4.3 | Owner filter | ✅ |
+| 4.4 | Status filter | ✅ |
+| 4.5 | All / With Value scope filter | ✅ |
+| 4.6 | With Value uses current-value fields including FMV / USD FMV / market value / current balance / equity | ✅ |
+| 4.7 | Table sorting | ✅ Family+ |
+| 4.8 | FMV/income/category/status summary metrics | ✅ |
+| 4.9 | Professional audit rules including access-readiness flags | ✅ Professional |
+| 4.10 | Access Readiness score | ✅ Family print + Professional intelligence |
 
-## 5. Export, import & persistence
-
-| # | Feature | Status |
-|---|---------|--------|
-| 5.1 | Export Markdown / CSV / JSON / self-contained HTML (downloads) | ✅ |
-| 5.2 | Save-HTML carries edits — downloaded file contains current data (file = database) | ✅ |
-| 5.3 | JSON import with validation, undoable | ✅ |
-| 5.4 | localStorage persistence across sessions | ✅ |
-
-## 6. Charts & analytics
+## 5. Estate continuity / handoff
 
 | # | Feature | Status |
 |---|---------|--------|
-| 6.1 | Pure-SVG charts (no library, offline): FMV by category donut, by registration bar, top-10 institutions, liquidity ladder | ✅ |
-| 6.2 | Charts respond to search/filters and live edits | ✅ |
+| 5.1 | Emergency-priority field | ✅ |
+| 5.2 | Access-location field | ✅ |
+| 5.3 | Access/recovery contact field | ✅ |
+| 5.4 | Incapacity-access state | ✅ |
+| 5.5 | Death-access state | ✅ |
+| 5.6 | Handoff instructions | ✅ |
+| 5.7 | Last access test / next access review | ✅ |
+| 5.8 | Emergency Access Guide print page | ✅ Family+ |
+| 5.9 | Master Asset Index print page | ✅ Family+ |
+| 5.10 | Annual Review summary workspace | ✅ Professional |
 
-## 7. Audit, planning & estate intelligence
+## 6. Export / print / portability
 
 | # | Feature | Status |
 |---|---------|--------|
-| 7.1 | Audit view — traffic-light validation incl. beneficiary/value/data quality plus Access Readiness and blocked incapacity/death paths | ✅ |
-| 7.2 | Access Readiness score (0–100) from locator, recovery contact, handoff instructions, incapacity/death readiness and annual access test | ✅ |
-| 7.3 | Annual Family Review layout — overall score, due/overdue reviews, critical handoff assets and access gaps | ✅ |
-| 7.4 | Emergency & Handoff schema — priority, recovery location/contact, incapacity/death paths, instructions, last test/next review | ✅ |
+| 6.1 | Estate Binder print output | ✅ Family+ |
+| 6.2 | Print stylesheet hides application chrome | ✅ |
+| 6.3 | Markdown export | ✅ Professional |
+| 6.4 | Excel/CSV-compatible export | ✅ Professional |
+| 6.5 | JSON export | ✅ Professional |
+| 6.6 | JSON import | ✅ |
+| 6.7 | Save As / Direct Save / staged fallback | ✅ |
 
-## 8. Platform & engineering
+## 7. Security, localization & UX
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 233 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 7.1 | Whole-file AES-GCM lock workflow | ✅ |
+| 7.2 | PBKDF2 passphrase derivation | ✅ |
+| 7.3 | Account/policy reference masking in continuity outputs | ✅ |
+| 7.4 | Full EN/ZH UI generation | ✅ |
+| 7.5 | Tier-aware bilingual Professional labels | ✅ |
+| 7.6 | Responsive/mobile layout treatment | ✅ |
+| 7.7 | Explicit Features menu close/focus return | ✅ |
+| 7.8 | Status `aria-pressed` semantics | ✅ |
+| 7.9 | Effective-tier downgrade after invalid paid license | ✅ |
+| 7.10 | Current HMAC license verification architecture | ⚠️ Functional but not commercially tamper-resistant; asymmetric-signature redesign recommended |
+
+## 8. Tests & quality gates
+
+| # | Feature | Status |
+|---|---------|--------|
+| 8.1 | End-to-end visual test — 233 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), responsive geometry, print media, localization, screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |
+| 8.3 | `git diff --check` clean regeneration gate | ✅ |
+
+## 9. Current generated edition footprint
+
+| Edition | Internal key | Approx. catalog size | Categories | Fields |
+|---|---|---:|---:|---:|
+| Free | `free` | 256 | 15 | 116 |
+| Family | `family` | 324 | 20 | 116 |
+| Professional | `planning` | 517 | 32 | 116 |
+
+Catalog counts are generated data, not product promises; UI should use actual generated counts rather than hard-coded marketing numbers.
+
+## 10. Known strategic / implementation follow-ups
+
+These are intentionally not represented as shipped features:
+
+- Explicit persisted “confirmed owned / recorded / not owned / needs review” state instead of inferring ownership from pre-populated rows.
+- Material-asset filtering for Master Asset Index / Annual Review so catalog rows do not receive equal weight.
+- Workflow-level Annual Review metadata (`review_completed_at`, `access_verified`, backup verification, etc.).
+- Executor / Incapacity operational modes.
+- Asymmetric license signatures before relying on the license boundary commercially.
+- More explicit backup / recovery guidance.
+
+See `product_strategy.md` for the product rationale and `future_plan.md` for roadmap treatment.
