@@ -45,8 +45,8 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | 2a.1 | Tier-aware product navigation — Free / Family / Professional display names while internal key remains `planning` | ✅ |
 | 2a.2 | Header uses clickable logo-menu on the left, centered SVG View buttons, and Last Updated + Save on the right; Add Asset lives only in the Assets card | ✅ |
 | 2a.3 | Free continuously previews locked Family + Professional capabilities; Family previews Professional; Professional has no upsell UI | ✅ |
-| 2a.4 | Summary separates Asset Types, Categories and recorded Assets; Assets card includes Add Asset and With Value context; All / With Value remain quick filters | ✅ |
-| 2a.5 | Search, scope, category, owner and Active / Dormant / Pending / Closed controls stay in one non-wrapping filter-bar row; status buttons remain directly visible and right-aligned | ✅ |
+| 2a.4 | Summary separates Asset Types, Categories and recorded Assets; Assets card uses a compact two-column row (count/label left, Add Asset/With Value right); All / With Value remain quick filters | ✅ |
+| 2a.5 | Search, scope, category, owner and Active / Dormant / Pending / Closed controls stay in one non-wrapping filter-bar row; the Showing/filter-result count is removed and status buttons remain directly visible/right-aligned | ✅ |
 | 2a.6 | Effective-tier UI follows verified license state; invalid paid licenses downgrade branding, workspace, templates and persisted layouts to Free | ✅ |
 | 2a.7 | All Views use the original SVG icon set in two synchronized surfaces: centered Header shortcuts and a complete Views section inside the Features menu; tier gating and active state stay in sync | ✅ |
 
@@ -116,5 +116,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 262 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 270 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |

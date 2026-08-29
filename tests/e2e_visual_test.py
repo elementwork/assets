@@ -350,6 +350,19 @@ def responsive_ui_check():
                   and page.locator(".filter-bar #categoryFilter").count() == 1
                   and page.locator(".filter-bar #ownerFilter").count() == 1
                   and page.locator(".filter-bar .status-toggle-btn").count() == 4)
+            check(f"responsive {width}: filter result count absent",
+                  page.locator(".filter-bar .filter-result-count").count() == 0)
+            asset_card = page.locator(".stat-card-assets")
+            left_box = asset_card.locator(".assets-stat-left").bounding_box()
+            right_box = asset_card.locator(".assets-stat-right").bounding_box()
+            check(f"responsive {width}: Assets card stays two-column on one row",
+                  bool(left_box and right_box and abs((left_box['y'] + left_box['height']/2) - (right_box['y'] + right_box['height']/2)) <= 18
+                       and left_box['x'] < right_box['x']),
+                  f"left={left_box} right={right_box}")
+            check(f"responsive {width}: Assets card right column order",
+                  asset_card.locator(".assets-stat-right > *").count() == 2
+                  and asset_card.locator(".assets-stat-right > *").nth(0).get_attribute("id") == "statAddAssetBtn"
+                  and asset_card.locator(".assets-stat-right > *").nth(1).get_attribute("class").startswith("stat-subline"))
             page.click("#featureMenuToggle")
             check(f"responsive {width}: logo menu opens", page.locator("#featureMenu.open").count() == 1)
             check(f"responsive {width}: Views also present in menu",
@@ -439,7 +452,7 @@ def e2e_en(browser):
     check("en: Asset Types label", "Asset Types" in page.locator(".stat-card").first.text_content())
     check("en: blank catalog starts with zero recorded Assets", page.text_content("#assetCount") == "0", page.text_content("#assetCount"))
     check("en: stat card order is Asset Types / Categories / Assets", [x.strip() for x in page.locator(".primary-stats .stat-label").all_text_contents()[:3]] == ["Asset Types", "Categories", "Assets"])
-    check("en: Showing starts at 517", page.text_content("#showingCount") == "517", page.text_content("#showingCount"))
+    check("en: filter result count removed", page.locator(".filter-result-count").count() == 0 and page.locator("#showingCount").count() == 0)
     check("en: quick scope filters render", page.locator(".scope-filter-btn").count() == 2)
     check("en: USD FMV counts as With Value", page.evaluate("hasFinancialValue({fmv_usd: 100})"))
     check("en: dashboard view renders 517 items",
@@ -450,7 +463,6 @@ def e2e_en(browser):
     page.wait_for_timeout(600)
     n = page.locator("#dashboardView .asset-item").count()
     check("en: search 'Chequing' narrows results", 0 < n < 517, f"n={n}")
-    check("en: Showing count follows search", int(page.text_content("#showingCount")) == n, page.text_content("#showingCount"))
     page.fill("#searchInput", "")
     page.wait_for_timeout(600)
     check("en: clearing search restores 517",

@@ -2670,6 +2670,37 @@ html[data-edition="planning"] .tier-badge {
     .filter-status-toggles { display: flex !important; grid-template-columns: none !important; }
 }
 
+
+/* ===== COMPACT ASSETS CARD ===== */
+.stat-card-assets .assets-stat-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.assets-stat-left,
+.assets-stat-right {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.assets-stat-left { align-items: flex-start; text-align: left; }
+.assets-stat-right { align-items: flex-end; text-align: right; }
+.stat-card-assets .stat-add-btn {
+    margin: 0;
+    white-space: nowrap;
+    align-self: auto;
+}
+.stat-card-assets .stat-subline {
+    width: auto;
+    margin-top: 4px;
+    align-self: auto;
+    text-align: right;
+    white-space: nowrap;
+}
+
 </style>
 </head>
 <body>
@@ -2874,11 +2905,15 @@ html[data-edition="planning"] .tier-badge {
             </div>
             <div class="stat-card stat-card-assets">
                 <div class="stat-icon">🗂️</div>
-                <div class="stat-content">
-                    <div class="stat-value" id="assetCount">0</div>
-                    <div class="stat-label">Assets</div>
-                    <button class="stat-add-btn" id="statAddAssetBtn" type="button">＋ Add Asset</button>
-                    <div class="stat-subline"><span><strong id="withValueCount">0</strong> With Value</span></div>
+                <div class="stat-content assets-stat-grid">
+                    <div class="assets-stat-left">
+                        <div class="stat-value" id="assetCount">0</div>
+                        <div class="stat-label">Assets</div>
+                    </div>
+                    <div class="assets-stat-right">
+                        <button class="stat-add-btn" id="statAddAssetBtn" type="button">＋ Add Asset</button>
+                        <div class="stat-subline"><span><strong id="withValueCount">0</strong> With Value</span></div>
+                    </div>
                 </div>
             </div>
             <div class="stat-card">
@@ -2919,7 +2954,6 @@ html[data-edition="planning"] .tier-badge {
                 <option value="">All Owners</option>
             </select>
         </div>
-        <span class="filter-result-count"><strong id="showingCount">0</strong> Showing</span>
         <div class="status-toggles filter-status-toggles" aria-label="Status">
             <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> Active <span class="status-count" id="activeCount">0</span></button>
             <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> Dormant <span class="status-count" id="dormantCount">0</span></button>
