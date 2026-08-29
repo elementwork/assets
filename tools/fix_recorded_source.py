@@ -41,5 +41,15 @@ if old not in s:
     raise SystemExit('locked-safe asset type count anchor not found')
 s = s.replace(old, new, 1)
 
+old = """    menu.addEventListener('click', e => {
+        if (e.target.closest('.menu-layout-item')) setFeatureMenuOpen(false);
+    });"""
+new = """    menu.addEventListener('click', e => {
+        if (e.target.closest('.menu-layout-item, .menu-action, #themeToggle')) setFeatureMenuOpen(false);
+    });"""
+if old not in s:
+    raise SystemExit('menu action close anchor not found')
+s = s.replace(old, new, 1)
+
 p.write_text(s, encoding="utf-8")
-print('Kept recorded-asset metadata schema-safe and locked startup intact')
+print('Applied schema-safe recording, locked startup, and menu action-close behavior')
