@@ -1,6 +1,6 @@
 # Asset Inventory — Canadian Family in Ontario
 
-**Generated:** 2026-08-29 17:25:41
+**Generated:** 2026-08-29 18:11:02
 **Total Assets:** 517 | **Total Fair Market Value:** $0.00 | **Annual Income:** $0.00
 
 ---

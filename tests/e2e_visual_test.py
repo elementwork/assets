@@ -135,7 +135,7 @@ def tier_gating_check():
                     available = page.locator(selector).count() > 0
                     check(f"tier {tier}: {feat} available={on}", available == on, f"got {available}")
                 else:
-                    available = page.locator(f'.menu-layout-item[data-layout="{feat}"]').count() > 0
+                    available = page.locator(f'.header-layout-btn[data-layout="{feat}"]').count() > 0
                     check(f"tier {tier}: layout {feat} available={on}", available == on, f"got {available}")
             check(f"tier {tier}: edition badge", bool(page.text_content("#editionBadge")))
             teaser_count = page.locator('.upgrade-preview.visible').count()
@@ -220,9 +220,9 @@ def static_checks():
     check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
     check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "featureMenuClose", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
     check("effective-tier normalization compiled", all(t in en_html for t in ["effectiveTier", "normalizeLayoutForTier", "cloneTierConfig", "downgradeToFree"]))
-    check("simplified chrome compiled", all(t in en_html for t in ["logo-menu-toggle", "statAddAssetBtn", "filter-status-toggles", "menu-layout-grid"]))
+    check("simplified chrome compiled", all(t in en_html for t in ["logo-menu-toggle", "statAddAssetBtn", "filter-status-toggles", "header-view-switcher"]))
     check("standalone workspace/layout switcher removed", '<div class="workspace-bar"' not in en_html and '<div class="layout-switcher"' not in en_html)
-    check("professional terminology retained", all(t in en_html for t in [">Audit<", ">Annual Review<", "Export MD", "Export JSON"]))
+    check("professional terminology retained", all(t in en_html for t in ['aria-label="Audit"', 'aria-label="Annual Review"', "Export MD", "Export JSON"]))
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
     check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
 
@@ -318,7 +318,7 @@ def demo_fixture_check():
 # =============================================================================
 
 def responsive_ui_check():
-    print("\n== Step 2c: responsive simplified chrome ==")
+    print("\n== Step 2c: responsive centered header + single-line filters ==")
     with sync_playwright() as p:
         browser = p.chromium.launch()
         for width, height in ((390, 844), (768, 900), (1440, 1000)):
@@ -328,28 +328,32 @@ def responsive_ui_check():
             page.on("pageerror", lambda exc: errors.append(str(exc)))
             page.goto(EN_HTML.as_uri(), wait_until="load")
             page.wait_for_timeout(500)
-            check(f"responsive {width}: no standalone workspace/layout switcher",
-                  page.locator(".workspace-bar").count() == 0 and page.locator(".layout-switcher").count() == 0)
-            check(f"responsive {width}: logo icon is menu trigger",
-                  page.locator("#featureMenuToggle.logo-icon").count() == 1)
-            check(f"responsive {width}: top actions are Add + Save only",
-                  page.locator(".tier-header #addAssetBtn").count() == 1
-                  and page.locator(".tier-header #saveHTML").count() == 1
-                  and page.locator(".tier-header #printBtn").count() == 0)
-            check(f"responsive {width}: Last Updated sits in header",
-                  page.locator(".tier-header #lastUpdated").count() == 1)
-            check(f"responsive {width}: search is in filter bar",
-                  page.locator(".filter-bar #searchInput").count() == 1)
-            check(f"responsive {width}: four status buttons are directly visible",
-                  page.locator(".filter-bar .status-toggle-btn").count() == 4
-                  and page.locator(".filter-bar .status-toggle-btn:visible").count() == 4)
+            check(f"responsive {width}: header Add removed",
+                  page.locator(".tier-header #addAssetBtn").count() == 0)
+            check(f"responsive {width}: right side is Last Updated + Save",
+                  page.locator(".tier-header #lastUpdated").count() == 1
+                  and page.locator(".tier-header #saveHTML").count() == 1)
+            check(f"responsive {width}: centered SVG view switcher present",
+                  page.locator("#headerViewSwitcher .header-layout-btn svg").count() == 9)
+            box = page.locator("#headerViewSwitcher").bounding_box()
+            check(f"responsive {width}: view switcher centered in viewport",
+                  bool(box and abs((box['x'] + box['width'] / 2) - width / 2) <= 3), str(box))
+            check(f"responsive {width}: all filters use one nowrap bar",
+                  page.locator(".filter-bar").evaluate("el => getComputedStyle(el).flexWrap") == "nowrap")
+            status_boxes = page.locator(".filter-bar .status-toggle-btn").evaluate_all(
+                "els => els.map(el => { const r=el.getBoundingClientRect(); return [r.top,r.bottom]; })")
+            check(f"responsive {width}: status buttons do not wrap",
+                  len(status_boxes) == 4 and max(b[0] for b in status_boxes) - min(b[0] for b in status_boxes) <= 2,
+                  str(status_boxes))
+            check(f"responsive {width}: search/category/owner/status all in filter bar",
+                  page.locator(".filter-bar #searchInput").count() == 1
+                  and page.locator(".filter-bar #categoryFilter").count() == 1
+                  and page.locator(".filter-bar #ownerFilter").count() == 1
+                  and page.locator(".filter-bar .status-toggle-btn").count() == 4)
             page.click("#featureMenuToggle")
             check(f"responsive {width}: logo menu opens", page.locator("#featureMenu.open").count() == 1)
-            check(f"responsive {width}: legacy SVG layout icons retained",
-                  page.locator("#featureMenu .menu-layout-item svg").count() >= 9)
-            menu_box = page.locator("#featureMenu").bounding_box()
-            check(f"responsive {width}: menu is left anchored",
-                  bool(menu_box and menu_box['x'] <= (12 if width <= 760 else 32)), str(menu_box))
+            check(f"responsive {width}: Views removed from menu",
+                  page.locator("#featureMenu .menu-layout-item").count() == 0)
             page.click("#featureMenuClose")
             check(f"responsive {width}: no JS errors", not errors, str(errors[:3]))
             ctx.close()
@@ -781,7 +785,8 @@ def e2e_en(browser):
     page.wait_for_timeout(200)
 
     # ---- Quick-add wizard (3.7) ----
-    page.click("#addAssetBtn")
+    check("en: header Add Asset removed", page.locator("#addAssetBtn").count() == 0)
+    page.click("#statAddAssetBtn")
     page.wait_for_selector("#wizardOverlay.active", timeout=5000)
     types = page.locator(".wizard-type-item").count()
     check("en: wizard type list renders", types > 400, f"n={types}")
@@ -988,10 +993,12 @@ def e2e_zh(browser):
     check("zh: stat totalAssets = 517", page.text_content("#totalAssets") == "517")
     check("zh: search placeholder translated",
           "搜索" in page.get_attribute("#searchInput", "placeholder"))
+    header_labels = page.locator("#headerViewSwitcher .header-layout-btn").evaluate_all(
+        "els => els.map(el => el.getAttribute('aria-label'))")
+    check("zh: Professional header views use bilingual terminology",
+          "Audit 财产审计" in header_labels and "Annual Review 年度复核" in header_labels)
     _open_feature_menu(page)
     menu_text = page.locator("#featureMenu").text_content()
-    check("zh: Professional logo menu uses bilingual terminology",
-          "Audit 财产审计" in menu_text and "Annual Review 年度复核" in menu_text)
     check("zh: Professional export section localized", "Export 导出" in menu_text)
     page.click("#featureMenuClose")
     check("zh: dashboard view renders 517 items",

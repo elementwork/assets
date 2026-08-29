@@ -43,12 +43,12 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | # | Feature | Status |
 |---|---------|--------|
 | 2a.1 | Tier-aware product navigation — Free / Family / Professional display names while internal key remains `planning` | ✅ |
-| 2a.2 | Primary header reduced to clickable logo-menu + Add + Save + Last Updated; all other actions live in the logo menu and all search/filter controls live in one filter bar | ✅ |
+| 2a.2 | Header uses clickable logo-menu on the left, centered SVG View buttons, and Last Updated + Save on the right; Add Asset lives only in the Assets card | ✅ |
 | 2a.3 | Free continuously previews locked Family + Professional capabilities; Family previews Professional; Professional has no upsell UI | ✅ |
 | 2a.4 | Summary separates Asset Types, Categories and recorded Assets; Assets card includes Add Asset and With Value context; All / With Value remain quick filters | ✅ |
-| 2a.5 | Active / Dormant / Pending / Closed controls are directly visible and right-aligned in the unified filter bar; standalone workspace/layout-switcher chrome is removed | ✅ |
+| 2a.5 | Search, scope, category, owner and Active / Dormant / Pending / Closed controls stay in one non-wrapping filter-bar row; status buttons remain directly visible and right-aligned | ✅ |
 | 2a.6 | Effective-tier UI follows verified license state; invalid paid licenses downgrade branding, workspace, templates and persisted layouts to Free | ✅ |
-| 2a.7 | Clicking the top-left EstateON logo icon opens the Features menu; layout choices retain the original SVG icon set, with explicit close/focus-return behavior and bilingual Professional terminology | ✅ |
+| 2a.7 | Clicking the top-left EstateON logo icon opens the Features menu; all Views use the original SVG icon set centered in the Header, with bilingual Professional labels exposed through title/ARIA | ✅ |
 
 ## 3. Data entry & editing
 
@@ -116,5 +116,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 258 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 259 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |
