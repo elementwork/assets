@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 from pathlib import Path
 
-p = Path(__file__).resolve().parent.parent / "templates" / "dashboard.html"
+root = Path(__file__).resolve().parent.parent
+p = root / "templates" / "dashboard.html"
 s = p.read_text(encoding="utf-8")
 
 old = "const RECORDED_SOURCES = new Set(['quick-add', 'manual-add', 'duplicate', 'user-edit', 'demo', 'import']);"
@@ -52,4 +53,24 @@ if old not in s:
 s = s.replace(old, new, 1)
 
 p.write_text(s, encoding="utf-8")
-print('Applied schema-safe recording, locked startup, and menu action-close behavior')
+
+# The standalone workspace is intentionally gone. Professional zh terminology now lives
+# in the logo-triggered Features menu, so assert against that canonical navigation surface.
+test_path = root / "tests" / "e2e_visual_test.py"
+t = test_path.read_text(encoding="utf-8")
+old = '''    check("zh: Professional workspace uses bilingual terminology",
+          "Audit 财产审计" in page.locator('[data-workspace-tier="planning"]').text_content() and
+          "Annual Review 年度复核" in page.locator('[data-workspace-tier="planning"]').text_content())
+    _open_feature_menu(page)
+    check("zh: Professional export section localized", "Export 导出" in page.locator("#featureMenu").text_content())'''
+new = '''    _open_feature_menu(page)
+    menu_text = page.locator("#featureMenu").text_content()
+    check("zh: Professional logo menu uses bilingual terminology",
+          "Audit 财产审计" in menu_text and "Annual Review 年度复核" in menu_text)
+    check("zh: Professional export section localized", "Export 导出" in menu_text)'''
+if old not in t:
+    raise SystemExit('zh workspace test anchor not found')
+t = t.replace(old, new, 1)
+test_path.write_text(t, encoding="utf-8")
+
+print('Applied schema-safe recording, locked startup, menu action-close, and zh logo-menu test')
