@@ -35,5 +35,11 @@ if old not in s:
     raise SystemExit('duplicate source anchor not found')
 s = s.replace(old, new, 1)
 
+old = "    document.getElementById('totalAssets').textContent = ASSETS_DATA.length.toLocaleString(LOCALE);"
+new = "    const assetTypeCount = Array.isArray(ASSETS_DATA) ? ASSETS_DATA.length : 0;\n    document.getElementById('totalAssets').textContent = assetTypeCount.toLocaleString(LOCALE);"
+if old not in s:
+    raise SystemExit('locked-safe asset type count anchor not found')
+s = s.replace(old, new, 1)
+
 p.write_text(s, encoding="utf-8")
-print('Kept recorded-asset metadata within existing schema constraints')
+print('Kept recorded-asset metadata schema-safe and locked startup intact')
