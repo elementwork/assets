@@ -1,5 +1,6 @@
 # Feature List: Asset Inventory Generator
 
+> **Product strategy / North Star:** See `product_strategy.md` before adding or re-packaging major features. It is the strategic source of truth for positioning, edition roles, working pricing principles, continuity lifecycle and product guardrails.
 > **Status:** Living document · Last updated 2026-08-19 12:59:00
 > **Legend:** ✅ Shipped (verified by `tests/e2e_visual_test.py`)
 > **Roadmap:** Planned / in-progress features → see `future_plan.md`
@@ -36,6 +37,18 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 | 2.8 | Timeline: date-ordered view with empty state | ✅ |
 | 2.9 | Detail: master-detail with all 116 fields | ✅ |
 | 2.10 | Print estate binder (`@media print`): Emergency Access Guide (page 1), Master Asset Index, cover, per-category sections, beneficiary/insurance summaries | ✅ |
+
+## 2a. Tier-aware product navigation
+
+| # | Feature | Status |
+|---|---------|--------|
+| 2a.1 | Tier-aware product navigation — Free / Family / Professional display names while internal key remains `planning` | ✅ |
+| 2a.2 | Header uses clickable logo-menu on the left, centered SVG View buttons, and Last Updated + Save on the right; Add Asset lives only in the Assets card | ✅ |
+| 2a.3 | Free continuously previews locked Family + Professional capabilities; Family previews Professional; Professional has no upsell UI | ✅ |
+| 2a.4 | Summary separates Asset Types, Categories and recorded Assets; Assets card uses a compact two-column row (count/label left, Add Asset/With Value right); All / With Value remain quick filters | ✅ |
+| 2a.5 | Search, scope, category, owner and Active / Dormant / Pending / Closed controls stay in one non-wrapping filter-bar row; the Showing/filter-result count is removed and status buttons remain directly visible/right-aligned | ✅ |
+| 2a.6 | Effective-tier UI follows verified license state; invalid paid licenses downgrade branding, workspace, templates and persisted layouts to Free | ✅ |
+| 2a.7 | All Views use the original SVG icon set in two synchronized surfaces: centered Header shortcuts and a complete Views section inside the Features menu; tier gating and active state stay in sync | ✅ |
 
 ## 3. Data entry & editing
 
@@ -103,5 +116,5 @@ Chinese. No server, no external libraries, no data leaves the user's device.
 
 | # | Feature | Status |
 |---|---------|--------|
-| 8.1 | End-to-end visual test — 190 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
+| 8.1 | End-to-end visual test — 270 checks: planning-tier generation/static/demo/browser E2E (en/zh) incl. file-lock data-block encryption/unlock, Ctrl+S save guide, exports, quick-add, bulk, inline, kanban, columns, markdown, auto-save; plus tier-gating checks (free/family/planning counts, stripped-code assertions, layout/template/export visibility, license valid/invalid, watermark), screenshots | ✅ |
 | 8.2 | Full en/zh localization (UI + categories + fields) | ✅ |

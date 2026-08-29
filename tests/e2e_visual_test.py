@@ -132,15 +132,54 @@ def tier_gating_check():
                     continue
                 selector = {"print": "#printBtn", "export": "#exportMD"}.get(feat)
                 if selector:
-                    vis = page.locator(selector).count() > 0 and page.locator(selector).first.is_visible()
-                    check(f"tier {tier}: {feat} visible={on}", vis == on, f"got {vis}")
+                    available = page.locator(selector).count() > 0
+                    check(f"tier {tier}: {feat} available={on}", available == on, f"got {available}")
                 else:
-                    vis = page.locator(f'.layout-btn[data-layout="{feat}"]').count() > 0 \
-                        and page.locator(f'.layout-btn[data-layout="{feat}"]').first.is_visible()
-                    check(f"tier {tier}: layout {feat} visible={on}", vis == on, f"got {vis}")
+                    available = page.locator(f'.header-layout-btn[data-layout="{feat}"]').count() > 0
+                    check(f"tier {tier}: layout {feat} available={on}", available == on, f"got {available}")
+            check(f"tier {tier}: edition badge", bool(page.text_content("#editionBadge")))
+            teaser_count = page.locator('.upgrade-preview.visible').count()
+            expected_teasers = 2 if tier == 'free' else (1 if tier == 'family' else 0)
+            check(f"tier {tier}: upgrade preview count={expected_teasers}", teaser_count == expected_teasers, f"got {teaser_count}")
             check(f"tier {tier}: no JS errors", not errs, f"{errs[:3]}")
             ctx.close()
             browser.close()
+
+
+def license_downgrade_ui_check():
+    print("\n== Step 1c: invalid-license effective-tier UI ==")
+    path = TMP / "asset-inventory-dashboard-planning.html"
+    if not path.exists():
+        check("invalid license fixture exists", False, str(path))
+        return
+    html = path.read_text(encoding="utf-8")
+    tampered = re.sub(r"const LICENSE_JSON = '[^']*';",
+                      "const LICENSE_JSON = 'invalid.invalid';", html, count=1)
+    invalid = TMP / "asset-inventory-dashboard-planning-invalid-license.html"
+    invalid.write_text(tampered, encoding="utf-8")
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        ctx = browser.new_context()
+        ctx.add_init_script("localStorage.setItem('assetLayout', 'audit')")
+        page = ctx.new_page()
+        errors = []
+        page.on("pageerror", lambda exc: errors.append(str(exc)))
+        page.goto(invalid.as_uri(), wait_until="load")
+        page.wait_for_timeout(800)
+        check("invalid license: effective edition is Free",
+              page.get_attribute("html", "data-edition") == "free",
+              page.get_attribute("html", "data-edition"))
+        check("invalid license: Free badge shown", "Free" in page.text_content("#editionBadge"), page.text_content("#editionBadge"))
+        check("invalid license: stale Audit layout normalized",
+              page.evaluate("currentLayout") == "dashboard" and page.locator("#dashboardView.active").count() == 1,
+              page.evaluate("currentLayout"))
+        check("invalid license: print hidden", page.locator("#printBtn").count() == 1 and not page.locator("#printBtn").is_visible())
+        check("invalid license: exports hidden", page.locator("#exportMD").count() == 1 and not page.locator("#exportMD").is_visible())
+        check("invalid license: Family tools hidden", page.locator('[data-min-tier="family"]:visible').count() == 0)
+        check("invalid license: template reduced to one", page.locator("#templateSelect option").count() == 1)
+        check("invalid license: no JS errors", not errors, str(errors[:3]))
+        ctx.close()
+        browser.close()
 
 
 # =============================================================================
@@ -179,6 +218,11 @@ def static_checks():
     check("persistent file-handle binding compiled",
           all(t in en_html for t in ["indexedDB.open", "persistSaveFileHandle", "loadPersistedSaveFileHandle", "restoreSaveFileHandle", "ensureWritePermission"]))
     check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
+    check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "featureMenuClose", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
+    check("effective-tier normalization compiled", all(t in en_html for t in ["effectiveTier", "normalizeLayoutForTier", "cloneTierConfig", "downgradeToFree"]))
+    check("simplified chrome compiled", all(t in en_html for t in ["logo-menu-toggle", "statAddAssetBtn", "filter-status-toggles", "header-view-switcher"]))
+    check("standalone workspace/layout switcher removed", '<div class="workspace-bar"' not in en_html and '<div class="layout-switcher"' not in en_html)
+    check("professional terminology retained", all(t in en_html for t in ['aria-label="Audit"', 'aria-label="Annual Review"', "Export MD", "Export JSON"]))
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
     check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
 
@@ -273,6 +317,69 @@ def demo_fixture_check():
 # STEP 3 — Browser E2E
 # =============================================================================
 
+def responsive_ui_check():
+    print("\n== Step 2c: responsive centered header + single-line filters ==")
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        for width, height in ((390, 844), (768, 900), (1440, 1000)):
+            ctx = browser.new_context(viewport={"width": width, "height": height})
+            page = ctx.new_page()
+            errors = []
+            page.on("pageerror", lambda exc: errors.append(str(exc)))
+            page.goto(EN_HTML.as_uri(), wait_until="load")
+            page.wait_for_timeout(500)
+            check(f"responsive {width}: header Add removed",
+                  page.locator(".tier-header #addAssetBtn").count() == 0)
+            check(f"responsive {width}: right side is Last Updated + Save",
+                  page.locator(".tier-header #lastUpdated").count() == 1
+                  and page.locator(".tier-header #saveHTML").count() == 1)
+            check(f"responsive {width}: centered SVG view switcher present",
+                  page.locator("#headerViewSwitcher .header-layout-btn svg").count() == 9)
+            box = page.locator("#headerViewSwitcher").bounding_box()
+            check(f"responsive {width}: view switcher centered in viewport",
+                  bool(box and abs((box['x'] + box['width'] / 2) - width / 2) <= 3), str(box))
+            check(f"responsive {width}: all filters use one nowrap bar",
+                  page.locator(".filter-bar").evaluate("el => getComputedStyle(el).flexWrap") == "nowrap")
+            status_boxes = page.locator(".filter-bar .status-toggle-btn").evaluate_all(
+                "els => els.map(el => { const r=el.getBoundingClientRect(); return [r.top,r.bottom]; })")
+            check(f"responsive {width}: status buttons do not wrap",
+                  len(status_boxes) == 4 and max(b[0] for b in status_boxes) - min(b[0] for b in status_boxes) <= 2,
+                  str(status_boxes))
+            check(f"responsive {width}: search/category/owner/status all in filter bar",
+                  page.locator(".filter-bar #searchInput").count() == 1
+                  and page.locator(".filter-bar #categoryFilter").count() == 1
+                  and page.locator(".filter-bar #ownerFilter").count() == 1
+                  and page.locator(".filter-bar .status-toggle-btn").count() == 4)
+            check(f"responsive {width}: filter result count absent",
+                  page.locator(".filter-bar .filter-result-count").count() == 0)
+            asset_card = page.locator(".stat-card-assets")
+            left_box = asset_card.locator(".assets-stat-left").bounding_box()
+            right_box = asset_card.locator(".assets-stat-right").bounding_box()
+            check(f"responsive {width}: Assets card stays two-column on one row",
+                  bool(left_box and right_box and abs((left_box['y'] + left_box['height']/2) - (right_box['y'] + right_box['height']/2)) <= 18
+                       and left_box['x'] < right_box['x']),
+                  f"left={left_box} right={right_box}")
+            check(f"responsive {width}: Assets card right column order",
+                  asset_card.locator(".assets-stat-right > *").count() == 2
+                  and asset_card.locator(".assets-stat-right > *").nth(0).get_attribute("id") == "statAddAssetBtn"
+                  and asset_card.locator(".assets-stat-right > *").nth(1).get_attribute("class").startswith("stat-subline"))
+            page.click("#featureMenuToggle")
+            check(f"responsive {width}: logo menu opens", page.locator("#featureMenu.open").count() == 1)
+            check(f"responsive {width}: Views also present in menu",
+                  page.locator("#featureMenu .menu-layout-item").count() == 9
+                  and page.locator("#featureMenu .menu-layout-item svg").count() == 9)
+            page.locator('#featureMenu .menu-layout-item[data-layout="kanban"]').click()
+            page.wait_for_timeout(120)
+            check(f"responsive {width}: menu View syncs header active state",
+                  page.locator('#headerViewSwitcher .header-layout-btn[data-layout="kanban"].active').count() == 1)
+            page.click("#featureMenuToggle")
+            page.locator('#featureMenu .menu-layout-item[data-layout="dashboard"]').click()
+            page.wait_for_timeout(120)
+            check(f"responsive {width}: no JS errors", not errors, str(errors[:3]))
+            ctx.close()
+        browser.close()
+
+
 def browser_e2e():
     print("\n== Step 3: browser E2E (en + zh) ==")
     from playwright.sync_api import sync_playwright
@@ -296,8 +403,26 @@ def _new_page(browser, html_path, viewport=(1440, 1000)):
     return context, page, js_errors
 
 
+def _open_feature_menu(page):
+    menu = page.locator("#featureMenu")
+    if not menu.evaluate("el => el.classList.contains('open')"):
+        page.click("#featureMenuToggle")
+        page.wait_for_timeout(100)
+
+
+def _menu_click(page, selector):
+    _open_feature_menu(page)
+    page.click(selector)
+    page.wait_for_timeout(120)
+
+
 def _layout(page, name):
-    page.click(f'.layout-btn[data-layout="{name}"]')
+    primary = page.locator(f'.layout-btn[data-layout="{name}"]:visible')
+    if primary.count():
+        primary.first.click()
+    else:
+        _open_feature_menu(page)
+        page.locator(f'.menu-layout-item[data-layout="{name}"]:visible').first.click()
     page.wait_for_timeout(150)
 
 
@@ -322,6 +447,14 @@ def e2e_en(browser):
           page.text_content("#totalAssets"))
     check("en: stat totalCategories = 32", page.text_content("#totalCategories") == "32",
           page.text_content("#totalCategories"))
+    check("en: professional edition badge", "Professional" in page.text_content("#editionBadge"))
+    check("en: blank catalog has zero assets with value", page.text_content("#withValueCount") == "0", page.text_content("#withValueCount"))
+    check("en: Asset Types label", "Asset Types" in page.locator(".stat-card").first.text_content())
+    check("en: blank catalog starts with zero recorded Assets", page.text_content("#assetCount") == "0", page.text_content("#assetCount"))
+    check("en: stat card order is Asset Types / Categories / Assets", [x.strip() for x in page.locator(".primary-stats .stat-label").all_text_contents()[:3]] == ["Asset Types", "Categories", "Assets"])
+    check("en: filter result count removed", page.locator(".filter-result-count").count() == 0 and page.locator("#showingCount").count() == 0)
+    check("en: quick scope filters render", page.locator(".scope-filter-btn").count() == 2)
+    check("en: USD FMV counts as With Value", page.evaluate("hasFinancialValue({fmv_usd: 100})"))
     check("en: dashboard view renders 517 items",
           page.locator("#dashboardView .asset-item").count() == 517)
 
@@ -352,15 +485,23 @@ def e2e_en(browser):
     page.select_option("#categoryFilter", index=0)
     page.wait_for_timeout(150)
 
+    # Feature menu close affordance + focus return
+    _open_feature_menu(page)
+    page.locator("#featureMenuClose").focus()
+    page.click("#featureMenuClose")
+    check("en: feature menu close button works", page.locator("#featureMenu.open").count() == 0)
+    check("en: feature menu returns focus to toggle", page.evaluate("document.activeElement && document.activeElement.id") == "featureMenuToggle")
+
     # Theme toggle
     theme_before = page.evaluate("document.documentElement.getAttribute('data-theme')")
-    page.click("#themeToggle")
+    _menu_click(page, "#themeToggle")
     theme_after = page.evaluate("document.documentElement.getAttribute('data-theme')")
     check("en: theme toggle flips light/dark", theme_before != theme_after,
           f"{theme_before} -> {theme_after}")
-    page.click("#themeToggle")  # back to light
+    _menu_click(page, "#themeToggle")  # back to light
 
-    # Template select (5 templates)
+    # Template select (5 templates) — now organized under Features > Appearance.
+    _open_feature_menu(page)
     templates = page.locator("#templateSelect option").count()
     check("en: 5 template options", templates == 5, f"n={templates}")
     for i in range(1, 5):  # indexes 1..4 cover all 5 templates (0..4)
@@ -445,6 +586,14 @@ def e2e_en(browser):
           page.locator("#dashboardView .asset-item").first.text_content().__contains__("Test Chequing Account") or
           page.locator("#dashboardView").text_content().__contains__("Test Chequing Account"))
 
+    check("en: with-value count updates after FMV edit", int(page.text_content("#withValueCount")) >= 1)
+    page.click('.scope-filter-btn[data-asset-scope="value"]')
+    page.wait_for_timeout(200)
+    check("en: With Value quick filter narrows to valued assets",
+          page.locator("#dashboardView .asset-item").count() == page.evaluate("assets.filter(hasFinancialValue).length"))
+    page.click('.scope-filter-btn[data-asset-scope="all"]')
+    page.wait_for_timeout(150)
+
     # Undo / redo via keyboard shortcuts
     page.keyboard.press("Control+z")
     page.wait_for_timeout(200)
@@ -490,7 +639,7 @@ def e2e_en(browser):
     # This legacy File Lock regression validates the universal staged/download
     # fallback. Direct Save has separate Inventory ID/API assertions below.
     page.evaluate("Object.defineProperty(window, 'showSaveFilePicker', {value: undefined, configurable: true})")
-    page.click("#lockToggle")
+    _menu_click(page, "#lockToggle")
     page.wait_for_selector("#lockOverlay.active", timeout=5000)
     status = page.text_content("#lockStatusText")
     check("en: lock not-set status", "plain text" in status.lower() or "明文" in status, status)
@@ -566,20 +715,20 @@ def e2e_en(browser):
 
     # Exports (downloads)
     with page.expect_download() as dl:
-        page.click("#exportMD")
+        _menu_click(page, "#exportMD")
     md_dl = dl.value
     md_content = Path(md_dl.path()).read_text(encoding="utf-8") if md_dl.path() else ""
     check("en: export Markdown downloads", "# Asset Inventory" in md_content)
     check("en: exported MD carries edits", "Test Chequing Account" in md_content)
 
     with page.expect_download() as dl:
-        page.click("#exportExcel")
+        _menu_click(page, "#exportExcel")
     csv_dl = dl.value
     csv_content = Path(csv_dl.path()).read_text(encoding="utf-8") if csv_dl.path() else ""
     check("en: export CSV downloads", "ID,Category" in csv_content)
 
     with page.expect_download() as dl:
-        page.click("#exportJSON")
+        _menu_click(page, "#exportJSON")
     json_dl = dl.value
     json_content = Path(json_dl.path()).read_text(encoding="utf-8") if json_dl.path() else ""
     try:
@@ -614,7 +763,7 @@ def e2e_en(browser):
           page.locator("#dashboardView .asset-item").count() == 517)
 
     # Print
-    page.click("#printBtn")
+    _menu_click(page, "#printBtn")
     page.wait_for_timeout(400)
     print_html = page.text_content("#printView")
     check("en: print view populated", print_html is not None and len(print_html) > 500)
@@ -623,6 +772,11 @@ def e2e_en(browser):
           and page.locator("#printView").inner_text().find("Emergency Access Guide") < page.locator("#printView").inner_text().find("Master Asset Index"))
     check("en: master asset index printed", "Master Asset Index" in page.locator("#printView").inner_text())
     check("en: print includes inventory id", "INV-" in page.locator("#printView").inner_text())
+    page.emulate_media(media="print")
+    check("en: print media has no standalone workspace chrome", page.locator(".workspace-bar").count() == 0)
+    check("en: print media hides feature menu", page.evaluate("getComputedStyle(document.querySelector('#featureMenu')).display") == "none")
+    check("en: print media shows binder", page.locator("#printView").is_visible())
+    page.emulate_media(media="screen")
 
     # ---- Continuity / access readiness ----
     current_inv_id = page.evaluate("INVENTORY_DATA.inventory_id")
@@ -650,7 +804,8 @@ def e2e_en(browser):
     page.wait_for_timeout(200)
 
     # ---- Quick-add wizard (3.7) ----
-    page.click("#addAssetBtn")
+    check("en: header Add Asset removed", page.locator("#addAssetBtn").count() == 0)
+    page.click("#statAddAssetBtn")
     page.wait_for_selector("#wizardOverlay.active", timeout=5000)
     types = page.locator(".wizard-type-item").count()
     check("en: wizard type list renders", types > 400, f"n={types}")
@@ -673,6 +828,7 @@ def e2e_en(browser):
     page.wait_for_selector("#wizardOverlay:not(.active)", timeout=8000)
     check("en: wizard creates asset",
           page.evaluate("assets.some(a => a.source === 'quick-add')"))
+    check("en: Assets card increments after quick-add", int(page.text_content("#assetCount")) >= 1, page.text_content("#assetCount"))
 
     # ---- Bulk edit (3.8) ----
     _layout(page, "table")
@@ -760,7 +916,7 @@ def e2e_en(browser):
     page.wait_for_timeout(2500)  # 1.5s debounce + margin
     check("en: autosave: dirty dot clears automatically",
           page.locator("#unsavedIndicator.visible").count() == 0)
-    page.click("#autoSaveToggle")  # toggle off
+    _menu_click(page, "#autoSaveToggle")  # toggle off
     page.wait_for_timeout(250)
     check("en: autosave: toggle-off persisted",
           page.evaluate("localStorage.getItem('autoSaveEnabled')") == "0")
@@ -770,7 +926,7 @@ def e2e_en(browser):
     page.wait_for_timeout(2500)
     check("en: autosave: off keeps dirty dot",
           page.locator("#unsavedIndicator.visible").count() == 1)
-    page.click("#autoSaveToggle")  # toggle back on
+    _menu_click(page, "#autoSaveToggle")  # toggle back on
     page.wait_for_timeout(2000)
     check("en: autosave: on clears dot",
           page.locator("#unsavedIndicator.visible").count() == 0)
@@ -856,6 +1012,14 @@ def e2e_zh(browser):
     check("zh: stat totalAssets = 517", page.text_content("#totalAssets") == "517")
     check("zh: search placeholder translated",
           "搜索" in page.get_attribute("#searchInput", "placeholder"))
+    header_labels = page.locator("#headerViewSwitcher .header-layout-btn").evaluate_all(
+        "els => els.map(el => el.getAttribute('aria-label'))")
+    check("zh: Professional header views use bilingual terminology",
+          "Audit 财产审计" in header_labels and "Annual Review 年度复核" in header_labels)
+    _open_feature_menu(page)
+    menu_text = page.locator("#featureMenu").text_content()
+    check("zh: Professional export section localized", "Export 导出" in menu_text)
+    page.click("#featureMenuClose")
     check("zh: dashboard view renders 517 items",
           page.locator("#dashboardView .asset-item").count() == 517)
     check("zh: no leftover TR_ placeholders in body",
@@ -867,7 +1031,7 @@ def e2e_zh(browser):
     n = page.locator("#dashboardView .asset-item").count()
     check("zh: Chinese search works", 0 < n < 517, f"n={n}")
     page.fill("#searchInput", "")
-    page.click("#themeToggle")
+    _menu_click(page, "#themeToggle")
     theme = page.evaluate("document.documentElement.getAttribute('data-theme')")
     check("zh: theme toggle works", theme == "dark", theme)
     _layout(page, "audit")
@@ -887,6 +1051,8 @@ def main():
     static_checks()
     demo_fixture_check()
     tier_gating_check()
+    license_downgrade_ui_check()
+    responsive_ui_check()
     browser_e2e()
     import shutil
     shutil.rmtree(TMP, ignore_errors=True)

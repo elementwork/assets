@@ -423,45 +423,6 @@ body {
     font-size: 16px;
 }
 
-/* ===== LAYOUT SWITCHER ===== */
-.layout-switcher {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 3px;
-    border: 1px solid var(--border);
-}
-
-.layout-btn {
-    padding: 6px 10px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--muted);
-    transition: var(--transition);
-}
-
-.layout-btn:hover {
-    color: var(--text);
-    background: rgba(255,255,255,0.5);
-}
-
-.layout-btn.active {
-    background: var(--card);
-    color: var(--accent);
-    box-shadow: var(--shadow);
-}
-
-.layout-btn svg {
-    width: 16px;
-    height: 16px;
-    display: block;
-}
-
 /* ===== TEMPLATE SWITCHER ===== */
 .template-switcher {
     position: relative;
@@ -1958,6 +1919,8 @@ body {
 
 @media print {
     .header,
+    .workspace-bar,
+    .feature-menu,
     .summary-section,
     .filter-bar,
     .main-content,
@@ -2058,20 +2021,20 @@ body {
     .primary-stats {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .dashboard-grid {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
-    
+
     .detail-view.active {
         flex-direction: column;
     }
-    
+
     .detail-sidebar {
         width: 100%;
         max-height: 300px;
     }
-    
+
     .detail-grid {
         grid-template-columns: 1fr;
     }
@@ -2087,48 +2050,48 @@ body {
         padding-top: 10px;
         padding-bottom: 10px;
     }
-    
+
     .header-search {
         order: 3;
         width: 100%;
     }
-    
+
     .main-container {
         padding: 16px;
     }
-    
+
     .primary-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .filter-bar {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .status-toggles {
         margin-left: 0;
         flex-wrap: wrap;
     }
-    
+
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .modal-panel {
         width: 100%;
     }
-    
+
     .modal-section-body {
         grid-template-columns: 1fr;
     }
-    
+
     .quick-info-bar {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
     }
-    
+
     .quick-info-left {
         flex-direction: column;
         gap: 6px;
@@ -2282,74 +2245,584 @@ td[data-edit-field] {
     color: var(--accent);
     background: var(--accent-light);
 }
+
+
+/* ===== TIER-AWARE PRODUCT NAVIGATION ===== */
+:root { --app-header-height: 68px; }
+.tier-header {
+    min-height: 68px;
+    height: auto;
+    gap: 18px;
+}
+.tier-header .header-left { min-width: 190px; }
+.tier-header .header-search { flex: 1 1 340px; max-width: 680px; }
+.tier-header .header-right { gap: 8px; }
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    vertical-align: middle;
+}
+html[data-edition="family"] .tier-badge {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+    background: var(--accent-light);
+}
+html[data-edition="planning"] .tier-badge {
+    color: var(--card);
+    background: var(--primary);
+    border-color: var(--primary);
+}
+.save-state-wrap { display:flex; align-items:center; gap:5px; min-width:10px; }
+.header-primary-action { white-space: nowrap; }
+.menu-toggle { min-width: 86px; }
+
+.workspace-bar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height:48px;
+    padding:7px 32px;
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    position:sticky;
+    top:var(--app-header-height);
+    z-index:90;
+}
+.workspace-set {
+    display:flex;
+    align-items:center;
+    gap:5px;
+    min-width:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+}
+.workspace-set::-webkit-scrollbar { display:none; }
+.workspace-btn.layout-btn {
+    width:auto;
+    height:34px;
+    padding:0 12px;
+    border-radius:999px;
+    gap:6px;
+    font-size:12px;
+    font-weight:650;
+    white-space:nowrap;
+}
+.workspace-btn.layout-btn svg { width:14px; height:14px; }
+.workspace-upgrade {
+    margin-left:auto;
+    border:1px dashed color-mix(in srgb, var(--accent) 48%, var(--border));
+    color:var(--text-secondary);
+    background:var(--accent-light);
+    border-radius:999px;
+    padding:7px 12px;
+    font-size:11px;
+    font-weight:650;
+    white-space:nowrap;
+    cursor:pointer;
+}
+.workspace-upgrade:hover { border-style:solid; color:var(--accent); }
+.upgrade-short { display:none; }
+
+.feature-menu {
+    display:none;
+    position:fixed;
+    top:66px;
+    right:24px;
+    width:min(380px, calc(100vw - 28px));
+    max-height:calc(100vh - 82px);
+    overflow:auto;
+    z-index:220;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    background:var(--card);
+    box-shadow:var(--shadow-lg);
+}
+.feature-menu.open { display:block; }
+.feature-menu-header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 4px 8px 7px; border-bottom:1px solid var(--border-light); }
+.feature-menu-header strong { font-size:13px; }
+.feature-menu-close { border:0; background:transparent; color:var(--text-secondary); border-radius:var(--radius-sm); font-size:22px; line-height:1; cursor:pointer; }
+.feature-menu-close:hover { background:var(--surface); color:var(--text); }
+.menu-section { padding:8px 4px 12px; border-bottom:1px solid var(--border-light); }
+.menu-section:last-child { border-bottom:0; }
+.menu-section-title {
+    padding:0 7px 6px;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+.menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.menu-action, .menu-layout-item {
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-height:36px;
+    padding:7px 9px;
+    text-align:left;
+    border:1px solid transparent;
+    border-radius:var(--radius-sm);
+    background:transparent;
+    color:var(--text);
+    font:inherit;
+    font-size:12px;
+    cursor:pointer;
+}
+.menu-action:hover, .menu-layout-item:hover { background:var(--surface); border-color:var(--border-light); }
+.menu-layout-item.active { background:var(--accent-light); color:var(--accent); }
+.menu-inline { display:flex; align-items:center; gap:8px; padding:4px 8px; }
+.menu-inline .template-select { flex:1; min-width:0; }
+.menu-note {
+    margin:4px 7px;
+    padding:9px 10px;
+    border-radius:var(--radius-sm);
+    background:var(--surface);
+    color:var(--text-secondary);
+    font-size:11px;
+    line-height:1.45;
+}
+.upgrade-preview {
+    display:none;
+    margin:8px 4px 0;
+    padding:12px;
+    border:1px solid color-mix(in srgb, var(--accent) 34%, var(--border));
+    border-radius:var(--radius);
+    background:linear-gradient(135deg, var(--accent-light), var(--card));
+}
+.upgrade-preview.visible { display:block; }
+.upgrade-title { display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:750; font-size:13px; }
+.upgrade-tier-tag { font-size:9px; border-radius:999px; padding:3px 7px; background:var(--card); border:1px solid var(--border); color:var(--muted); }
+.upgrade-desc { margin-top:6px; color:var(--text-secondary); font-size:11px; line-height:1.45; }
+
+.stat-card:first-child .stat-content { min-width:0; }
+.stat-subline { display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:5px; font-size:11px; color:var(--muted); }
+.stat-link {
+    border:0;
+    padding:0;
+    background:transparent;
+    color:inherit;
+    font:inherit;
+    cursor:pointer;
+}
+.stat-link:hover { color:var(--accent); text-decoration:underline; }
+.stat-link strong { color:var(--text-secondary); }
+.quick-scope-filters { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.scope-filter-btn {
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--text-secondary);
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:11px;
+    font-weight:650;
+    cursor:pointer;
+}
+.scope-filter-btn.active { background:var(--primary); color:var(--card); border-color:var(--primary); }
+.scope-filter-count { opacity:.78; font-variant-numeric:tabular-nums; }
+.filter-divider { width:1px; align-self:stretch; min-height:28px; background:var(--border); margin:0 2px; }
+.status-filter-details { position:relative; }
+.status-filter-details > summary {
+    list-style:none;
+    cursor:pointer;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    background:var(--card);
+    padding:7px 10px;
+    font-size:12px;
+    color:var(--text-secondary);
+}
+.status-filter-details > summary::-webkit-details-marker { display:none; }
+.status-filter-popover {
+    position:absolute;
+    top:calc(100% + 5px);
+    right:0;
+    min-width:150px;
+    padding:6px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--card);
+    box-shadow:var(--shadow-md);
+    z-index:80;
+}
+.status-filter-popover .status-toggle-btn { width:100%; justify-content:flex-start; margin:1px 0; }
+
+@media (max-width: 980px) {
+    .tier-header { padding:10px 16px; flex-wrap:wrap; }
+    .tier-header .header-left { min-width:auto; }
+    .tier-header .header-search { order:3; flex-basis:100%; max-width:none; }
+    .tier-header .header-right { margin-left:auto; }
+    .workspace-bar { padding:6px 16px; }
+    .workspace-upgrade { font-size:10px; padding:6px 9px; }
+    .upgrade-long { display:none; }
+    .upgrade-short { display:inline; }
+    .header-primary-action .btn-label-optional { display:none; }
+}
+@media (max-width: 680px) {
+    .logo-sub { display:none; }
+    .tier-header .header-right { width:100%; justify-content:space-between; }
+    .tier-header .header-right .btn { flex:1; justify-content:center; padding-left:8px; padding-right:8px; }
+    .workspace-bar { position:relative; top:auto; overflow-x:auto; }
+    .filter-bar { align-items:flex-start; }
+    .quick-scope-filters { width:100%; overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px; }
+    .filter-divider { display:none; }
+    .feature-menu { top:8px; right:8px; width:calc(100vw - 16px); max-height:calc(100vh - 16px); }
+    .menu-grid { grid-template-columns:1fr; }
+    .tier-header .header-right .btn,
+    .workspace-btn.layout-btn,
+    .menu-action, .menu-layout-item,
+    .scope-filter-btn,
+    .status-filter-details > summary { min-height:44px; font-size:13px; }
+    .feature-menu-close { width:44px; height:44px; }
+}
+
+
+
+/* ===== SIMPLIFIED PRODUCT CHROME / LOGO MENU ===== */
+.logo-menu-toggle {
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    box-shadow: none;
+}
+.logo-menu-toggle:hover,
+.logo-menu-toggle:focus-visible {
+    background: var(--accent-hover);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.header-last-updated {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding-left: 2px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+}
+.header-last-updated strong { color: var(--text-secondary); font-weight: 650; }
+.feature-menu { left: 24px; right: auto; }
+.menu-layout-grid { grid-template-columns: 1fr 1fr; }
+.menu-layout-item svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.menu-layout-item span { min-width: 0; }
+.primary-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.stat-card-assets .stat-content { display: flex; flex-direction: column; align-items: flex-start; }
+.stat-add-btn {
+    margin-top: 9px;
+    padding: 5px 9px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    border-radius: var(--radius-sm);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.stat-add-btn:hover { background: var(--accent); color: white; }
+.filter-search { position: relative; flex: 1 1 250px; min-width: 210px; }
+.filter-search input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+}
+.filter-search::before {
+    content: "🔍";
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: .6;
+    font-size: 12px;
+    pointer-events: none;
+}
+.filter-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+.filter-result-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.filter-result-count strong { color: var(--text-secondary); }
+.filter-status-toggles { margin-left: auto; justify-content: flex-end; flex-wrap: wrap; }
+.status-count { min-width: 1.25em; text-align: center; font-variant-numeric: tabular-nums; opacity: .72; }
+
+@media (max-width: 1180px) {
+    .primary-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+    .primary-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-search { flex-basis: 100%; min-width: 100%; }
+    .filter-status-toggles { width: 100%; margin-left: 0; justify-content: flex-end; }
+    .feature-menu { left: 8px; right: 8px; width: auto; }
+}
+@media (max-width: 680px) {
+    .tier-header .header-right { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tier-header .header-right .btn { width: 100%; min-height: 44px; justify-content: center; }
+    .header-last-updated { grid-column: 1 / -1; justify-self: end; }
+    .filter-status-toggles .status-toggle-btn { min-height: 40px; }
+}
+@media (max-width: 460px) {
+    .primary-stats { grid-template-columns: 1fr; }
+    .filter-status-toggles { display: grid; grid-template-columns: 1fr 1fr; }
+    .filter-status-toggles .status-toggle-btn { justify-content: flex-start; }
+}
+
+
+
+/* ===== CENTERED HEADER VIEWS + SINGLE-LINE FILTER BAR ===== */
+.tier-header { position: sticky; }
+.header-view-switcher {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    max-width: calc(100% - 430px);
+    padding: 3px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    white-space: nowrap;
+}
+.header-view-switcher::-webkit-scrollbar { display: none; }
+.header-layout-btn {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+.header-layout-btn svg { width: 17px; height: 17px; display: block; }
+.header-layout-btn:hover { color: var(--text); background: var(--surface); border-color: var(--border); }
+.header-layout-btn.active { color: var(--accent); background: var(--accent-light); border-color: var(--accent); }
+.header-right { margin-left: auto; }
+.stat-card-assets .stat-content { align-items: stretch; }
+.stat-card-assets .stat-add-btn,
+.stat-card-assets .stat-subline { align-self: flex-end; text-align: right; }
+.stat-card-assets .stat-add-btn { margin-top: 8px; }
+.stat-card-assets .stat-subline { width: 100%; margin-top: 4px; }
+
+.filter-bar {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+.filter-search { flex: 1 1 220px; min-width: 180px; max-width: 300px; }
+.quick-scope-filters { flex: 0 0 auto; width: auto !important; flex-wrap: nowrap !important; }
+.filter-group { flex: 0 0 auto; }
+.filter-select { min-width: 118px; max-width: 150px; }
+.filter-result-count { flex: 0 0 auto; }
+.filter-status-toggles {
+    flex: 0 0 auto;
+    width: auto !important;
+    margin-left: auto !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end;
+}
+.filter-status-toggles .status-toggle-btn { flex: 0 0 auto; white-space: nowrap; min-height: 0; }
+
+@media (max-width: 980px) {
+    .tier-header { padding-left: 16px; padding-right: 16px; flex-wrap: nowrap; }
+    .header-view-switcher { max-width: calc(100% - 330px); }
+}
+@media (max-width: 680px) {
+    .tier-header { height: 64px; padding: 0 10px; flex-wrap: nowrap; }
+    .tier-header .logo-text { display: none; }
+    .tier-header .header-right { width: auto; display: flex; grid-template-columns: none; gap: 5px; }
+    .tier-header .header-right .btn { width: auto; min-height: 40px; flex: 0 0 auto; padding: 7px 9px; }
+    .header-last-updated { grid-column: auto; justify-self: auto; font-size: 9px; }
+    .header-last-updated > span { display: none; }
+    .header-view-switcher { max-width: calc(100% - 185px); gap: 2px; }
+    .header-layout-btn { width: 30px; height: 30px; flex-basis: 30px; }
+    .header-layout-btn svg { width: 15px; height: 15px; }
+    .filter-search { flex-basis: 220px; min-width: 180px; }
+    .filter-status-toggles { display: flex !important; grid-template-columns: none !important; }
+}
+
+
+/* ===== COMPACT ASSETS CARD ===== */
+.stat-card-assets .assets-stat-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+.assets-stat-left,
+.assets-stat-right {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.assets-stat-left { align-items: flex-start; text-align: left; }
+.assets-stat-right { align-items: flex-end; text-align: right; }
+.stat-card-assets .stat-add-btn {
+    margin: 0;
+    white-space: nowrap;
+    align-self: auto;
+}
+.stat-card-assets .stat-subline {
+    width: auto;
+    margin-top: 4px;
+    align-self: auto;
+    text-align: right;
+    white-space: nowrap;
+}
+
 </style>
 </head>
 <body>
 
 <!-- HEADER -->
-<header class="header">
+<header class="header tier-header">
     <div class="header-left">
         <div class="logo">
-            <div class="logo-icon">📊</div>
+            <button class="logo-icon logo-menu-toggle" id="featureMenuToggle" type="button"
+                    aria-expanded="false" aria-controls="featureMenu" aria-label="Features" title="Features">📊</button>
             <div class="logo-text">
-                <span class="logo-brand">EstateON</span>
+                <span><span class="logo-brand">EstateON</span><span class="tier-badge" id="editionBadge"></span></span>
                 <span class="logo-sub">Asset Inventory</span>
             </div>
         </div>
-        <div class="layout-switcher">
-            <button class="layout-btn active" data-layout="dashboard" title="Dashboard" aria-label="Dashboard">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-            </button>
-            
-            <button class="layout-btn" data-layout="kanban" title="Kanban" aria-label="Kanban">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="10" rx="1"/></svg>
-            </button>
-            
-            <button class="layout-btn" data-layout="detail" title="Detail" aria-label="Detail">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="14" rx="1"/><rect x="7" y="1" width="8" height="8" rx="1"/><rect x="7" y="11" width="8" height="4" rx="1"/></svg>
-            </button>
-            <button class="layout-btn" data-layout="compact" title="Compact" aria-label="Compact">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>
-            </button>
-            
-            
-            
-        </div>
     </div>
-    <div class="header-search">
-        <input type="text" id="searchInput" placeholder="Search assets, institutions, owners...">
-    </div>
+
+    <nav class="header-view-switcher" id="headerViewSwitcher" aria-label="Views">
+        <button class="layout-btn header-layout-btn active" data-layout="dashboard" title="Dashboard" aria-label="Dashboard">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+        </button>
+
+        <button class="layout-btn header-layout-btn" data-layout="kanban" title="Kanban" aria-label="Kanban">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="10" rx="1"/></svg>
+        </button>
+
+        <button class="layout-btn header-layout-btn" data-layout="detail" title="Detail" aria-label="Detail">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="14" rx="1"/><rect x="7" y="1" width="8" height="8" rx="1"/><rect x="7" y="11" width="8" height="4" rx="1"/></svg>
+        </button>
+        <button class="layout-btn header-layout-btn" data-layout="compact" title="Compact" aria-label="Compact">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>
+        </button>
+
+
+    </nav>
+
     <div class="header-right">
-        <div class="template-switcher">
-            <select class="template-select" id="templateSelect" aria-label="Choose template">
-                <option value="estateon">EstateON</option>
-                
-            </select>
-        </div>
-        <button class="btn btn-icon" id="themeToggle" title="Toggle theme">☾</button>
-        <button class="btn btn-icon" id="helpToggle" title="Help" aria-label="Help">?</button>
-        <button class="btn btn-icon" id="lockToggle" title="File Lock" aria-label="File Lock">🔒</button>
-        <button class="btn btn-icon" id="autoSaveToggle" title="Auto-save">💾</button>
-        <span class="unsaved-dot" id="unsavedIndicator" title="Unsaved changes — use Save HTML to keep them">●</span>
-        <span class="inventory-id-chip" id="inventoryIdChip" title="Inventory ID"></span>
-        <button class="btn" id="saveAsHTML" title="Save As">Save As</button>
-        <button class="btn btn-primary" id="saveHTML">Save HTML</button>
+        <span class="header-last-updated"><span>Last updated</span><strong id="lastUpdated">-</strong></span>
+        <span class="save-state-wrap"><span class="unsaved-dot" id="unsavedIndicator" title="Unsaved changes — use Save HTML to keep them">●</span></span>
+        <button class="btn btn-primary header-primary-action" id="saveHTML">💾 <span>Save</span></button>
     </div>
 </header>
 
-<!-- ACTION BAR (exports, import, print, quick-add) -->
-<div class="action-bar">
-    
-    <button class="btn btn-secondary" id="importJSON">Import JSON</button>
-    <input type="file" id="importJSONFile" accept=".json,application/json" style="display:none">
-    
-    <span class="action-bar-spacer"></span>
-    <button class="btn btn-primary" id="addAssetBtn">＋ Add Asset</button>
+<div class="feature-menu" id="featureMenu" aria-hidden="true" tabindex="-1">
+    <div class="feature-menu-header">
+        <strong>Features</strong>
+        <button class="feature-menu-close" id="featureMenuClose" aria-label="Close">×</button>
+    </div>
+    <div class="menu-section menu-views-section">
+        <div class="menu-section-title">Views</div>
+        <div class="menu-grid menu-layout-grid">
+            <button class="menu-layout-item" data-layout="dashboard" title="Dashboard" aria-label="Dashboard">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="menu-layout-item" data-layout="kanban" title="Kanban" aria-label="Kanban">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="10" rx="1"/></svg>
+                <span>Kanban</span>
+            </button>
+
+            <button class="menu-layout-item" data-layout="detail" title="Detail" aria-label="Detail">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="14" rx="1"/><rect x="7" y="1" width="8" height="8" rx="1"/><rect x="7" y="11" width="8" height="4" rx="1"/></svg>
+                <span>Detail</span>
+            </button>
+            <button class="menu-layout-item" data-layout="compact" title="Compact" aria-label="Compact">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>
+                <span>Compact</span>
+            </button>
+
+
+        </div>
+    </div>
+
+
+
+
+    <div class="menu-section">
+        <div class="menu-section-title">Data</div>
+        <button class="menu-action" id="importJSON">Import JSON</button>
+        <input type="file" id="importJSONFile" accept=".json,application/json" style="display:none">
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">File & Security</div>
+        <div class="menu-grid">
+            <button class="menu-action" id="saveAsHTML">Save As</button>
+            <button class="menu-action" id="lockToggle">🔒 File Lock</button>
+            <button class="menu-action" id="autoSaveToggle">💾 Auto-save</button>
+        </div>
+        <span class="inventory-id-chip" id="inventoryIdChip" title="Inventory ID"></span>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Appearance</div>
+        <div class="menu-inline">
+            <select class="template-select" id="templateSelect" aria-label="Choose template">
+                <option value="estateon">EstateON</option>
+
+            </select>
+            <button class="btn btn-icon" id="themeToggle" title="Toggle theme">☾</button>
+        </div>
+    </div>
+
+    <div class="upgrade-preview" data-show-editions="free" data-upgrade-panel="family">
+        <div class="upgrade-title"><span>🔒 Unlock Family</span><span class="upgrade-tier-tag">FAMILY</span></div>
+        <div class="upgrade-desc">324-asset catalog, Table, Timeline, Charts, Print Estate Binder, Emergency Access Guide, Master Asset Index and five visual themes.</div>
+    </div>
+    <div class="upgrade-preview" data-show-editions="free family" data-upgrade-panel="professional">
+        <div class="upgrade-title"><span>🔒 Unlock Professional</span><span class="upgrade-tier-tag">PROFESSIONAL</span></div>
+        <div class="upgrade-desc">517-asset catalog plus Audit, Access Readiness, Annual Review and professional Export Markdown / Excel / JSON workflows.</div>
+    </div>
+
+    <div class="menu-section">
+        <div class="menu-section-title">Help</div>
+        <button class="menu-action" id="helpToggle">? Help</button>
+    </div>
 </div>
 
 <!-- MAIN CONTAINER -->
 <div class="main-container">
-    
+
     <!-- SUMMARY STATS -->
     <section class="summary-section">
         <div class="primary-stats">
@@ -2357,7 +2830,27 @@ td[data-edit-field] {
                 <div class="stat-icon">📋</div>
                 <div class="stat-content">
                     <div class="stat-value" id="totalAssets">0</div>
-                    <div class="stat-label">Total Assets</div>
+                    <div class="stat-label">Asset Types</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalCategories">0</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+            <div class="stat-card stat-card-assets">
+                <div class="stat-icon">🗂️</div>
+                <div class="stat-content assets-stat-grid">
+                    <div class="assets-stat-left">
+                        <div class="stat-value" id="assetCount">0</div>
+                        <div class="stat-label">Assets</div>
+                    </div>
+                    <div class="assets-stat-right">
+                        <button class="stat-add-btn" id="statAddAssetBtn" type="button">＋ Add Asset</button>
+                        <div class="stat-subline"><span><strong id="withValueCount">0</strong> With Value</span></div>
+                    </div>
                 </div>
             </div>
             <div class="stat-card">
@@ -2374,43 +2867,18 @@ td[data-edit-field] {
                     <div class="stat-label">Annual Income</div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">🏷️</div>
-                <div class="stat-content">
-                    <div class="stat-value" id="totalCategories">0</div>
-                    <div class="stat-label">Categories</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="quick-info-bar">
-            <div class="quick-info-left">
-                <div class="info-item">
-                    <span class="info-label">Active:</span>
-                    <span class="info-value accent" id="activeCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Dormant:</span>
-                    <span class="info-value" id="dormantCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Pending:</span>
-                    <span class="info-value" id="pendingCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Closed:</span>
-                    <span class="info-value" id="closedCount">0</span>
-                </div>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Last updated:</span>
-                <span class="info-value" id="lastUpdated">-</span>
-            </div>
         </div>
     </section>
-    
-    <!-- FILTER BAR -->
+
+    <!-- FILTER BAR: all search/filter controls live here -->
     <div class="filter-bar">
+        <div class="filter-search">
+            <input type="text" id="searchInput" placeholder="Search assets, institutions, owners..." aria-label="Search assets, institutions, owners...">
+        </div>
+        <div class="quick-scope-filters" aria-label="Quick asset filters">
+            <button class="scope-filter-btn active" data-asset-scope="all" aria-pressed="true">All <span class="scope-filter-count" id="scopeAllCount">0</span></button>
+            <button class="scope-filter-btn" data-asset-scope="value" aria-pressed="false">With Value <span class="scope-filter-count" id="scopeValueCount">0</span></button>
+        </div>
         <div class="filter-group">
             <span class="filter-label">Category</span>
             <select class="filter-select" id="categoryFilter">
@@ -2423,28 +2891,20 @@ td[data-edit-field] {
                 <option value="">All Owners</option>
             </select>
         </div>
-        <div class="status-toggles">
-            <button class="status-toggle-btn active" data-status="Active">
-                <span class="status-dot active"></span> Active
-            </button>
-            <button class="status-toggle-btn active" data-status="Dormant">
-                <span class="status-dot dormant"></span> Dormant
-            </button>
-            <button class="status-toggle-btn active" data-status="Pending">
-                <span class="status-dot pending"></span> Pending
-            </button>
-            <button class="status-toggle-btn active" data-status="Closed">
-                <span class="status-dot closed"></span> Closed
-            </button>
+        <div class="status-toggles filter-status-toggles" aria-label="Status">
+            <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> Active <span class="status-count" id="activeCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> Dormant <span class="status-count" id="dormantCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Pending" aria-pressed="true"><span class="status-dot pending"></span> Pending <span class="status-count" id="pendingCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Closed" aria-pressed="true"><span class="status-dot closed"></span> Closed <span class="status-count" id="closedCount">0</span></button>
         </div>
     </div>
-    
+
     <!-- MAIN CONTENT -->
     <div class="main-content">
-        
+
         <!-- Dashboard Grid -->
         <div class="dashboard-grid" id="dashboardView"></div>
-        
+
         <!-- Table View -->
         <div class="table-view" id="tableView">
             <div class="bulk-bar" id="bulkBar" style="display:none">
@@ -2476,13 +2936,13 @@ td[data-edit-field] {
             </table>
             <div class="pagination" id="tablePagination"></div>
         </div>
-        
+
         <!-- Kanban View -->
         <div class="kanban-view" id="kanbanView"></div>
-        
+
         <!-- Timeline View -->
         <div class="timeline-view" id="timelineView"></div>
-        
+
         <!-- Detail View -->
         <div class="detail-view" id="detailView">
             <div class="detail-sidebar">
@@ -2497,20 +2957,20 @@ td[data-edit-field] {
                 </div>
             </div>
         </div>
-        
+
         <!-- Compact View -->
         <div class="compact-view" id="compactView"></div>
-        
+
         <!-- Audit View -->
         <div class="audit-view" id="auditView"></div>
 
-        
-        
+
+
         <!-- Charts View -->
         <div class="charts-view" id="chartsView"></div>
-        
+
     </div>
-    
+
     <!-- Print View (estate binder, print only) -->
     <div id="printView"></div>
 </div>
@@ -2555,7 +3015,7 @@ td[data-edit-field] {
             </div>
             <div class="help-section">
                 <div class="help-section-title">Productivity tools</div>
-                <p>Kanban cards can be dragged between status columns. Use the ☰ Columns menu to show or hide table columns. Notes, alerts, and to-dos support Markdown (bold, italics, links, lists). The 💾 button toggles auto-save.</p>
+                <p>Kanban cards can be dragged between status columns. Use the Features menu for secondary views, appearance, file security and auto-save. Notes, alerts, and to-dos support Markdown.</p>
             </div>
             <div class="help-section">
                 <div class="help-section-title">File lock</div>
@@ -2563,7 +3023,7 @@ td[data-edit-field] {
             </div>
             <div class="help-section">
                 <div class="help-section-title">Exporting & saving</div>
-                <p>Use the action-bar buttons to export or save your work:</p>
+                <p>Save and Print stay visible in the header; use the Features menu for professional exports, import, appearance and security settings:</p>
                 <ul>
                     <li>Export MD — download a Markdown summary of the filtered assets</li>
                     <li>Export Excel — download a CSV file compatible with Excel</li>
@@ -2723,7 +3183,7 @@ const INVENTORY_DATA = {
   "inventory_id": "INV-TEMPLATE-E0C227768002",
   "tier": "free",
   "key_version": 1,
-  "generated": "2026-08-19",
+  "generated": "2026-08-29",
   "assets": [
     {
       "id": "A-0001",
@@ -2739,7 +3199,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -2857,7 +3317,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -2975,7 +3435,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3093,7 +3553,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3211,7 +3671,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3329,7 +3789,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3447,7 +3907,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3565,7 +4025,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3683,7 +4143,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3801,7 +4261,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3919,7 +4379,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4037,7 +4497,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4155,7 +4615,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4273,7 +4733,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4391,7 +4851,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4509,7 +4969,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4627,7 +5087,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4745,7 +5205,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4863,7 +5323,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4981,7 +5441,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5099,7 +5559,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5217,7 +5677,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5335,7 +5795,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5453,7 +5913,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5571,7 +6031,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5689,7 +6149,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5807,7 +6267,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5925,7 +6385,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6043,7 +6503,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6161,7 +6621,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6279,7 +6739,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6397,7 +6857,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6515,7 +6975,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6633,7 +7093,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6751,7 +7211,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6869,7 +7329,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6987,7 +7447,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7105,7 +7565,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7223,7 +7683,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7341,7 +7801,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7459,7 +7919,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-free",
       "registration": "",
       "owner": "",
@@ -7577,7 +8037,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -7695,7 +8155,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -7813,7 +8273,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -7931,7 +8391,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8049,7 +8509,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8167,7 +8627,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8285,7 +8745,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8403,7 +8863,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8521,7 +8981,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8639,7 +9099,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8757,7 +9217,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-free",
       "registration": "",
       "owner": "",
@@ -8875,7 +9335,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable",
       "registration": "",
       "owner": "",
@@ -8993,7 +9453,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable",
       "registration": "",
       "owner": "",
@@ -9111,7 +9571,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable",
       "registration": "",
       "owner": "",
@@ -9229,7 +9689,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9347,7 +9807,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9465,7 +9925,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9583,7 +10043,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9701,7 +10161,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9819,7 +10279,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9937,7 +10397,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10055,7 +10515,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10173,7 +10633,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10291,7 +10751,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10409,7 +10869,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10527,7 +10987,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10645,7 +11105,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10763,7 +11223,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10881,7 +11341,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10999,7 +11459,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11117,7 +11577,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11235,7 +11695,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11353,7 +11813,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11471,7 +11931,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11589,7 +12049,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11707,7 +12167,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11825,7 +12285,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11943,7 +12403,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12061,7 +12521,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12179,7 +12639,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12297,7 +12757,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12415,7 +12875,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12533,7 +12993,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12651,7 +13111,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12769,7 +13229,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12887,7 +13347,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13005,7 +13465,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13123,7 +13583,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13241,7 +13701,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13359,7 +13819,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13477,7 +13937,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13595,7 +14055,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13713,7 +14173,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13831,7 +14291,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13949,7 +14409,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14067,7 +14527,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14185,7 +14645,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14303,7 +14763,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14421,7 +14881,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14539,7 +14999,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14657,7 +15117,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14775,7 +15235,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14893,7 +15353,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15011,7 +15471,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15129,7 +15589,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15247,7 +15707,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15365,7 +15825,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15483,7 +15943,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15601,7 +16061,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15719,7 +16179,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15837,7 +16297,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15955,7 +16415,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16073,7 +16533,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16191,7 +16651,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16309,7 +16769,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16427,7 +16887,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16545,7 +17005,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16663,7 +17123,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16781,7 +17241,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16899,7 +17359,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17017,7 +17477,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17135,7 +17595,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17253,7 +17713,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17371,7 +17831,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17489,7 +17949,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17607,7 +18067,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17725,7 +18185,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17843,7 +18303,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17961,7 +18421,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18079,7 +18539,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18197,7 +18657,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18315,7 +18775,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18433,7 +18893,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18551,7 +19011,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18669,7 +19129,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18787,7 +19247,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18905,7 +19365,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19023,7 +19483,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19141,7 +19601,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19259,7 +19719,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19377,7 +19837,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19495,7 +19955,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19613,7 +20073,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19731,7 +20191,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19849,7 +20309,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19967,7 +20427,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20085,7 +20545,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20203,7 +20663,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20321,7 +20781,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20439,7 +20899,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20557,7 +21017,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20675,7 +21135,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20793,7 +21253,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20911,7 +21371,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21029,7 +21489,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21147,7 +21607,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21265,7 +21725,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21383,7 +21843,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21501,7 +21961,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21619,7 +22079,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21737,7 +22197,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21855,7 +22315,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21973,7 +22433,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22091,7 +22551,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22209,7 +22669,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22327,7 +22787,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22445,7 +22905,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22563,7 +23023,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22681,7 +23141,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22799,7 +23259,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22917,7 +23377,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23035,7 +23495,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23153,7 +23613,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23271,7 +23731,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23389,7 +23849,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23507,7 +23967,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23625,7 +24085,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23743,7 +24203,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23861,7 +24321,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23979,7 +24439,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24097,7 +24557,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24215,7 +24675,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24333,7 +24793,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24451,7 +24911,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24569,7 +25029,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24687,7 +25147,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24805,7 +25265,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24923,7 +25383,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25041,7 +25501,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25159,7 +25619,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25277,7 +25737,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25395,7 +25855,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25513,7 +25973,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25631,7 +26091,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25749,7 +26209,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25867,7 +26327,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25985,7 +26445,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26103,7 +26563,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26221,7 +26681,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26339,7 +26799,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26457,7 +26917,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26575,7 +27035,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26693,7 +27153,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26811,7 +27271,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26929,7 +27389,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27047,7 +27507,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27165,7 +27625,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27283,7 +27743,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27401,7 +27861,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27519,7 +27979,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27637,7 +28097,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27755,7 +28215,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27873,7 +28333,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27991,7 +28451,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28109,7 +28569,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28227,7 +28687,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28345,7 +28805,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28463,7 +28923,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28581,7 +29041,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28699,7 +29159,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28817,7 +29277,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28935,7 +29395,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29053,7 +29513,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29171,7 +29631,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29289,7 +29749,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29407,7 +29867,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29525,7 +29985,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29643,7 +30103,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29761,7 +30221,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29879,7 +30339,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29997,7 +30457,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30115,7 +30575,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30233,7 +30693,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30351,7 +30811,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30469,7 +30929,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30587,7 +31047,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30705,7 +31165,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30823,7 +31283,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30941,7 +31401,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31059,7 +31519,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31177,7 +31637,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31295,7 +31755,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31413,7 +31873,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31531,7 +31991,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31649,7 +32109,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31767,7 +32227,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31885,7 +32345,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32003,7 +32463,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32121,7 +32581,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32239,7 +32699,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32357,7 +32817,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32475,7 +32935,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32593,7 +33053,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32711,7 +33171,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32829,7 +33289,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -33777,10 +34237,28 @@ const TIER_FEATURES = {
                export:true,  templates:5,  templatesList:['estateon','lumina','cardinal','atlantic','monarch'] },
 };
 // advisor (deferred) treated as planning for now.
-const tierCfg = TIER_FEATURES[APP_TIER] || TIER_FEATURES.planning;
+const TIER_RANK = { free: 0, family: 1, planning: 2, advisor: 3 };
+let effectiveTier = APP_TIER;
+
+function cloneTierConfig(tier) {
+    const source = TIER_FEATURES[tier] || TIER_FEATURES.planning;
+    return { ...source, templatesList: [...source.templatesList] };
+}
+
+let tierCfg = cloneTierConfig(APP_TIER);
 
 function tierHas(feature) {
     return !!tierCfg[feature];
+}
+
+function tierAtLeast(minTier) {
+    return (TIER_RANK[effectiveTier] ?? 0) >= (TIER_RANK[minTier] ?? 0);
+}
+
+function downgradeToFree() {
+    licenseValid = false;
+    effectiveTier = 'free';
+    tierCfg = cloneTierConfig('free');
 }
 
 // ===== LICENSE =====
@@ -33792,8 +34270,17 @@ const LICENSE_JSON = '';
 let licenseValid = true;
 
 async function verifyLicense() {
-    if (!LICENSE_JSON) { licenseValid = true; return; } // free tier
-    if (!window.crypto || !crypto.subtle) { licenseValid = false; return; }
+    if (!LICENSE_JSON) {
+        if (APP_TIER === 'free') {
+            licenseValid = true;
+            effectiveTier = 'free';
+            tierCfg = cloneTierConfig('free');
+        } else {
+            downgradeToFree();
+        }
+        return;
+    }
+    if (!window.crypto || !crypto.subtle) { downgradeToFree(); return; }
     try {
         const dot = LICENSE_JSON.lastIndexOf('.');
         if (dot < 0) throw new Error('bad-license');
@@ -33808,21 +34295,22 @@ async function verifyLicense() {
         if (data.tier && data.tier !== APP_TIER) throw new Error('tier-mismatch');
         if (data.expires && Date.parse(data.expires) < Date.now()) throw new Error('expired');
         licenseValid = true;
+        effectiveTier = APP_TIER;
+        tierCfg = cloneTierConfig(APP_TIER);
     } catch (e) {
-        licenseValid = false;
-    }
-    if (!licenseValid) {
-        // Downgrade to free capability: hide paid features entirely.
-        Object.assign(tierCfg, TIER_FEATURES.free);
+        downgradeToFree();
     }
 }
 
 // Hide controls that belong to higher tiers (so lower-tier files carry no trace).
 function applyTierGating() {
+    document.querySelectorAll('[data-min-tier]').forEach(el => {
+        el.hidden = !tierAtLeast(el.dataset.minTier);
+    });
     // Layout buttons
     const layoutGate = { table: tierHas('table'), timeline: tierHas('timeline'),
                          audit: tierHas('audit'), review: tierHas('review'), charts: tierHas('charts') };
-    document.querySelectorAll('.layout-btn[data-layout]').forEach(btn => {
+    document.querySelectorAll('.layout-btn[data-layout], .menu-layout-item[data-layout]').forEach(btn => {
         const key = btn.dataset.layout;
         if (key in layoutGate && !layoutGate[key]) btn.style.display = 'none';
     });
@@ -33850,6 +34338,24 @@ function applyTierGating() {
     if (wm && BUYER) wm.textContent = BUYER;
 }
 let currentLayout = localStorage.getItem('assetLayout') || 'dashboard';
+
+function layoutAllowedForTier(layout) {
+    if (['dashboard', 'kanban', 'detail', 'compact'].includes(layout)) return true;
+    if (layout === 'table') return tierHas('table');
+    if (layout === 'timeline') return tierHas('timeline');
+    if (layout === 'charts') return tierHas('charts');
+    if (layout === 'audit') return tierHas('audit');
+    if (layout === 'review') return tierHas('review');
+    return false;
+}
+
+function normalizeLayoutForTier() {
+    if (!layoutAllowedForTier(currentLayout)) {
+        currentLayout = 'dashboard';
+        localStorage.setItem('assetLayout', currentLayout);
+    }
+}
+
 let currentAsset = null;
 let currentPage = 1;
 const itemsPerPage = 50;
@@ -33911,11 +34417,128 @@ function statusDotClass(status) {
     return safeStatus(status).toLowerCase();
 }
 
+
+// ===== TIER-AWARE UI / ASSET SCOPE =====
+let assetScopeFilter = 'all';
+const VALUE_FIELDS = ['fmv','fmv_usd','market_value','current_balance','equity'];
+const RECORDED_SOURCES = new Set(['quick-add', 'demo', 'import']);
+const RECORD_SIGNAL_FIELDS = ['account_number','owner','joint_owner','primary_beneficiary','insurance_policy','document_reference','access_location','access_recovery_contact'];
+
+function hasFinancialValue(asset) {
+    return VALUE_FIELDS.some(k => Number(asset && asset[k]) > 0);
+}
+
+function isRecordedAsset(asset) {
+    if (!asset) return false;
+    if (asset.last_modified_by === 'user' || RECORDED_SOURCES.has(asset.source || '')) return true;
+    if (hasFinancialValue(asset)) return true;
+    return RECORD_SIGNAL_FIELDS.some(k => String(asset[k] || '').trim() !== '');
+}
+
+function touchAsset(asset) {
+    if (!asset) return;
+    asset.last_modified_by = 'user';
+    asset.last_update = new Date().toISOString().slice(0, 10);
+}
+
+function setAssetScope(scope) {
+    assetScopeFilter = ['all','value'].includes(scope) ? scope : 'all';
+    document.querySelectorAll('.scope-filter-btn').forEach(btn => {
+        const active = btn.dataset.assetScope === assetScopeFilter;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    renderCurrentLayout();
+}
+
+function editionDisplayName() {
+    if (effectiveTier === 'planning') return 'Professional';
+    if (effectiveTier === 'family') return 'Family';
+    return 'Free';
+}
+
+function initTierUI() {
+    document.documentElement.dataset.edition = effectiveTier;
+    const badge = document.getElementById('editionBadge');
+    if (badge) badge.textContent = editionDisplayName();
+    document.querySelectorAll('[data-workspace-tier]').forEach(el => {
+        el.hidden = el.dataset.workspaceTier !== effectiveTier;
+    });
+    document.querySelectorAll('[data-upgrade-trigger]').forEach(el => {
+        el.hidden = el.dataset.upgradeTrigger !== effectiveTier || effectiveTier === 'planning';
+    });
+    document.querySelectorAll('.upgrade-preview[data-show-editions]').forEach(el => {
+        const visible = (el.dataset.showEditions || '').split(/\s+/).includes(effectiveTier);
+        el.classList.toggle('visible', visible);
+    });
+}
+
+let headerResizeObserver = null;
+function initHeaderGeometry() {
+    const header = document.querySelector('.tier-header');
+    if (!header) return;
+    const sync = () => {
+        document.documentElement.style.setProperty('--app-header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`);
+    };
+    sync();
+    if ('ResizeObserver' in window) {
+        headerResizeObserver = new ResizeObserver(sync);
+        headerResizeObserver.observe(header);
+    } else {
+        window.addEventListener('resize', sync);
+    }
+}
+
+function setFeatureMenuOpen(open) {
+    const menu = document.getElementById('featureMenu');
+    const toggle = document.getElementById('featureMenuToggle');
+    if (!menu || !toggle) return;
+    menu.classList.toggle('open', !!open);
+    menu.setAttribute('aria-hidden', open ? 'false' : 'true');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open && menu.contains(document.activeElement)) toggle.focus();
+}
+
+function initFeatureMenu() {
+    const menu = document.getElementById('featureMenu');
+    const toggle = document.getElementById('featureMenuToggle');
+    const close = document.getElementById('featureMenuClose');
+    if (!menu || !toggle) return;
+    toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        setFeatureMenuOpen(!menu.classList.contains('open'));
+    });
+    if (close) close.addEventListener('click', () => setFeatureMenuOpen(false));
+    document.querySelectorAll('[data-upgrade-trigger]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            setFeatureMenuOpen(true);
+            const target = effectiveTier === 'free' ? 'family' : 'professional';
+            const panel = menu.querySelector(`[data-upgrade-panel="${target}"]`);
+            if (panel) panel.scrollIntoView({ block:'nearest', behavior:'smooth' });
+        });
+    });
+    menu.addEventListener('click', e => {
+        if (e.target.closest('.menu-layout-item, .menu-action, #themeToggle')) setFeatureMenuOpen(false);
+    });
+    document.addEventListener('click', e => {
+        if (menu.classList.contains('open') && !menu.contains(e.target) && !toggle.contains(e.target)) setFeatureMenuOpen(false);
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && menu.classList.contains('open')) setFeatureMenuOpen(false);
+    });
+}
+
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', async () => {
     loadFromLocalStorage();
+    await verifyLicense();
     initTemplate();
     initTheme();
+    initTierUI();
+    initHeaderGeometry();
+    applyTierGating();
+    normalizeLayoutForTier();
+    initFeatureMenu();
     initFilters();
     initLayout();
     initModal();
@@ -33930,10 +34553,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     initDelegation();
     if (tierHas('table')) initSort();
     initKeyboardShortcuts();
-    await verifyLicense();
-    // Hide higher-tier UI when the effective tier is lower than the build
-    // tier (e.g. an invalid license downgraded a paid file to free).
-    applyTierGating();
     if (dataLocked) {
         // Gate rendering until the file is unlocked.
         gateForUnlock();
@@ -33984,7 +34603,7 @@ function initTheme() {
 
 // ===== LAYOUT =====
 function initLayout() {
-    document.querySelectorAll('.layout-btn').forEach(btn => {
+    document.querySelectorAll('.layout-btn, .menu-layout-item').forEach(btn => {
         btn.addEventListener('click', () => {
             currentLayout = btn.dataset.layout;
             localStorage.setItem('assetLayout', currentLayout);
@@ -33995,10 +34614,10 @@ function initLayout() {
 }
 
 function switchLayout(layout) {
-    document.querySelectorAll('.layout-btn').forEach(btn => {
+    document.querySelectorAll('.layout-btn, .menu-layout-item').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.layout === layout);
     });
-    
+
     const viewMap = {
         dashboard: 'dashboardView',
         table: 'tableView',
@@ -34007,18 +34626,18 @@ function switchLayout(layout) {
         detail: 'detailView',
         compact: 'compactView',
         audit: 'auditView',
-        
+
         charts: 'chartsView'
     };
-    
+
     Object.values(viewMap).forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
     });
-    
+
     const viewEl = document.getElementById(viewMap[layout]);
     if (viewEl) viewEl.classList.add('active');
-    
+
     renderCurrentLayout();
 }
 
@@ -34026,14 +34645,14 @@ function switchLayout(layout) {
 function initFilters() {
     const categorySelect = document.getElementById('categoryFilter');
     const ownerSelect = document.getElementById('ownerFilter');
-    
+
     Object.keys(CATEGORIES_DATA).sort().forEach(cat => {
         const option = document.createElement('option');
         option.value = cat;
         option.textContent = cat;
         categorySelect.appendChild(option);
     });
-    
+
     const owners = [...new Set(assets.map(a => a.owner).filter(Boolean))].sort();
     owners.forEach(owner => {
         const option = document.createElement('option');
@@ -34041,14 +34660,20 @@ function initFilters() {
         option.textContent = owner;
         ownerSelect.appendChild(option);
     });
-    
+
     document.getElementById('searchInput').addEventListener('input', debounce(renderCurrentLayout, 300));
     categorySelect.addEventListener('change', renderCurrentLayout);
     ownerSelect.addEventListener('change', renderCurrentLayout);
-    
+    document.querySelectorAll('.scope-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => setAssetScope(btn.dataset.assetScope));
+    });
+    document.querySelectorAll('[data-stat-scope]').forEach(btn => {
+        btn.addEventListener('click', () => setAssetScope(btn.dataset.statScope));
+    });
     document.querySelectorAll('.status-toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             btn.classList.toggle('active');
+            btn.setAttribute('aria-pressed', btn.classList.contains('active') ? 'true' : 'false');
             renderCurrentLayout();
         });
     });
@@ -34059,9 +34684,9 @@ function getFilteredAssets() {
     const category = document.getElementById('categoryFilter').value;
     const owner = document.getElementById('ownerFilter').value;
     const activeStatuses = [...document.querySelectorAll('.status-toggle-btn.active')].map(b => b.dataset.status);
-    
+
     return assets.filter(asset => {
-        const matchesSearch = !search || 
+        const matchesSearch = !search ||
             (asset.asset_name || '').toLowerCase().includes(search) ||
             (asset.institution || '').toLowerCase().includes(search) ||
             (asset.owner || '').toLowerCase().includes(search) ||
@@ -34070,7 +34695,9 @@ function getFilteredAssets() {
         const matchesCategory = !category || asset.category === category;
         const matchesOwner = !owner || asset.owner === owner;
         const matchesStatus = activeStatuses.includes(asset.status || 'Active');
-        return matchesSearch && matchesCategory && matchesOwner && matchesStatus;
+        const matchesScope = assetScopeFilter === 'all' ||
+            (assetScopeFilter === 'value' && hasFinancialValue(asset));
+        return matchesSearch && matchesCategory && matchesOwner && matchesStatus && matchesScope;
     });
 }
 
@@ -34085,7 +34712,7 @@ function renderCurrentLayout() {
         case 'detail': renderDetail(); break;
         case 'compact': renderCompact(); break;
         case 'audit': if (tierHas('audit')) renderAudit(); else renderDashboard(); break;
-        
+
         case 'charts': if (tierHas('charts')) renderCharts(); else renderDashboard(); break;
     }
 }
@@ -34094,12 +34721,12 @@ function renderDashboard() {
     const container = document.getElementById('dashboardView');
     const filtered = getFilteredAssets();
     const grouped = groupBy(filtered, 'category');
-    
+
     if (filtered.length === 0) {
         container.innerHTML = emptyStateHTML('No assets match your filters', 'Try adjusting your search or filters.');
         return;
     }
-    
+
     container.innerHTML = Object.entries(grouped).map(([cat, items]) => {
         const catInfo = CATEGORIES_DATA[cat] || { icon: '📋', color: '#0D9488' };
         return `
@@ -34186,7 +34813,7 @@ function renderDetail() {
     const filtered = getFilteredAssets();
     const listContainer = document.getElementById('detailAssetList');
     const contentContainer = document.getElementById('detailContent');
-    
+
     listContainer.innerHTML = filtered.map(asset => {
         const isActive = currentAsset && currentAsset.id === asset.id;
         return `
@@ -34196,16 +34823,16 @@ function renderDetail() {
             </div>
         `;
     }).join('');
-    
+
     if (!currentAsset || !filtered.some(a => String(a.id) === String(currentAsset.id))) {
         currentAsset = filtered[0] || null;
     }
-    
+
     if (!currentAsset) {
         contentContainer.innerHTML = emptyStateHTML('Select an asset', 'Click an asset from the list to view details.');
         return;
     }
-    
+
     const sections = Object.entries(FIELD_SECTIONS).map(([section, fields]) => {
         const rows = fields.map(field => `
             <div class="detail-field">
@@ -34220,7 +34847,7 @@ function renderDetail() {
             </div>
         `;
     }).join('');
-    
+
     contentContainer.innerHTML = `
         <div class="detail-header">
             <div>
@@ -34242,12 +34869,12 @@ function renderCompact() {
     const filtered = getFilteredAssets();
     const container = document.getElementById('compactView');
     const grouped = groupBy(filtered, 'category');
-    
+
     if (filtered.length === 0) {
         container.innerHTML = emptyStateHTML('No assets match your filters', 'Try adjusting your search or filters.');
         return;
     }
-    
+
     container.innerHTML = Object.entries(grouped).map(([cat, items]) => `
         <div class="compact-category">
             <div class="compact-category-header">
@@ -34273,20 +34900,34 @@ function renderCompact() {
 // ===== STATS =====
 function updateStats() {
     const filtered = getFilteredAssets();
+    const withValue = assets.filter(hasFinancialValue).length;
+    const recordedAssets = assets.filter(isRecordedAsset).length;
     const totalFMV = filtered.reduce((sum, a) => sum + (parseFloat(a.fmv) || 0), 0);
     const totalIncome = filtered.reduce((sum, a) => sum + (parseFloat(a.annual_income) || 0), 0);
     const statusCounts = { Active: 0, Dormant: 0, Pending: 0, Closed: 0 };
     filtered.forEach(a => { statusCounts[a.status || 'Active'] = (statusCounts[a.status || 'Active'] || 0) + 1; });
-    
-    document.getElementById('totalAssets').textContent = filtered.length.toLocaleString(LOCALE);
+
+    const assetTypeCount = Array.isArray(ASSETS_DATA) ? ASSETS_DATA.length : 0;
+    document.getElementById('totalAssets').textContent = assetTypeCount.toLocaleString(LOCALE);
+    document.getElementById('totalCategories').textContent = Object.keys(CATEGORIES_DATA).length.toLocaleString(LOCALE);
+    document.getElementById('assetCount').textContent = recordedAssets.toLocaleString(LOCALE);
+    const showingEl = document.getElementById('showingCount');
+    const valEl = document.getElementById('withValueCount');
+    const allChip = document.getElementById('scopeAllCount');
+    const valChip = document.getElementById('scopeValueCount');
+    if (showingEl) showingEl.textContent = filtered.length.toLocaleString(LOCALE);
+    if (valEl) valEl.textContent = withValue.toLocaleString(LOCALE);
+    if (allChip) allChip.textContent = assets.length.toLocaleString(LOCALE);
+    if (valChip) valChip.textContent = withValue.toLocaleString(LOCALE);
+
     document.getElementById('totalFMV').textContent = formatCurrency(totalFMV);
     document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
-    document.getElementById('totalCategories').textContent = Object.keys(groupBy(filtered, 'category')).length;
-    document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString(LOCALE);
-    document.getElementById('activeCount').textContent = statusCounts.Active;
-    document.getElementById('dormantCount').textContent = statusCounts.Dormant;
-    document.getElementById('pendingCount').textContent = statusCounts.Pending;
-    document.getElementById('closedCount').textContent = statusCounts.Closed;
+    document.getElementById('activeCount').textContent = statusCounts.Active || 0;
+    document.getElementById('dormantCount').textContent = statusCounts.Dormant || 0;
+    document.getElementById('pendingCount').textContent = statusCounts.Pending || 0;
+    document.getElementById('closedCount').textContent = statusCounts.Closed || 0;
+    const dates = assets.map(a => a.last_update).filter(Boolean).sort();
+    document.getElementById('lastUpdated').textContent = dates.length ? dates[dates.length - 1] : '-';
 }
 
 // ===== MODAL / EDIT =====
@@ -34328,11 +34969,11 @@ function openModal(assetId) {
 
 function showAssetModal(asset) {
     currentAsset = asset;
-    
+
     document.getElementById('modalTitle').textContent = `Edit: ${asset.asset_name || asset.id}`;
     document.getElementById('modalOverlay').classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     const container = document.getElementById('modalContent');
     container.innerHTML = Object.entries(FIELD_SECTIONS).map(([section, fields]) => {
         const inputs = fields.map(field => renderFieldInput(field, asset)).join('');
@@ -34355,7 +34996,7 @@ function renderFieldInput(field, asset) {
     const value = asset[field] === null || asset[field] === undefined ? '' : String(asset[field]);
     const isLong = ['notes', 'alert', 'todo'].includes(field) || type === 'textarea';
     let control;
-    
+
     if (isLong) {
         control = `<textarea class="form-textarea" data-field="${field}">${escapeHtml(value)}</textarea>`;
     } else if (type === 'select') {
@@ -34378,7 +35019,7 @@ function renderFieldInput(field, asset) {
     } else {
         control = `<input type="text" class="form-input" data-field="${field}" value="${escapeHtml(value)}">`;
     }
-    
+
     return `
         <div class="form-group ${isLong ? 'full-width' : ''}">
             <label class="form-label">${label}</label>
@@ -34465,6 +35106,7 @@ function saveAsset() {
         const field = input.dataset.field;
         currentAsset[field] = input.value;
     }
+    touchAsset(currentAsset, isNew ? 'manual-add' : 'user-edit');
     if (isNew) assets.push(currentAsset);
     saveToLocalStorage();
     markDirty();
@@ -34772,7 +35414,8 @@ function wizardFinish() {
 }
 
 function initWizard() {
-    document.getElementById('addAssetBtn').addEventListener('click', openWizard);
+    const statAdd = document.getElementById('statAddAssetBtn');
+    if (statAdd) statAdd.addEventListener('click', openWizard);
     document.getElementById('wizardClose').addEventListener('click', closeWizard);
     document.getElementById('wizardNext').addEventListener('click', wizardNext);
     document.getElementById('wizardBack').addEventListener('click', wizardBack);
@@ -34861,6 +35504,7 @@ async function applyBulkEdit() {
         const asset = findAsset(id);
         if (!asset) continue;
         asset[field] = value;
+        touchAsset(asset, 'user-edit');
     }
     saveToLocalStorage();
     markDirty();
@@ -34955,6 +35599,7 @@ function inlineEditCell(td) {
         if (value !== current && field !== 'id') {
             pushUndo();
             asset[field] = value;
+            touchAsset(asset, 'user-edit');
             saveToLocalStorage();
             markDirty();
             renderTable();
@@ -35025,6 +35670,7 @@ function initKanbanDnD() {
         if (!asset || (asset.status || 'Active') === status) return;
         pushUndo();
         asset.status = status;
+        touchAsset(asset, 'user-edit');
         saveToLocalStorage();
         markDirty();
         renderCurrentLayout();
@@ -35466,7 +36112,7 @@ function initKeyboardShortcuts() {
             closeWizard();
         }
     });
-    
+
     const expMD = document.getElementById('exportMD');
     if (expMD) expMD.addEventListener('click', exportMarkdown);
     const expExcel = document.getElementById('exportExcel');
@@ -35517,7 +36163,7 @@ function initKeyboardShortcuts() {
 function showToast(message, action) {
     const existing = document.querySelector('.toast-notification');
     if (existing) existing.remove();
-    
+
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
     toast.style.cssText = `
@@ -35551,7 +36197,7 @@ function showToast(message, action) {
         toast.appendChild(btn);
     }
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'slideOut 0.25s ease forwards';
         setTimeout(() => toast.remove(), 250);
