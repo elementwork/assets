@@ -220,7 +220,8 @@ def static_checks():
     check("planning annual-review layout compiled", 'data-layout="review"' in en_html and "renderAnnualReview" in en_html)
     check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "featureMenuClose", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
     check("effective-tier normalization compiled", all(t in en_html for t in ["effectiveTier", "normalizeLayoutForTier", "cloneTierConfig", "downgradeToFree"]))
-    check("dynamic header geometry compiled", "ResizeObserver" in en_html and "--app-header-height" in en_html)
+    check("simplified chrome compiled", all(t in en_html for t in ["logo-menu-toggle", "statAddAssetBtn", "filter-status-toggles", "menu-layout-grid"]))
+    check("standalone workspace/layout switcher removed", '<div class="workspace-bar"' not in en_html and '<div class="layout-switcher"' not in en_html)
     check("professional terminology retained", all(t in en_html for t in [">Audit<", ">Annual Review<", "Export MD", "Export JSON"]))
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))
     check("zh continuity strings compiled", "紧急访问指南" in zh_html and "家庭年度复核" in zh_html)
@@ -317,33 +318,38 @@ def demo_fixture_check():
 # =============================================================================
 
 def responsive_ui_check():
-    print("\n== Step 2c: responsive tier UI geometry ==")
+    print("\n== Step 2c: responsive simplified chrome ==")
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        for width, height in ((390, 844), (768, 900)):
+        for width, height in ((390, 844), (768, 900), (1440, 1000)):
             ctx = browser.new_context(viewport={"width": width, "height": height})
             page = ctx.new_page()
             errors = []
             page.on("pageerror", lambda exc: errors.append(str(exc)))
             page.goto(EN_HTML.as_uri(), wait_until="load")
             page.wait_for_timeout(500)
-            page.evaluate("window.scrollTo(0, 500)")
-            page.wait_for_timeout(150)
-            header_box = page.locator(".tier-header").bounding_box()
-            workspace_box = page.locator(".workspace-bar").bounding_box()
-            if width <= 680:
-                check(f"responsive {width}: workspace is non-sticky on mobile",
-                      page.evaluate("getComputedStyle(document.querySelector('.workspace-bar')).position") == "relative")
-            else:
-                check(f"responsive {width}: sticky workspace clears header",
-                      bool(header_box and workspace_box and workspace_box['y'] + 1 >= header_box['y'] + header_box['height']),
-                      f"header={header_box} workspace={workspace_box}")
+            check(f"responsive {width}: no standalone workspace/layout switcher",
+                  page.locator(".workspace-bar").count() == 0 and page.locator(".layout-switcher").count() == 0)
+            check(f"responsive {width}: logo icon is menu trigger",
+                  page.locator("#featureMenuToggle.logo-icon").count() == 1)
+            check(f"responsive {width}: top actions are Add + Save only",
+                  page.locator(".tier-header #addAssetBtn").count() == 1
+                  and page.locator(".tier-header #saveHTML").count() == 1
+                  and page.locator(".tier-header #printBtn").count() == 0)
+            check(f"responsive {width}: Last Updated sits in header",
+                  page.locator(".tier-header #lastUpdated").count() == 1)
+            check(f"responsive {width}: search is in filter bar",
+                  page.locator(".filter-bar #searchInput").count() == 1)
+            check(f"responsive {width}: four status buttons are directly visible",
+                  page.locator(".filter-bar .status-toggle-btn").count() == 4
+                  and page.locator(".filter-bar .status-toggle-btn:visible").count() == 4)
             page.click("#featureMenuToggle")
-            check(f"responsive {width}: feature menu opens", page.locator("#featureMenu.open").count() == 1)
-            check(f"responsive {width}: close control visible", page.locator("#featureMenuClose").is_visible())
-            if width <= 680:
-                min_h = page.evaluate("parseFloat(getComputedStyle(document.querySelector('#featureMenuClose')).height)")
-                check(f"responsive {width}: close touch target >=44", min_h >= 44, str(min_h))
+            check(f"responsive {width}: logo menu opens", page.locator("#featureMenu.open").count() == 1)
+            check(f"responsive {width}: legacy SVG layout icons retained",
+                  page.locator("#featureMenu .menu-layout-item svg").count() >= 9)
+            menu_box = page.locator("#featureMenu").bounding_box()
+            check(f"responsive {width}: menu is left anchored",
+                  bool(menu_box and menu_box['x'] <= (12 if width <= 760 else 32)), str(menu_box))
             page.click("#featureMenuClose")
             check(f"responsive {width}: no JS errors", not errors, str(errors[:3]))
             ctx.close()
@@ -419,7 +425,9 @@ def e2e_en(browser):
           page.text_content("#totalCategories"))
     check("en: professional edition badge", "Professional" in page.text_content("#editionBadge"))
     check("en: blank catalog has zero assets with value", page.text_content("#withValueCount") == "0", page.text_content("#withValueCount"))
-    check("en: Asset Catalog label", "Asset Catalog" in page.locator(".stat-card").first.text_content())
+    check("en: Asset Types label", "Asset Types" in page.locator(".stat-card").first.text_content())
+    check("en: blank catalog starts with zero recorded Assets", page.text_content("#assetCount") == "0", page.text_content("#assetCount"))
+    check("en: stat card order is Asset Types / Categories / Assets", [x.strip() for x in page.locator(".primary-stats .stat-label").all_text_contents()[:3]] == ["Asset Types", "Categories", "Assets"])
     check("en: Showing starts at 517", page.text_content("#showingCount") == "517", page.text_content("#showingCount"))
     check("en: quick scope filters render", page.locator(".scope-filter-btn").count() == 2)
     check("en: USD FMV counts as With Value", page.evaluate("hasFinancialValue({fmv_usd: 100})"))
@@ -732,7 +740,7 @@ def e2e_en(browser):
           page.locator("#dashboardView .asset-item").count() == 517)
 
     # Print
-    page.click("#printBtn")
+    _menu_click(page, "#printBtn")
     page.wait_for_timeout(400)
     print_html = page.text_content("#printView")
     check("en: print view populated", print_html is not None and len(print_html) > 500)
@@ -742,7 +750,7 @@ def e2e_en(browser):
     check("en: master asset index printed", "Master Asset Index" in page.locator("#printView").inner_text())
     check("en: print includes inventory id", "INV-" in page.locator("#printView").inner_text())
     page.emulate_media(media="print")
-    check("en: print media hides workspace chrome", page.evaluate("getComputedStyle(document.querySelector('.workspace-bar')).display") == "none")
+    check("en: print media has no standalone workspace chrome", page.locator(".workspace-bar").count() == 0)
     check("en: print media hides feature menu", page.evaluate("getComputedStyle(document.querySelector('#featureMenu')).display") == "none")
     check("en: print media shows binder", page.locator("#printView").is_visible())
     page.emulate_media(media="screen")
@@ -796,6 +804,7 @@ def e2e_en(browser):
     page.wait_for_selector("#wizardOverlay:not(.active)", timeout=8000)
     check("en: wizard creates asset",
           page.evaluate("assets.some(a => a.source === 'quick-add')"))
+    check("en: Assets card increments after quick-add", int(page.text_content("#assetCount")) >= 1, page.text_content("#assetCount"))
 
     # ---- Bulk edit (3.8) ----
     _layout(page, "table")
@@ -979,11 +988,11 @@ def e2e_zh(browser):
     check("zh: stat totalAssets = 517", page.text_content("#totalAssets") == "517")
     check("zh: search placeholder translated",
           "搜索" in page.get_attribute("#searchInput", "placeholder"))
-    check("zh: Professional workspace uses bilingual terminology",
-          "Audit 财产审计" in page.locator('[data-workspace-tier="planning"]').text_content() and
-          "Annual Review 年度复核" in page.locator('[data-workspace-tier="planning"]').text_content())
     _open_feature_menu(page)
-    check("zh: Professional export section localized", "Export 导出" in page.locator("#featureMenu").text_content())
+    menu_text = page.locator("#featureMenu").text_content()
+    check("zh: Professional logo menu uses bilingual terminology",
+          "Audit 财产审计" in menu_text and "Annual Review 年度复核" in menu_text)
+    check("zh: Professional export section localized", "Export 导出" in menu_text)
     page.click("#featureMenuClose")
     check("zh: dashboard view renders 517 items",
           page.locator("#dashboardView .asset-item").count() == 517)

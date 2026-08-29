@@ -423,45 +423,6 @@ body {
     font-size: 16px;
 }
 
-/* ===== LAYOUT SWITCHER ===== */
-.layout-switcher {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 3px;
-    border: 1px solid var(--border);
-}
-
-.layout-btn {
-    padding: 6px 10px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--muted);
-    transition: var(--transition);
-}
-
-.layout-btn:hover {
-    color: var(--text);
-    background: rgba(255,255,255,0.5);
-}
-
-.layout-btn.active {
-    background: var(--card);
-    color: var(--accent);
-    box-shadow: var(--shadow);
-}
-
-.layout-btn svg {
-    width: 16px;
-    height: 16px;
-    display: block;
-}
-
 /* ===== TEMPLATE SWITCHER ===== */
 .template-switcher {
     position: relative;
@@ -2531,6 +2492,97 @@ html[data-edition="planning"] .tier-badge {
     .feature-menu-close { width:44px; height:44px; }
 }
 
+
+
+/* ===== SIMPLIFIED PRODUCT CHROME / LOGO MENU ===== */
+.logo-menu-toggle {
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    box-shadow: none;
+}
+.logo-menu-toggle:hover,
+.logo-menu-toggle:focus-visible {
+    background: var(--accent-hover);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.header-last-updated {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding-left: 2px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+}
+.header-last-updated strong { color: var(--text-secondary); font-weight: 650; }
+.feature-menu { left: 24px; right: auto; }
+.menu-layout-grid { grid-template-columns: 1fr 1fr; }
+.menu-layout-item svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.menu-layout-item span { min-width: 0; }
+.primary-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.stat-card-assets .stat-content { display: flex; flex-direction: column; align-items: flex-start; }
+.stat-add-btn {
+    margin-top: 9px;
+    padding: 5px 9px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    border-radius: var(--radius-sm);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.stat-add-btn:hover { background: var(--accent); color: white; }
+.filter-search { position: relative; flex: 1 1 250px; min-width: 210px; }
+.filter-search input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+}
+.filter-search::before {
+    content: "🔍";
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: .6;
+    font-size: 12px;
+    pointer-events: none;
+}
+.filter-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+.filter-result-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.filter-result-count strong { color: var(--text-secondary); }
+.filter-status-toggles { margin-left: auto; justify-content: flex-end; flex-wrap: wrap; }
+.status-count { min-width: 1.25em; text-align: center; font-variant-numeric: tabular-nums; opacity: .72; }
+
+@media (max-width: 1180px) {
+    .primary-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+    .primary-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-search { flex-basis: 100%; min-width: 100%; }
+    .filter-status-toggles { width: 100%; margin-left: 0; justify-content: flex-end; }
+    .feature-menu { left: 8px; right: 8px; width: auto; }
+}
+@media (max-width: 680px) {
+    .tier-header .header-right { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tier-header .header-right .btn { width: 100%; min-height: 44px; justify-content: center; }
+    .header-last-updated { grid-column: 1 / -1; justify-self: end; }
+    .filter-status-toggles .status-toggle-btn { min-height: 40px; }
+}
+@media (max-width: 460px) {
+    .primary-stats { grid-template-columns: 1fr; }
+    .filter-status-toggles { display: grid; grid-template-columns: 1fr 1fr; }
+    .filter-status-toggles .status-toggle-btn { justify-content: flex-start; }
+}
+
 </style>
 </head>
 <body>
@@ -2539,50 +2591,48 @@ html[data-edition="planning"] .tier-badge {
 <header class="header tier-header">
     <div class="header-left">
         <div class="logo">
-            <div class="logo-icon">📊</div>
+            <button class="logo-icon logo-menu-toggle" id="featureMenuToggle" type="button"
+                    aria-expanded="false" aria-controls="featureMenu" aria-label="功能" title="功能">📊</button>
             <div class="logo-text">
                 <span><span class="logo-brand">EstateON</span><span class="tier-badge" id="editionBadge"></span></span>
                 <span class="logo-sub">资产清单</span>
             </div>
         </div>
     </div>
-    <div class="header-search">
-        <input type="text" id="searchInput" placeholder="搜索资产、机构、持有人...">
-    </div>
     <div class="header-right">
-        <button class="btn btn-primary header-primary-action" id="addAssetBtn">＋ <span class="btn-label-optional">添加资产</span></button>
-
+        <button class="btn header-primary-action" id="addAssetBtn">＋ <span>添加资产</span></button>
         <span class="save-state-wrap"><span class="unsaved-dot" id="unsavedIndicator" title="有未保存的更改 — 请使用保存 HTML 保留">●</span></span>
         <button class="btn btn-primary header-primary-action" id="saveHTML">💾 <span>保存</span></button>
-        <button class="btn menu-toggle" id="featureMenuToggle" aria-expanded="false" aria-controls="featureMenu">☰ 功能</button>
+        <span class="header-last-updated"><span>最后更新</span><strong id="lastUpdated">-</strong></span>
     </div>
 </header>
-
-<div class="workspace-bar" id="workspaceBar">
-    <div class="workspace-set" data-workspace-tier="free">
-        <button class="layout-btn workspace-btn active" data-layout="dashboard">仪表板</button>
-        <button class="layout-btn workspace-btn" data-layout="compact">紧凑</button>
-        <button class="layout-btn workspace-btn" data-layout="kanban">看板</button>
-        <button class="layout-btn workspace-btn" data-layout="detail">详情</button>
-    </div>
-
-
-    <button class="workspace-upgrade" data-upgrade-trigger="free">🔒 <span class="upgrade-long">表格 · 图表 · 打印 — 家庭版</span><span class="upgrade-short">家庭版</span></button>
-    <button class="workspace-upgrade" data-upgrade-trigger="family">🔒 <span class="upgrade-long">Audit · Annual Review · Export — 专业版</span><span class="upgrade-short">专业版</span></button>
-</div>
 
 <div class="feature-menu" id="featureMenu" aria-hidden="true" tabindex="-1">
     <div class="feature-menu-header">
         <strong>功能</strong>
         <button class="feature-menu-close" id="featureMenuClose" aria-label="关闭">×</button>
     </div>
-    <div class="menu-section">
+    <div class="menu-section menu-views-section">
         <div class="menu-section-title">查看方式</div>
-        <div class="menu-grid">
-            <button class="menu-layout-item" data-layout="dashboard">仪表板</button>
-            <button class="menu-layout-item" data-layout="compact">紧凑</button>
-            <button class="menu-layout-item" data-layout="kanban">看板</button>
-            <button class="menu-layout-item" data-layout="detail">详情</button>
+        <div class="menu-grid menu-layout-grid">
+            <button class="menu-layout-item" data-layout="dashboard" title="仪表板" aria-label="仪表板">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                <span>仪表板</span>
+            </button>
+
+            <button class="menu-layout-item" data-layout="kanban" title="看板" aria-label="看板">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="10" rx="1"/></svg>
+                <span>看板</span>
+            </button>
+
+            <button class="menu-layout-item" data-layout="detail" title="详情" aria-label="详情">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="14" rx="1"/><rect x="7" y="1" width="8" height="8" rx="1"/><rect x="7" y="11" width="8" height="4" rx="1"/></svg>
+                <span>详情</span>
+            </button>
+            <button class="menu-layout-item" data-layout="compact" title="紧凑" aria-label="紧凑">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>
+                <span>紧凑</span>
+            </button>
 
 
         </div>
@@ -2644,11 +2694,23 @@ html[data-edition="planning"] .tier-badge {
                 <div class="stat-icon">📋</div>
                 <div class="stat-content">
                     <div class="stat-value" id="totalAssets">0</div>
-                    <div class="stat-label">资产目录</div>
-                    <div class="stat-subline">
-                        <span><strong id="showingCount">0</strong> 当前显示</span>
-                        <button class="stat-link" data-stat-scope="value"><strong id="withValueCount">0</strong> 有金额</button>
-                    </div>
+                    <div class="stat-label">资产类型</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalCategories">0</div>
+                    <div class="stat-label">类别</div>
+                </div>
+            </div>
+            <div class="stat-card stat-card-assets">
+                <div class="stat-icon">🗂️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="assetCount">0</div>
+                    <div class="stat-label">资产</div>
+                    <div class="stat-subline"><span><strong id="withValueCount">0</strong> 有金额</span></div>
+                    <button class="stat-add-btn" id="statAddAssetBtn" type="button">＋ 添加资产</button>
                 </div>
             </div>
             <div class="stat-card">
@@ -2665,48 +2727,18 @@ html[data-edition="planning"] .tier-badge {
                     <div class="stat-label">年度收入</div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">🏷️</div>
-                <div class="stat-content">
-                    <div class="stat-value" id="totalCategories">0</div>
-                    <div class="stat-label">类别</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="quick-info-bar">
-            <div class="quick-info-left">
-                <div class="info-item">
-                    <span class="info-label">活跃:</span>
-                    <span class="info-value accent" id="activeCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">休眠:</span>
-                    <span class="info-value" id="dormantCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">待处理:</span>
-                    <span class="info-value" id="pendingCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">已关闭:</span>
-                    <span class="info-value" id="closedCount">0</span>
-                </div>
-            </div>
-            <div class="info-item">
-                <span class="info-label">最后更新:</span>
-                <span class="info-value" id="lastUpdated">-</span>
-            </div>
         </div>
     </section>
 
-    <!-- FILTER BAR -->
+    <!-- FILTER BAR: all search/filter controls live here -->
     <div class="filter-bar">
+        <div class="filter-search">
+            <input type="text" id="searchInput" placeholder="搜索资产、机构、持有人..." aria-label="搜索资产、机构、持有人...">
+        </div>
         <div class="quick-scope-filters" aria-label="快速资产筛选">
             <button class="scope-filter-btn active" data-asset-scope="all" aria-pressed="true">全部 <span class="scope-filter-count" id="scopeAllCount">0</span></button>
             <button class="scope-filter-btn" data-asset-scope="value" aria-pressed="false">有金额 <span class="scope-filter-count" id="scopeValueCount">0</span></button>
         </div>
-        <div class="filter-divider"></div>
         <div class="filter-group">
             <span class="filter-label">类别</span>
             <select class="filter-select" id="categoryFilter">
@@ -2719,15 +2751,13 @@ html[data-edition="planning"] .tier-badge {
                 <option value="">所有持有人</option>
             </select>
         </div>
-        <details class="status-filter-details">
-            <summary>状态 ▾</summary>
-            <div class="status-toggles status-filter-popover">
-                <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> 活跃</button>
-                <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> 休眠</button>
-                <button class="status-toggle-btn active" data-status="Pending" aria-pressed="true"><span class="status-dot pending"></span> 待处理</button>
-                <button class="status-toggle-btn active" data-status="Closed" aria-pressed="true"><span class="status-dot closed"></span> 已关闭</button>
-            </div>
-        </details>
+        <span class="filter-result-count"><strong id="showingCount">0</strong> 当前显示</span>
+        <div class="status-toggles filter-status-toggles" aria-label="状态">
+            <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> 活跃 <span class="status-count" id="activeCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> 休眠 <span class="status-count" id="dormantCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Pending" aria-pressed="true"><span class="status-dot pending"></span> 待处理 <span class="status-count" id="pendingCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Closed" aria-pressed="true"><span class="status-dot closed"></span> 已关闭 <span class="status-count" id="closedCount">0</span></button>
+        </div>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -3014,7 +3044,7 @@ const INVENTORY_DATA = {
   "inventory_id": "INV-TEMPLATE-870F32A34050",
   "tier": "free",
   "key_version": 1,
-  "generated": "2026-08-19",
+  "generated": "2026-08-29",
   "assets": [
     {
       "id": "A-0001",
@@ -3030,7 +3060,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3148,7 +3178,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3266,7 +3296,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3384,7 +3414,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3502,7 +3532,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3620,7 +3650,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3738,7 +3768,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3856,7 +3886,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -3974,7 +4004,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4092,7 +4122,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4210,7 +4240,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4328,7 +4358,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4446,7 +4476,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4564,7 +4594,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4682,7 +4712,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4800,7 +4830,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -4918,7 +4948,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5036,7 +5066,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5154,7 +5184,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5272,7 +5302,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5390,7 +5420,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5508,7 +5538,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5626,7 +5656,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5744,7 +5774,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5862,7 +5892,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -5980,7 +6010,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6098,7 +6128,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6216,7 +6246,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6334,7 +6364,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6452,7 +6482,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6570,7 +6600,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6688,7 +6718,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6806,7 +6836,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -6924,7 +6954,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7042,7 +7072,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7160,7 +7190,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7278,7 +7308,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7396,7 +7426,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7514,7 +7544,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7632,7 +7662,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -7750,7 +7780,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-free",
       "registration": "",
       "owner": "",
@@ -7868,7 +7898,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -7986,7 +8016,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8104,7 +8134,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8222,7 +8252,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8340,7 +8370,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8458,7 +8488,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8576,7 +8606,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable on withdrawal",
       "registration": "",
       "owner": "",
@@ -8694,7 +8724,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8812,7 +8842,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -8930,7 +8960,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-deferred",
       "registration": "",
       "owner": "",
@@ -9048,7 +9078,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Tax-free",
       "registration": "",
       "owner": "",
@@ -9166,7 +9196,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable",
       "registration": "",
       "owner": "",
@@ -9284,7 +9314,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable",
       "registration": "",
       "owner": "",
@@ -9402,7 +9432,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "Taxable",
       "registration": "",
       "owner": "",
@@ -9520,7 +9550,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9638,7 +9668,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9756,7 +9786,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9874,7 +9904,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -9992,7 +10022,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10110,7 +10140,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10228,7 +10258,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10346,7 +10376,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10464,7 +10494,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10582,7 +10612,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10700,7 +10730,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10818,7 +10848,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -10936,7 +10966,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11054,7 +11084,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11172,7 +11202,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11290,7 +11320,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11408,7 +11438,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11526,7 +11556,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11644,7 +11674,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11762,7 +11792,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11880,7 +11910,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -11998,7 +12028,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12116,7 +12146,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12234,7 +12264,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12352,7 +12382,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12470,7 +12500,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12588,7 +12618,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12706,7 +12736,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12824,7 +12854,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -12942,7 +12972,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13060,7 +13090,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13178,7 +13208,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13296,7 +13326,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13414,7 +13444,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13532,7 +13562,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13650,7 +13680,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13768,7 +13798,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -13886,7 +13916,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14004,7 +14034,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14122,7 +14152,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14240,7 +14270,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14358,7 +14388,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14476,7 +14506,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14594,7 +14624,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14712,7 +14742,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14830,7 +14860,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -14948,7 +14978,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15066,7 +15096,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15184,7 +15214,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15302,7 +15332,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15420,7 +15450,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15538,7 +15568,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15656,7 +15686,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15774,7 +15804,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -15892,7 +15922,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16010,7 +16040,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16128,7 +16158,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16246,7 +16276,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16364,7 +16394,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16482,7 +16512,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16600,7 +16630,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16718,7 +16748,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16836,7 +16866,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -16954,7 +16984,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17072,7 +17102,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17190,7 +17220,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17308,7 +17338,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17426,7 +17456,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17544,7 +17574,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17662,7 +17692,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17780,7 +17810,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -17898,7 +17928,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18016,7 +18046,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18134,7 +18164,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18252,7 +18282,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18370,7 +18400,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18488,7 +18518,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18606,7 +18636,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18724,7 +18754,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18842,7 +18872,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -18960,7 +18990,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19078,7 +19108,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19196,7 +19226,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19314,7 +19344,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19432,7 +19462,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19550,7 +19580,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19668,7 +19698,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19786,7 +19816,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -19904,7 +19934,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20022,7 +20052,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20140,7 +20170,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20258,7 +20288,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20376,7 +20406,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20494,7 +20524,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20612,7 +20642,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20730,7 +20760,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20848,7 +20878,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -20966,7 +20996,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21084,7 +21114,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21202,7 +21232,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21320,7 +21350,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21438,7 +21468,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21556,7 +21586,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21674,7 +21704,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21792,7 +21822,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -21910,7 +21940,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22028,7 +22058,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22146,7 +22176,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22264,7 +22294,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22382,7 +22412,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22500,7 +22530,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22618,7 +22648,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22736,7 +22766,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22854,7 +22884,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -22972,7 +23002,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23090,7 +23120,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23208,7 +23238,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23326,7 +23356,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23444,7 +23474,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23562,7 +23592,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23680,7 +23710,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23798,7 +23828,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -23916,7 +23946,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24034,7 +24064,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24152,7 +24182,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24270,7 +24300,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24388,7 +24418,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24506,7 +24536,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24624,7 +24654,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24742,7 +24772,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24860,7 +24890,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -24978,7 +25008,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25096,7 +25126,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25214,7 +25244,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25332,7 +25362,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25450,7 +25480,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25568,7 +25598,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25686,7 +25716,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25804,7 +25834,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -25922,7 +25952,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26040,7 +26070,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26158,7 +26188,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26276,7 +26306,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26394,7 +26424,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26512,7 +26542,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26630,7 +26660,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26748,7 +26778,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26866,7 +26896,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -26984,7 +27014,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27102,7 +27132,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27220,7 +27250,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27338,7 +27368,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27456,7 +27486,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27574,7 +27604,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27692,7 +27722,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27810,7 +27840,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -27928,7 +27958,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28046,7 +28076,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28164,7 +28194,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28282,7 +28312,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28400,7 +28430,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28518,7 +28548,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28636,7 +28666,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28754,7 +28784,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28872,7 +28902,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -28990,7 +29020,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29108,7 +29138,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29226,7 +29256,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29344,7 +29374,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29462,7 +29492,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29580,7 +29610,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29698,7 +29728,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29816,7 +29846,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -29934,7 +29964,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30052,7 +30082,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30170,7 +30200,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30288,7 +30318,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30406,7 +30436,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30524,7 +30554,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30642,7 +30672,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30760,7 +30790,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30878,7 +30908,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -30996,7 +31026,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31114,7 +31144,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31232,7 +31262,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31350,7 +31380,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31468,7 +31498,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31586,7 +31616,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31704,7 +31734,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31822,7 +31852,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -31940,7 +31970,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32058,7 +32088,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32176,7 +32206,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32294,7 +32324,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32412,7 +32442,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32530,7 +32560,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32648,7 +32678,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32766,7 +32796,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -32884,7 +32914,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -33002,7 +33032,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -33120,7 +33150,7 @@ const INVENTORY_DATA = {
       "acb": 0.0,
       "fmv": 0.0,
       "current_balance": 0.0,
-      "last_update": "2026-08-19",
+      "last_update": "2026-08-29",
       "tax_treatment": "",
       "registration": "",
       "owner": "",
@@ -34252,9 +34282,24 @@ function statusDotClass(status) {
 // ===== TIER-AWARE UI / ASSET SCOPE =====
 let assetScopeFilter = 'all';
 const VALUE_FIELDS = ['fmv','fmv_usd','market_value','current_balance','equity'];
+const RECORDED_SOURCES = new Set(['quick-add', 'demo', 'import']);
+const RECORD_SIGNAL_FIELDS = ['account_number','owner','joint_owner','primary_beneficiary','insurance_policy','document_reference','access_location','access_recovery_contact'];
 
 function hasFinancialValue(asset) {
     return VALUE_FIELDS.some(k => Number(asset && asset[k]) > 0);
+}
+
+function isRecordedAsset(asset) {
+    if (!asset) return false;
+    if (asset.last_modified_by === 'user' || RECORDED_SOURCES.has(asset.source || '')) return true;
+    if (hasFinancialValue(asset)) return true;
+    return RECORD_SIGNAL_FIELDS.some(k => String(asset[k] || '').trim() !== '');
+}
+
+function touchAsset(asset) {
+    if (!asset) return;
+    asset.last_modified_by = 'user';
+    asset.last_update = new Date().toISOString().slice(0, 10);
 }
 
 function setAssetScope(scope) {
@@ -34334,7 +34379,7 @@ function initFeatureMenu() {
         });
     });
     menu.addEventListener('click', e => {
-        if (e.target.closest('.menu-layout-item')) setFeatureMenuOpen(false);
+        if (e.target.closest('.menu-layout-item, .menu-action, #themeToggle')) setFeatureMenuOpen(false);
     });
     document.addEventListener('click', e => {
         if (menu.classList.contains('open') && !menu.contains(e.target) && !toggle.contains(e.target)) setFeatureMenuOpen(false);
@@ -34717,12 +34762,16 @@ function renderCompact() {
 function updateStats() {
     const filtered = getFilteredAssets();
     const withValue = assets.filter(hasFinancialValue).length;
+    const recordedAssets = assets.filter(isRecordedAsset).length;
     const totalFMV = filtered.reduce((sum, a) => sum + (parseFloat(a.fmv) || 0), 0);
     const totalIncome = filtered.reduce((sum, a) => sum + (parseFloat(a.annual_income) || 0), 0);
     const statusCounts = { Active: 0, Dormant: 0, Pending: 0, Closed: 0 };
     filtered.forEach(a => { statusCounts[a.status || 'Active'] = (statusCounts[a.status || 'Active'] || 0) + 1; });
 
-    document.getElementById('totalAssets').textContent = assets.length.toLocaleString(LOCALE);
+    const assetTypeCount = Array.isArray(ASSETS_DATA) ? ASSETS_DATA.length : 0;
+    document.getElementById('totalAssets').textContent = assetTypeCount.toLocaleString(LOCALE);
+    document.getElementById('totalCategories').textContent = Object.keys(CATEGORIES_DATA).length.toLocaleString(LOCALE);
+    document.getElementById('assetCount').textContent = recordedAssets.toLocaleString(LOCALE);
     const showingEl = document.getElementById('showingCount');
     const valEl = document.getElementById('withValueCount');
     const allChip = document.getElementById('scopeAllCount');
@@ -34734,12 +34783,11 @@ function updateStats() {
 
     document.getElementById('totalFMV').textContent = formatCurrency(totalFMV);
     document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
-    document.getElementById('totalCategories').textContent = Object.keys(groupBy(filtered, 'category')).length;
     document.getElementById('activeCount').textContent = statusCounts.Active || 0;
     document.getElementById('dormantCount').textContent = statusCounts.Dormant || 0;
     document.getElementById('pendingCount').textContent = statusCounts.Pending || 0;
     document.getElementById('closedCount').textContent = statusCounts.Closed || 0;
-    const dates = filtered.map(a => a.last_update).filter(Boolean).sort();
+    const dates = assets.map(a => a.last_update).filter(Boolean).sort();
     document.getElementById('lastUpdated').textContent = dates.length ? dates[dates.length - 1] : '-';
 }
 
@@ -34919,6 +34967,7 @@ function saveAsset() {
         const field = input.dataset.field;
         currentAsset[field] = input.value;
     }
+    touchAsset(currentAsset, isNew ? 'manual-add' : 'user-edit');
     if (isNew) assets.push(currentAsset);
     saveToLocalStorage();
     markDirty();
@@ -35227,6 +35276,8 @@ function wizardFinish() {
 
 function initWizard() {
     document.getElementById('addAssetBtn').addEventListener('click', openWizard);
+    const statAdd = document.getElementById('statAddAssetBtn');
+    if (statAdd) statAdd.addEventListener('click', openWizard);
     document.getElementById('wizardClose').addEventListener('click', closeWizard);
     document.getElementById('wizardNext').addEventListener('click', wizardNext);
     document.getElementById('wizardBack').addEventListener('click', wizardBack);
@@ -35315,6 +35366,7 @@ async function applyBulkEdit() {
         const asset = findAsset(id);
         if (!asset) continue;
         asset[field] = value;
+        touchAsset(asset, 'user-edit');
     }
     saveToLocalStorage();
     markDirty();
@@ -35409,6 +35461,7 @@ function inlineEditCell(td) {
         if (value !== current && field !== 'id') {
             pushUndo();
             asset[field] = value;
+            touchAsset(asset, 'user-edit');
             saveToLocalStorage();
             markDirty();
             renderTable();
@@ -35479,6 +35532,7 @@ function initKanbanDnD() {
         if (!asset || (asset.status || 'Active') === status) return;
         pushUndo();
         asset.status = status;
+        touchAsset(asset, 'user-edit');
         saveToLocalStorage();
         markDirty();
         renderCurrentLayout();

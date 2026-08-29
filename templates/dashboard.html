@@ -423,45 +423,6 @@ body {
     font-size: 16px;
 }
 
-/* ===== LAYOUT SWITCHER ===== */
-.layout-switcher {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 3px;
-    border: 1px solid var(--border);
-}
-
-.layout-btn {
-    padding: 6px 10px;
-    border: none;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--muted);
-    transition: var(--transition);
-}
-
-.layout-btn:hover {
-    color: var(--text);
-    background: rgba(255,255,255,0.5);
-}
-
-.layout-btn.active {
-    background: var(--card);
-    color: var(--accent);
-    box-shadow: var(--shadow);
-}
-
-.layout-btn svg {
-    width: 16px;
-    height: 16px;
-    display: block;
-}
-
 /* ===== TEMPLATE SWITCHER ===== */
 .template-switcher {
     position: relative;
@@ -2531,6 +2492,97 @@ html[data-edition="planning"] .tier-badge {
     .feature-menu-close { width:44px; height:44px; }
 }
 
+
+
+/* ===== SIMPLIFIED PRODUCT CHROME / LOGO MENU ===== */
+.logo-menu-toggle {
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    box-shadow: none;
+}
+.logo-menu-toggle:hover,
+.logo-menu-toggle:focus-visible {
+    background: var(--accent-hover);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.header-last-updated {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding-left: 2px;
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+}
+.header-last-updated strong { color: var(--text-secondary); font-weight: 650; }
+.feature-menu { left: 24px; right: auto; }
+.menu-layout-grid { grid-template-columns: 1fr 1fr; }
+.menu-layout-item svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.menu-layout-item span { min-width: 0; }
+.primary-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.stat-card-assets .stat-content { display: flex; flex-direction: column; align-items: flex-start; }
+.stat-add-btn {
+    margin-top: 9px;
+    padding: 5px 9px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+    border-radius: var(--radius-sm);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.stat-add-btn:hover { background: var(--accent); color: white; }
+.filter-search { position: relative; flex: 1 1 250px; min-width: 210px; }
+.filter-search input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+}
+.filter-search::before {
+    content: "🔍";
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: .6;
+    font-size: 12px;
+    pointer-events: none;
+}
+.filter-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+.filter-result-count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.filter-result-count strong { color: var(--text-secondary); }
+.filter-status-toggles { margin-left: auto; justify-content: flex-end; flex-wrap: wrap; }
+.status-count { min-width: 1.25em; text-align: center; font-variant-numeric: tabular-nums; opacity: .72; }
+
+@media (max-width: 1180px) {
+    .primary-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+    .primary-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filter-search { flex-basis: 100%; min-width: 100%; }
+    .filter-status-toggles { width: 100%; margin-left: 0; justify-content: flex-end; }
+    .feature-menu { left: 8px; right: 8px; width: auto; }
+}
+@media (max-width: 680px) {
+    .tier-header .header-right { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tier-header .header-right .btn { width: 100%; min-height: 44px; justify-content: center; }
+    .header-last-updated { grid-column: 1 / -1; justify-self: end; }
+    .filter-status-toggles .status-toggle-btn { min-height: 40px; }
+}
+@media (max-width: 460px) {
+    .primary-stats { grid-template-columns: 1fr; }
+    .filter-status-toggles { display: grid; grid-template-columns: 1fr 1fr; }
+    .filter-status-toggles .status-toggle-btn { justify-content: flex-start; }
+}
+
 </style>
 </head>
 <body>
@@ -2539,82 +2591,81 @@ html[data-edition="planning"] .tier-badge {
 <header class="header tier-header">
     <div class="header-left">
         <div class="logo">
-            <div class="logo-icon">📊</div>
+            <button class="logo-icon logo-menu-toggle" id="featureMenuToggle" type="button"
+                    aria-expanded="false" aria-controls="featureMenu" aria-label="{{TR_menu}}" title="{{TR_menu}}">📊</button>
             <div class="logo-text">
                 <span><span class="logo-brand">{{TR_brand}}</span><span class="tier-badge" id="editionBadge"></span></span>
                 <span class="logo-sub">{{TR_subtitle}}</span>
             </div>
         </div>
     </div>
-    <div class="header-search">
-        <input type="text" id="searchInput" placeholder="{{TR_search_placeholder}}">
-    </div>
     <div class="header-right">
-        <button class="btn btn-primary header-primary-action" id="addAssetBtn">＋ <span class="btn-label-optional">{{TR_add_asset}}</span></button>
-        <!--__TIER_GE:family-->
-        <button class="btn header-primary-action" id="printBtn">🖨 <span>{{TR_print}}</span></button>
-        <!--__/TIER_GE:family-->
+        <button class="btn header-primary-action" id="addAssetBtn">＋ <span>{{TR_add_asset}}</span></button>
         <span class="save-state-wrap"><span class="unsaved-dot" id="unsavedIndicator" title="{{TR_unsaved_changes}}">●</span></span>
         <button class="btn btn-primary header-primary-action" id="saveHTML">💾 <span>{{TR_save}}</span></button>
-        <button class="btn menu-toggle" id="featureMenuToggle" aria-expanded="false" aria-controls="featureMenu">☰ {{TR_menu}}</button>
+        <span class="header-last-updated"><span>{{TR_last_updated}}</span><strong id="lastUpdated">-</strong></span>
     </div>
 </header>
-
-<div class="workspace-bar" id="workspaceBar">
-    <div class="workspace-set" data-workspace-tier="free">
-        <button class="layout-btn workspace-btn active" data-layout="dashboard">{{TR_layout_dashboard}}</button>
-        <button class="layout-btn workspace-btn" data-layout="compact">{{TR_layout_compact}}</button>
-        <button class="layout-btn workspace-btn" data-layout="kanban">{{TR_layout_kanban}}</button>
-        <button class="layout-btn workspace-btn" data-layout="detail">{{TR_layout_detail}}</button>
-    </div>
-    <!--__TIER_GE:family-->
-    <div class="workspace-set" data-workspace-tier="family">
-        <button class="layout-btn workspace-btn active" data-layout="dashboard">{{TR_layout_dashboard}}</button>
-        <button class="layout-btn workspace-btn" data-layout="table">{{TR_layout_table}}</button>
-        <button class="layout-btn workspace-btn" data-layout="timeline">{{TR_layout_timeline}}</button>
-        <button class="layout-btn workspace-btn" data-layout="charts">{{TR_layout_charts}}</button>
-    </div>
-    <!--__/TIER_GE:family-->
-    <!--__TIER_GE:planning-->
-    <div class="workspace-set" data-workspace-tier="planning">
-        <button class="layout-btn workspace-btn active" data-layout="dashboard">{{TR_professional_dashboard}}</button>
-        <button class="layout-btn workspace-btn" data-layout="table">{{TR_professional_table}}</button>
-        <button class="layout-btn workspace-btn" data-layout="charts">{{TR_professional_charts}}</button>
-        <button class="layout-btn workspace-btn" data-layout="audit">{{TR_professional_audit}}</button>
-        <button class="layout-btn workspace-btn" data-layout="review">{{TR_professional_review}}</button>
-    </div>
-    <!--__/TIER_GE:planning-->
-    <button class="workspace-upgrade" data-upgrade-trigger="free">🔒 <span class="upgrade-long">{{TR_family_teaser}}</span><span class="upgrade-short">{{TR_edition_family}}</span></button>
-    <button class="workspace-upgrade" data-upgrade-trigger="family">🔒 <span class="upgrade-long">{{TR_professional_teaser}}</span><span class="upgrade-short">{{TR_edition_professional}}</span></button>
-</div>
 
 <div class="feature-menu" id="featureMenu" aria-hidden="true" tabindex="-1">
     <div class="feature-menu-header">
         <strong>{{TR_menu}}</strong>
         <button class="feature-menu-close" id="featureMenuClose" aria-label="{{TR_close}}">×</button>
     </div>
-    <div class="menu-section">
+    <div class="menu-section menu-views-section">
         <div class="menu-section-title">{{TR_menu_views}}</div>
-        <div class="menu-grid">
-            <button class="menu-layout-item" data-layout="dashboard">{{TR_layout_dashboard}}</button>
-            <button class="menu-layout-item" data-layout="compact">{{TR_layout_compact}}</button>
-            <button class="menu-layout-item" data-layout="kanban">{{TR_layout_kanban}}</button>
-            <button class="menu-layout-item" data-layout="detail">{{TR_layout_detail}}</button>
+        <div class="menu-grid menu-layout-grid">
+            <button class="menu-layout-item" data-layout="dashboard" title="{{TR_layout_dashboard}}" aria-label="{{TR_layout_dashboard}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                <span>{{TR_layout_dashboard}}</span>
+            </button>
             <!--__TIER_GE:family-->
-            <button class="menu-layout-item" data-layout="table">{{TR_layout_table}}</button>
-            <button class="menu-layout-item" data-layout="timeline">{{TR_layout_timeline}}</button>
-            <button class="menu-layout-item" data-layout="charts">{{TR_layout_charts}}</button>
+            <button class="menu-layout-item" data-layout="table" title="{{TR_layout_table}}" aria-label="{{TR_layout_table}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="14" height="14" rx="1"/><path d="M1 5h14M1 9h14M5 1v14M9 1v14"/></svg>
+                <span>{{TR_layout_table}}</span>
+            </button>
             <!--__/TIER_GE:family-->
+            <button class="menu-layout-item" data-layout="kanban" title="{{TR_layout_kanban}}" aria-label="{{TR_layout_kanban}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="4" height="14" rx="1"/><rect x="6" y="1" width="4" height="14" rx="1"/><rect x="11" y="1" width="4" height="10" rx="1"/></svg>
+                <span>{{TR_layout_kanban}}</span>
+            </button>
+            <!--__TIER_GE:family-->
+            <button class="menu-layout-item" data-layout="timeline" title="{{TR_layout_timeline}}" aria-label="{{TR_layout_timeline}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2" fill="currentColor" stroke="none"/><path d="M2 8h4M10 8h4"/><circle cx="4" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>
+                <span>{{TR_layout_timeline}}</span>
+            </button>
+            <!--__/TIER_GE:family-->
+            <button class="menu-layout-item" data-layout="detail" title="{{TR_layout_detail}}" aria-label="{{TR_layout_detail}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="1" width="5" height="14" rx="1"/><rect x="7" y="1" width="8" height="8" rx="1"/><rect x="7" y="11" width="8" height="4" rx="1"/></svg>
+                <span>{{TR_layout_detail}}</span>
+            </button>
+            <button class="menu-layout-item" data-layout="compact" title="{{TR_layout_compact}}" aria-label="{{TR_layout_compact}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>
+                <span>{{TR_layout_compact}}</span>
+            </button>
             <!--__TIER_GE:planning-->
-            <button class="menu-layout-item" data-layout="audit">{{TR_professional_audit}}</button>
-            <button class="menu-layout-item" data-layout="review">{{TR_professional_review}}</button>
+            <button class="menu-layout-item" data-layout="audit" title="{{TR_professional_audit}}" aria-label="{{TR_professional_audit}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h7v12H3V4z"/><path d="M5.5 8l2 2 3.5-4"/></svg>
+                <span>{{TR_professional_audit}}</span>
+            </button>
+            <button class="menu-layout-item" data-layout="review" title="{{TR_professional_review}}" aria-label="{{TR_professional_review}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 3h10v10H3z"/><path d="M5 6h6M5 9h4"/></svg>
+                <span>{{TR_professional_review}}</span>
+            </button>
             <!--__/TIER_GE:planning-->
+            <!--__TIER_GE:family-->
+            <button class="menu-layout-item" data-layout="charts" title="{{TR_layout_charts}}" aria-label="{{TR_layout_charts}}">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14h12"/><path d="M4 14V9M8 14V5M12 14V8"/></svg>
+                <span>{{TR_layout_charts}}</span>
+            </button>
+            <!--__/TIER_GE:family-->
         </div>
     </div>
 
     <!--__TIER_GE:family-->
     <div class="menu-section" data-min-tier="family">
         <div class="menu-section-title">{{TR_menu_family_tools}}</div>
+        <button class="menu-action" id="printBtn">🖨 {{TR_print}}</button>
         <div class="menu-note">✓ {{TR_print_emergency_guide}} · {{TR_print_master_index}} · {{TR_print_cover_title}}</div>
     </div>
     <!--__/TIER_GE:family-->
@@ -2687,11 +2738,23 @@ html[data-edition="planning"] .tier-badge {
                 <div class="stat-icon">📋</div>
                 <div class="stat-content">
                     <div class="stat-value" id="totalAssets">0</div>
-                    <div class="stat-label">{{TR_asset_catalog}}</div>
-                    <div class="stat-subline">
-                        <span><strong id="showingCount">0</strong> {{TR_showing}}</span>
-                        <button class="stat-link" data-stat-scope="value"><strong id="withValueCount">0</strong> {{TR_with_value}}</button>
-                    </div>
+                    <div class="stat-label">{{TR_asset_types}}</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalCategories">0</div>
+                    <div class="stat-label">{{TR_categories}}</div>
+                </div>
+            </div>
+            <div class="stat-card stat-card-assets">
+                <div class="stat-icon">🗂️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="assetCount">0</div>
+                    <div class="stat-label">{{TR_assets}}</div>
+                    <div class="stat-subline"><span><strong id="withValueCount">0</strong> {{TR_with_value}}</span></div>
+                    <button class="stat-add-btn" id="statAddAssetBtn" type="button">＋ {{TR_add_asset}}</button>
                 </div>
             </div>
             <div class="stat-card">
@@ -2708,48 +2771,18 @@ html[data-edition="planning"] .tier-badge {
                     <div class="stat-label">{{TR_annual_income}}</div>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">🏷️</div>
-                <div class="stat-content">
-                    <div class="stat-value" id="totalCategories">0</div>
-                    <div class="stat-label">{{TR_categories}}</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="quick-info-bar">
-            <div class="quick-info-left">
-                <div class="info-item">
-                    <span class="info-label">{{TR_active}}:</span>
-                    <span class="info-value accent" id="activeCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">{{TR_dormant}}:</span>
-                    <span class="info-value" id="dormantCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">{{TR_pending}}:</span>
-                    <span class="info-value" id="pendingCount">0</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">{{TR_closed}}:</span>
-                    <span class="info-value" id="closedCount">0</span>
-                </div>
-            </div>
-            <div class="info-item">
-                <span class="info-label">{{TR_last_updated}}:</span>
-                <span class="info-value" id="lastUpdated">-</span>
-            </div>
         </div>
     </section>
-    
-    <!-- FILTER BAR -->
+
+    <!-- FILTER BAR: all search/filter controls live here -->
     <div class="filter-bar">
+        <div class="filter-search">
+            <input type="text" id="searchInput" placeholder="{{TR_search_placeholder}}" aria-label="{{TR_search_placeholder}}">
+        </div>
         <div class="quick-scope-filters" aria-label="{{TR_quick_filters}}">
             <button class="scope-filter-btn active" data-asset-scope="all" aria-pressed="true">{{TR_filter_all}} <span class="scope-filter-count" id="scopeAllCount">0</span></button>
             <button class="scope-filter-btn" data-asset-scope="value" aria-pressed="false">{{TR_filter_with_value}} <span class="scope-filter-count" id="scopeValueCount">0</span></button>
         </div>
-        <div class="filter-divider"></div>
         <div class="filter-group">
             <span class="filter-label">{{TR_category}}</span>
             <select class="filter-select" id="categoryFilter">
@@ -2762,17 +2795,15 @@ html[data-edition="planning"] .tier-badge {
                 <option value="">{{TR_all_owners}}</option>
             </select>
         </div>
-        <details class="status-filter-details">
-            <summary>{{TR_status}} ▾</summary>
-            <div class="status-toggles status-filter-popover">
-                <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> {{TR_active}}</button>
-                <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> {{TR_dormant}}</button>
-                <button class="status-toggle-btn active" data-status="Pending" aria-pressed="true"><span class="status-dot pending"></span> {{TR_pending}}</button>
-                <button class="status-toggle-btn active" data-status="Closed" aria-pressed="true"><span class="status-dot closed"></span> {{TR_closed}}</button>
-            </div>
-        </details>
+        <span class="filter-result-count"><strong id="showingCount">0</strong> {{TR_showing}}</span>
+        <div class="status-toggles filter-status-toggles" aria-label="{{TR_status}}">
+            <button class="status-toggle-btn active" data-status="Active" aria-pressed="true"><span class="status-dot active"></span> {{TR_active}} <span class="status-count" id="activeCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Dormant" aria-pressed="true"><span class="status-dot dormant"></span> {{TR_dormant}} <span class="status-count" id="dormantCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Pending" aria-pressed="true"><span class="status-dot pending"></span> {{TR_pending}} <span class="status-count" id="pendingCount">0</span></button>
+            <button class="status-toggle-btn active" data-status="Closed" aria-pressed="true"><span class="status-dot closed"></span> {{TR_closed}} <span class="status-count" id="closedCount">0</span></button>
+        </div>
     </div>
-    
+
     <!-- MAIN CONTENT -->
     <div class="main-content">
         
@@ -3263,9 +3294,24 @@ function statusDotClass(status) {
 // ===== TIER-AWARE UI / ASSET SCOPE =====
 let assetScopeFilter = 'all';
 const VALUE_FIELDS = ['fmv','fmv_usd','market_value','current_balance','equity'];
+const RECORDED_SOURCES = new Set(['quick-add', 'demo', 'import']);
+const RECORD_SIGNAL_FIELDS = ['account_number','owner','joint_owner','primary_beneficiary','insurance_policy','document_reference','access_location','access_recovery_contact'];
 
 function hasFinancialValue(asset) {
     return VALUE_FIELDS.some(k => Number(asset && asset[k]) > 0);
+}
+
+function isRecordedAsset(asset) {
+    if (!asset) return false;
+    if (asset.last_modified_by === 'user' || RECORDED_SOURCES.has(asset.source || '')) return true;
+    if (hasFinancialValue(asset)) return true;
+    return RECORD_SIGNAL_FIELDS.some(k => String(asset[k] || '').trim() !== '');
+}
+
+function touchAsset(asset) {
+    if (!asset) return;
+    asset.last_modified_by = 'user';
+    asset.last_update = new Date().toISOString().slice(0, 10);
 }
 
 function setAssetScope(scope) {
@@ -3345,7 +3391,7 @@ function initFeatureMenu() {
         });
     });
     menu.addEventListener('click', e => {
-        if (e.target.closest('.menu-layout-item')) setFeatureMenuOpen(false);
+        if (e.target.closest('.menu-layout-item, .menu-action, #themeToggle')) setFeatureMenuOpen(false);
     });
     document.addEventListener('click', e => {
         if (menu.classList.contains('open') && !menu.contains(e.target) && !toggle.contains(e.target)) setFeatureMenuOpen(false);
@@ -3849,12 +3895,16 @@ function renderCompact() {
 function updateStats() {
     const filtered = getFilteredAssets();
     const withValue = assets.filter(hasFinancialValue).length;
+    const recordedAssets = assets.filter(isRecordedAsset).length;
     const totalFMV = filtered.reduce((sum, a) => sum + (parseFloat(a.fmv) || 0), 0);
     const totalIncome = filtered.reduce((sum, a) => sum + (parseFloat(a.annual_income) || 0), 0);
     const statusCounts = { Active: 0, Dormant: 0, Pending: 0, Closed: 0 };
     filtered.forEach(a => { statusCounts[a.status || 'Active'] = (statusCounts[a.status || 'Active'] || 0) + 1; });
 
-    document.getElementById('totalAssets').textContent = assets.length.toLocaleString(LOCALE);
+    const assetTypeCount = Array.isArray(ASSETS_DATA) ? ASSETS_DATA.length : 0;
+    document.getElementById('totalAssets').textContent = assetTypeCount.toLocaleString(LOCALE);
+    document.getElementById('totalCategories').textContent = Object.keys(CATEGORIES_DATA).length.toLocaleString(LOCALE);
+    document.getElementById('assetCount').textContent = recordedAssets.toLocaleString(LOCALE);
     const showingEl = document.getElementById('showingCount');
     const valEl = document.getElementById('withValueCount');
     const allChip = document.getElementById('scopeAllCount');
@@ -3866,12 +3916,11 @@ function updateStats() {
 
     document.getElementById('totalFMV').textContent = formatCurrency(totalFMV);
     document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
-    document.getElementById('totalCategories').textContent = Object.keys(groupBy(filtered, 'category')).length;
     document.getElementById('activeCount').textContent = statusCounts.Active || 0;
     document.getElementById('dormantCount').textContent = statusCounts.Dormant || 0;
     document.getElementById('pendingCount').textContent = statusCounts.Pending || 0;
     document.getElementById('closedCount').textContent = statusCounts.Closed || 0;
-    const dates = filtered.map(a => a.last_update).filter(Boolean).sort();
+    const dates = assets.map(a => a.last_update).filter(Boolean).sort();
     document.getElementById('lastUpdated').textContent = dates.length ? dates[dates.length - 1] : '-';
 }
 
@@ -4051,6 +4100,7 @@ function saveAsset() {
         const field = input.dataset.field;
         currentAsset[field] = input.value;
     }
+    touchAsset(currentAsset, isNew ? 'manual-add' : 'user-edit');
     if (isNew) assets.push(currentAsset);
     saveToLocalStorage();
     markDirty();
@@ -4359,6 +4409,8 @@ function wizardFinish() {
 
 function initWizard() {
     document.getElementById('addAssetBtn').addEventListener('click', openWizard);
+    const statAdd = document.getElementById('statAddAssetBtn');
+    if (statAdd) statAdd.addEventListener('click', openWizard);
     document.getElementById('wizardClose').addEventListener('click', closeWizard);
     document.getElementById('wizardNext').addEventListener('click', wizardNext);
     document.getElementById('wizardBack').addEventListener('click', wizardBack);
@@ -4447,6 +4499,7 @@ async function applyBulkEdit() {
         const asset = findAsset(id);
         if (!asset) continue;
         asset[field] = value;
+        touchAsset(asset, 'user-edit');
     }
     saveToLocalStorage();
     markDirty();
@@ -4541,6 +4594,7 @@ function inlineEditCell(td) {
         if (value !== current && field !== 'id') {
             pushUndo();
             asset[field] = value;
+            touchAsset(asset, 'user-edit');
             saveToLocalStorage();
             markDirty();
             renderTable();
@@ -4611,6 +4665,7 @@ function initKanbanDnD() {
         if (!asset || (asset.status || 'Active') === status) return;
         pushUndo();
         asset.status = status;
+        touchAsset(asset, 'user-edit');
         saveToLocalStorage();
         markDirty();
         renderCurrentLayout();
