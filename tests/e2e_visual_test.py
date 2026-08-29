@@ -352,9 +352,16 @@ def responsive_ui_check():
                   and page.locator(".filter-bar .status-toggle-btn").count() == 4)
             page.click("#featureMenuToggle")
             check(f"responsive {width}: logo menu opens", page.locator("#featureMenu.open").count() == 1)
-            check(f"responsive {width}: Views removed from menu",
-                  page.locator("#featureMenu .menu-layout-item").count() == 0)
-            page.click("#featureMenuClose")
+            check(f"responsive {width}: Views also present in menu",
+                  page.locator("#featureMenu .menu-layout-item").count() == 9
+                  and page.locator("#featureMenu .menu-layout-item svg").count() == 9)
+            page.locator('#featureMenu .menu-layout-item[data-layout="kanban"]').click()
+            page.wait_for_timeout(120)
+            check(f"responsive {width}: menu View syncs header active state",
+                  page.locator('#headerViewSwitcher .header-layout-btn[data-layout="kanban"].active').count() == 1)
+            page.click("#featureMenuToggle")
+            page.locator('#featureMenu .menu-layout-item[data-layout="dashboard"]').click()
+            page.wait_for_timeout(120)
             check(f"responsive {width}: no JS errors", not errors, str(errors[:3]))
             ctx.close()
         browser.close()
