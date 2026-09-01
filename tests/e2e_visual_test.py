@@ -81,11 +81,11 @@ def run_generation():
 def tier_gating_check():
     print("\n== Step 1b: tier gating ==")
     cases = {
-        "free":    {"assets": 256, "tpl": 1, "table": False, "timeline": False,
+        "free":    {"assets": 256, "tpl": 1, "edition_accent": "#2563EB", "table": False, "timeline": False,
                     "charts": False, "audit": False, "review": False, "print": False, "export": False},
-        "family":  {"assets": 324, "tpl": 5, "table": True, "timeline": True,
+        "family":  {"assets": 324, "tpl": 5, "edition_accent": "#A66E14", "table": True, "timeline": True,
                     "charts": True, "audit": False, "review": False, "print": True, "export": False},
-        "planning": {"assets": 517, "tpl": 5, "table": True, "timeline": True,
+        "planning": {"assets": 517, "tpl": 5, "edition_accent": "#087E79", "table": True, "timeline": True,
                      "charts": True, "audit": True, "review": True, "print": True, "export": True},
     }
     for tier, cfg in cases.items():
@@ -127,8 +127,13 @@ def tier_gating_check():
                   page.text_content("#totalAssets"))
             check(f"tier {tier}: template count={cfg['tpl']}",
                   page.locator("#templateSelect option").count() == cfg["tpl"])
+            check(f"tier {tier}: edition visual identity",
+                  page.get_attribute("html", "data-edition") == tier
+                  and page.evaluate("getComputedStyle(document.documentElement).getPropertyValue('--edition-accent').trim()") == cfg["edition_accent"],
+                  page.evaluate("JSON.stringify({edition: document.documentElement.dataset.edition, accent: getComputedStyle(document.documentElement).getPropertyValue('--edition-accent').trim()})"))
+            page.screenshot(path=str(SHOTS / f"tier-{tier}-dashboard.png"))
             for feat, on in cfg.items():
-                if feat in ("assets", "tpl"):
+                if feat in ("assets", "tpl", "edition_accent"):
                     continue
                 selector = {"print": "#printBtn", "export": "#exportMD"}.get(feat)
                 if selector:
@@ -221,6 +226,7 @@ def static_checks():
     check("tier-aware feature menu compiled", all(t in en_html for t in ["featureMenuToggle", "featureMenuClose", "editionBadge", "upgrade-preview", "scope-filter-btn"]))
     check("effective-tier normalization compiled", all(t in en_html for t in ["effectiveTier", "normalizeLayoutForTier", "cloneTierConfig", "downgradeToFree"]))
     check("simplified chrome compiled", all(t in en_html for t in ["logo-menu-toggle", "statAddAssetBtn", "filter-status-toggles", "header-view-switcher"]))
+    check("compound filter controls compiled", all(t in en_html for t in ["role=\"group\"", "quick-scope-filters", "filter-status-toggles", "header-primary-action"]))
     check("standalone workspace/layout switcher removed", '<div class="workspace-bar"' not in en_html and '<div class="layout-switcher"' not in en_html)
     check("professional terminology retained", all(t in en_html for t in ['aria-label="Audit"', 'aria-label="Annual Review"', "Export MD", "Export JSON"]))
     check("handoff schema fields compiled", all(k in en_html for k in ["emergency_priority", "incapacity_access", "death_access", "last_access_test"]))

@@ -1,6 +1,6 @@
 # Asset Inventory Generator — Administrator Guide
 
-> **Last updated:** 2026-08-10 01:10:36
+> **Last updated:** 2026-08-29 12:00:00
 > **Audience:** Administrators / maintainers who install, generate, customize, or
 > troubleshoot the tool. End users should read the in-dashboard help (the **?** button)
 > instead — it covers everyday usage in English and Chinese.
@@ -16,9 +16,18 @@ dashboard, and no data leaves the user's device.
 
 > **Distribution model:** the generator is **closed-source** — it is an internal build tool.
 > End users receive generated artifacts: a free HTML download (Free tier, 15 categories /
-> 256 assets) or email-delivered paid files (Plus/Pro) that embed a signed license + family
-> binding + watermark. Feature→tier mapping is in `docs/dev/versioning_plan.md`; this guide
-> documents the internal build/test pipeline only.
+> 256 assets) or email-delivered paid files (Family / Professional) that embed a signed license
+> + family binding + watermark. Feature→tier mapping is in `docs/dev/versioning_plan.md`; this
+> guide documents the internal build/test pipeline only.
+>
+> **In-dashboard upgrade marketing.** The Free and Family HTML dashboards include built-in
+> conversion elements (tier-aware, hidden on Professional): a header **Upgrade** button, a
+> dismissible top **promo banner**, a clickable upgrade preview inside the Features menu, and a
+> full **upgrade modal** (`#upgradeModal`) with the product positioning, a Family $29 /
+> Professional $99 pricing card pair (Professional highlighted "most popular"), and a
+> Free / Family / Professional comparison matrix. All upgrade CTAs open `{{UPGRADE_URL}}`,
+> configurable at build time via `--upgrade-url` (default `https://estateon.ca/upgrade`). The
+> modal is presentation-only — no paid capability ships in the Free file.
 
 ### Components
 
@@ -78,6 +87,8 @@ This regenerates all six artifacts in `output/` (en + zh: Markdown, Excel, HTML 
 | `--status {active,dormant,all}` | Filter by status (default `all`) |
 | `--lang, -l {en,zh}` | Output language (default `en`; zh adds a `-zh` filename suffix) |
 | `--demo` | Overlay a realistic Ontario family fixture (James & Mei Chen, 27 populated assets) |
+| `--tier {free,family,planning,advisor}` | Edition tier (default `free`). Controls catalog size, layout/template/export gating, and which paid capability ships. `planning` also emits Markdown + Excel (export tier) |
+| `--upgrade-url URL` | Destination URL for in-dashboard upgrade CTAs (default `https://estateon.ca/upgrade`) |
 
 ### Examples
 
@@ -90,6 +101,14 @@ python3 src/generate_asset_inventory.py --demo -o html
 
 # Filtered output
 python3 src/generate_asset_inventory.py --owner "Chen" --category "Real Estate"
+
+# All three editions (Free / Family / Professional) in English + Chinese
+python3 src/generate_asset_inventory.py --tier free     -o html
+python3 src/generate_asset_inventory.py --tier family   -o html
+python3 src/generate_asset_inventory.py --tier planning -o all
+python3 src/generate_asset_inventory.py --tier free     --lang zh -o html
+python3 src/generate_asset_inventory.py --tier family   --lang zh -o html
+python3 src/generate_asset_inventory.py --tier planning --lang zh -o all
 ```
 
 ### Output naming

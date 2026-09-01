@@ -1569,7 +1569,8 @@ def generate_excel(assets: list[dict], output_path: str, lang: str = "en"):
 
 def generate_html(assets: list[dict], output_path: str, lang: str = "en",
                   tier: str = "free", license_token: str = "", buyer: str = "",
-                  key_version: int = 1, license_secret: str = ""):
+                  key_version: int = 1, license_secret: str = "",
+                  upgrade_url: str = "https://estateon.ca/upgrade"):
     """Generate self-contained HTML dashboard with Modern Financial Institution design."""
 
     # Translate field definitions (labels and group names) for the modal/detail view
@@ -1674,7 +1675,8 @@ def generate_html(assets: list[dict], output_path: str, lang: str = "en",
         .replace("{{BUYER}}", buyer)
         .replace("{{KEY_VERSION}}", str(key_version))
         .replace("{{CATEGORIES_JSON}}", categories_json)
-        .replace("{{FIELDS_JSON}}", fields_json))
+        .replace("{{FIELDS_JSON}}", fields_json)
+        .replace("{{UPGRADE_URL}}", upgrade_url))
 
     # Normalize generated whitespace so tier-marker stripping never leaves
     # indentation-only lines that produce noisy diffs on regeneration.
@@ -1766,6 +1768,11 @@ def main():
         default="",
         help="Optional license expiry (ISO date) for update packs; empty = perpetual"
     )
+    parser.add_argument(
+        "--upgrade-url",
+        default="https://estateon.ca/upgrade",
+        help="Destination URL for in-dashboard upgrade CTAs (default: https://estateon.ca/upgrade)"
+    )
     
     args = parser.parse_args()
     
@@ -1844,7 +1851,8 @@ def main():
             print(f"[LICENSE] Signed {args.tier} license embedded")
         generate_html(translated_assets, str(html_path), lang=lang, tier=args.tier,
                       license_token=license_token, buyer=args.buyer,
-                      key_version=args.key_version, license_secret=license_secret)
+                      key_version=args.key_version, license_secret=license_secret,
+                      upgrade_url=args.upgrade_url)
     
     print("\n" + "="*60)
     print("GENERATION COMPLETE")
